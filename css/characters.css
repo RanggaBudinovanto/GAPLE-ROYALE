@@ -1,0 +1,193 @@
+/* ===== CHARACTER CONTAINERS ===== */
+.character-container {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.character-idle {
+  animation: characterBreathe 3s ease-in-out infinite;
+}
+.character-win {
+  animation: characterCelebrate 0.5s var(--ease-spring) 3;
+}
+.character-lose {
+  animation: characterSad 0.8s ease-in-out;
+}
+
+/* ===== CHARACTER CARD (Shop/Inventory) ===== */
+.character-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-4);
+  transition: all var(--dur-normal) ease;
+  position: relative;
+}
+.character-card:hover {
+  border-color: var(--border-gold);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+}
+.character-card--owned {
+  border-color: var(--border-gold);
+}
+.character-card--active {
+  border-color: var(--status-win);
+  box-shadow: 0 0 20px rgba(46,204,113,0.15);
+}
+.character-card-preview {
+  width: 160px;
+  height: 240px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.character-card-name {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-align: center;
+}
+.character-card-skill {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  text-align: center;
+  padding: var(--sp-2) var(--sp-3);
+  background: rgba(212,160,23,0.08);
+  border: 1px solid var(--border-gold);
+  border-radius: var(--radius-md);
+  width: 100%;
+}
+.character-card-price {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--text-gold);
+  font-size: 18px;
+}
+.character-card-badge {
+  position: absolute;
+  top: var(--sp-3);
+  right: var(--sp-3);
+}
+
+/* ===== SKIN CARD ===== */
+.skin-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-4);
+  transition: all var(--dur-normal) ease;
+  position: relative;
+}
+.skin-card:hover {
+  border-color: var(--border-gold);
+  transform: translateY(-4px);
+}
+.skin-card--active {
+  border-color: var(--status-win);
+}
+.skin-preview {
+  display: flex;
+  gap: var(--sp-3);
+  justify-content: center;
+  padding: var(--sp-4);
+  background: var(--bg-elevated);
+  border-radius: var(--radius-md);
+  width: 100%;
+}
+.skin-card-name {
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* ===== POWERUP CARD (Shop) ===== */
+.powerup-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-5);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  transition: all var(--dur-normal) ease;
+}
+.powerup-card:hover {
+  border-color: var(--border-gold);
+}
+.powerup-card-icon {
+  font-size: 36px;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+}
+.powerup-card-info {
+  flex: 1;
+}
+.powerup-card-name {
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+.powerup-card-desc {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--sp-2);
+}
+.powerup-card-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  flex-shrink: 0;
+}
+.powerup-qty-control {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+.powerup-qty-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  color: var(--text-primary);
+  font-size: 16px;
+  cursor: pointer;
+  transition: all var(--dur-fast) ease;
+}
+.powerup-qty-btn:hover { border-color: var(--border-gold); }
+.powerup-qty-value {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 600;
+  min-width: 24px;
+  text-align: center;
+}

@@ -1,0 +1,164 @@
+/* ===== KEYFRAMES ===== */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; }
+  50%      { opacity: 1; }
+}
+
+/* Toast */
+@keyframes toastIn {
+  from { transform: translateX(120%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+@keyframes toastOut {
+  from { transform: translateX(0);    opacity: 1; }
+  to   { transform: translateX(120%); opacity: 0; }
+}
+@keyframes toastProgress {
+  from { width: 100%; }
+  to   { width: 0; }
+}
+
+/* Gold Shimmer */
+@keyframes goldShimmer {
+  0%, 100% { background-position: -200% center; }
+  50%      { background-position: 200% center; }
+}
+
+/* Skeleton Loader */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Coin Effects */
+@keyframes coinFall {
+  0%   { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+@keyframes coinCountUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Character Animations */
+@keyframes characterBreathe {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-4px); }
+}
+@keyframes characterCelebrate {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(-12px) rotate(-5deg); }
+}
+@keyframes characterSad {
+  0%   { transform: translateY(0); }
+  30%  { transform: translateY(4px) rotate(3deg); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
+
+/* Matchmaking Radar */
+@keyframes radarPulse {
+  0%   { transform: scale(0.8); opacity: 1; }
+  100% { transform: scale(2);   opacity: 0; }
+}
+@keyframes radarSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* Dots Animation */
+@keyframes thinkingDot {
+  0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
+  40%           { opacity: 1;   transform: scale(1.2); }
+}
+@keyframes dotsLoading {
+  0%   { content: ''; }
+  33%  { content: '.'; }
+  66%  { content: '..'; }
+  100% { content: '...'; }
+}
+
+/* Splash */
+@keyframes splashLogoIn {
+  from { opacity: 0; transform: scale(0.8); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes splashTaglineIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Gold particles (splash) */
+@keyframes floatParticle {
+  0%   { transform: translateY(0) translateX(0); opacity: 0.6; }
+  50%  { transform: translateY(-30px) translateX(15px); opacity: 0.3; }
+  100% { transform: translateY(-60px) translateX(-10px); opacity: 0; }
+}
+
+/* Leaderboard Podium */
+@keyframes podiumRise {
+  from { transform: translateY(40px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+/* Card deal */
+@keyframes dealCard {
+  from { opacity: 0; transform: translateY(-40px) rotate(10deg) scale(0.7); }
+  to   { opacity: 1; transform: translateY(0)     rotate(0deg) scale(1); }
+}
+
+/* Double coin shimmer on header */
+@keyframes doubleGlow {
+  0%, 100% { filter: brightness(1); }
+  50%      { filter: brightness(1.5) drop-shadow(0 0 6px rgba(245,200,66,0.6)); }
+}
+
+/* ===== UTILITY CLASSES ===== */
+.anim-fade-in     { animation: fadeIn var(--dur-normal) var(--ease-out) forwards; }
+.anim-fade-in-up  { animation: fadeInUp var(--dur-normal) var(--ease-out) forwards; }
+.anim-fade-in-down { animation: fadeInDown var(--dur-normal) var(--ease-out) forwards; }
+.anim-scale-in    { animation: scaleIn var(--dur-normal) var(--ease-spring) forwards; }
+.anim-spin        { animation: spin 1s linear infinite; }
+
+/* Music Player Pulsing Gold Glow */
+@keyframes musicPulse {
+  0%, 100% {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.5), 0 0 0 0px rgba(245, 200, 66, 0.4);
+  }
+  50% {
+    box-shadow: 0 4px 20px rgba(0,0,0,0.6), 0 0 0 10px rgba(245, 200, 66, 0);
+  }
+}
+
+/* ===== REDUCED MOTION ===== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

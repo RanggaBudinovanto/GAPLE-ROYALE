@@ -1,0 +1,63 @@
+version: '3.8'
+services:
+  nginx:
+    image: nginx:alpine
+    ports: ["80:80"]
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ../:/usr/share/nginx/html
+    depends_on: [backend1, backend2]
+    restart: unless-stopped
+
+  backend1:
+    build: { context: .., dockerfile: docker/Dockerfile.backend }
+    environment:
+      PORT: 3000
+      DB_HOST: mysql-primary
+      DB_REPLICA_HOST: mysql-replica
+      REDIS_HOST: redis
+      JWT_SECRET: gaple_royale_secret_2024
+      NODE_ENV: production
+    depends_on: [mysql-primary, redis]
+    restart: unless-stopped
+
+  backend2:
+    build: { context: .., dockerfile: docker/Dockerfile.backend }
+    environment:
+      PORT: 3001
+      DB_HOST: mysql-primary
+      DB_REPLICA_HOST: mysql-replica
+      REDIS_HOST: redis
+      JWT_SECRET: gaple_royale_secret_2024
+      NODE_ENV: production
+    depends_on: [mysql-primary, redis]
+    restart: unless-stopped
+
+  mysql-primary:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: gaple_royale
+    volumes:
+      - mysql_primary_data:/var/lib/mysql
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports: ["3306:3306"]
+    restart: unless-stopped
+
+  mysql-replica:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+    volumes:
+      - mysql_replica_data:/var/lib/mysql
+    ports: ["3307:3306"]
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+    restart: unless-stopped
+
+volumes:
+  mysql_primary_data:
+  mysql_replica_data:
