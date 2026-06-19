@@ -1,6 +1,12 @@
 node_modules/
+backend/node_modules/
 .env
+backend/.env
 .DS_Store
 Thumbs.db
 *.log
 .claude/
+
+# File musik besar (opsional, hapus ini kalau mau include musik)
+casino-bgm.mp3
+ytmp3free.cc_*.mp3
