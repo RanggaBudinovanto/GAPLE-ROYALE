@@ -81,6 +81,7 @@
   position: absolute;
   top: var(--sp-3);
   right: var(--sp-3);
+  z-index: 10;
 }
 
 /* ===== SKIN CARD ===== */
