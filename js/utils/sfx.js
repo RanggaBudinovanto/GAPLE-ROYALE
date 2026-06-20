@@ -11,8 +11,8 @@ function getAudioContext() {
 }
 
 function isSfxEnabled() {
-  // SFX is enabled if global music/sound is enabled (defaults to true)
-  return localStorage.getItem('gaple_music_enabled') !== 'false';
+  // Decoupled from background music so sound effects play even if music is disabled
+  return localStorage.getItem('gaple_sfx_enabled') !== 'false';
 }
 
 // 1. Casino Chip Click Sound (tap, select, click)
@@ -84,7 +84,7 @@ export function playCardPlace() {
     oscClick.type = 'triangle';
     oscClick.frequency.setValueAtTime(1100, now);
     oscClick.frequency.exponentialRampToValueAtTime(700, now + 0.015);
-    gainClick.gain.setValueAtTime(0.08, now);
+    gainClick.gain.setValueAtTime(0.15, now); // Increased from 0.08 for presence
     gainClick.gain.exponentialRampToValueAtTime(0.001, now + 0.015);
     oscClick.connect(gainClick);
     gainClick.connect(ctx.destination);
@@ -96,25 +96,25 @@ export function playCardPlace() {
     const gainThump = ctx.createGain();
     oscThump.type = 'sine';
     oscThump.frequency.setValueAtTime(220, now);
-    oscThump.frequency.exponentialRampToValueAtTime(80, now + 0.08);
-    gainThump.gain.setValueAtTime(0.18, now);
-    gainThump.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+    oscThump.frequency.exponentialRampToValueAtTime(80, now + 0.12); // Extended for richer decay
+    gainThump.gain.setValueAtTime(0.35, now); // Increased from 0.18 for better punch
+    gainThump.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
     oscThump.connect(gainThump);
     gainThump.connect(ctx.destination);
     oscThump.start(now);
-    oscThump.stop(now + 0.08);
+    oscThump.stop(now + 0.12);
 
     // High frequency transient pop (bone/plastic click)
     const oscHigh = ctx.createOscillator();
     const gainHigh = ctx.createGain();
     oscHigh.type = 'sine';
     oscHigh.frequency.setValueAtTime(1800, now);
-    gainHigh.gain.setValueAtTime(0.05, now);
-    gainHigh.gain.exponentialRampToValueAtTime(0.001, now + 0.008);
+    gainHigh.gain.setValueAtTime(0.08, now); // Increased from 0.05
+    gainHigh.gain.exponentialRampToValueAtTime(0.001, now + 0.01);
     oscHigh.connect(gainHigh);
     gainHigh.connect(ctx.destination);
     oscHigh.start(now);
-    oscHigh.stop(now + 0.008);
+    oscHigh.stop(now + 0.01);
   } catch (e) {
     console.error('SFX error:', e);
   }
@@ -125,24 +125,24 @@ export function playWin() {
   if (!isSfxEnabled()) return;
   try {
     const ctx = getAudioContext();
-    const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51]; // C5, E5, G5, C6, E6
+    const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51, 1567.98]; // C5, E5, G5, C6, E6, G6 (Extended)
     
     notes.forEach((freq, idx) => {
-      const time = ctx.currentTime + idx * 0.08;
+      const time = ctx.currentTime + idx * 0.06; // Faster, more exciting arpeggio
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
 
       osc.type = 'sine';
       osc.frequency.setValueAtTime(freq, time);
 
-      gain.gain.setValueAtTime(0.08, time);
-      gain.gain.exponentialRampToValueAtTime(0.001, time + 0.25);
+      gain.gain.setValueAtTime(0.15, time); // Increased from 0.08 for volume
+      gain.gain.exponentialRampToValueAtTime(0.001, time + 0.35); // Extended decay
 
       osc.connect(gain);
       gain.connect(ctx.destination);
 
       osc.start(time);
-      osc.stop(time + 0.25);
+      osc.stop(time + 0.35);
     });
   } catch (e) {
     console.error('SFX error:', e);
@@ -154,22 +154,22 @@ export function playLose() {
   if (!isSfxEnabled()) return;
   try {
     const ctx = getAudioContext();
-    const notes = [392.00, 349.23, 311.13, 246.94]; // G4, F4, Eb4, B3 (sad minor vibe)
+    const notes = [392.00, 349.23, 311.13, 246.94, 196.00]; // G4, F4, Eb4, B3, G3 (Sad minor vibe with deep final note)
     notes.forEach((freq, idx) => {
-      const time = ctx.currentTime + idx * 0.15;
+      const time = ctx.currentTime + idx * 0.18;
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'triangle';
       osc.frequency.setValueAtTime(freq, time);
-      osc.frequency.linearRampToValueAtTime(freq - 20, time + 0.35);
+      osc.frequency.linearRampToValueAtTime(freq - 30, time + 0.45);
       
-      gain.gain.setValueAtTime(0.12, time);
-      gain.gain.exponentialRampToValueAtTime(0.001, time + 0.35);
+      gain.gain.setValueAtTime(0.2, time); // Increased from 0.12
+      gain.gain.exponentialRampToValueAtTime(0.001, time + 0.45);
       
       osc.connect(gain);
       gain.connect(ctx.destination);
       osc.start(time);
-      osc.stop(time + 0.35);
+      osc.stop(time + 0.45);
     });
   } catch (e) {
     console.error('SFX error:', e);

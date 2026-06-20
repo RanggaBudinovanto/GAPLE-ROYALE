@@ -8,7 +8,7 @@ import { apiCall, SOCKET_URL } from '../config.js';
 
 // Web Audio API Sound Synthesizer for high-end SFX
 function playSynthSound(type) {
-  if (localStorage.getItem('gaple_music_enabled') === 'false') return;
+  if (localStorage.getItem('gaple_sfx_enabled') === 'false') return;
   try {
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     if (!AudioContext) return;
