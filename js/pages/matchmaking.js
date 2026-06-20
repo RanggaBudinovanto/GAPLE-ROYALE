@@ -111,14 +111,16 @@ export function render(container) {
   const user = state.user;
   if (!user) { location.hash = '#/login'; return; }
 
-  // Step: mode | lobby | searching | match_found
+  // Step: mode | format | bet_selection | lobby | searching | match_found
   let step = 'mode';
   const stepHistory = ['mode'];
   
+  let modeType = 'classic'; // classic | ranked | ai | betting
   let selectedMode = null; // duel | fourplayer
   let selectedOpponent = null; // bot | pvp
   let botLevel = 'easy'; // easy | hard
   let isRanked = false;
+  let betAmount = 0; // amount of stake koin
   
   // Lobby state
   let lobbyPlayers = [null, null, null, null]; // [Player1(You), Player2, Player3, Player4]
@@ -146,6 +148,15 @@ export function render(container) {
       if (step === 'mode') {
         selectedMode = null;
         selectedOpponent = null;
+        modeType = 'classic';
+        betAmount = 0;
+        isRanked = false;
+        lobbyPlayers = [null, null, null, null];
+      } else if (step === 'format') {
+        selectedMode = null;
+        lobbyPlayers = [null, null, null, null];
+      } else if (step === 'bet_selection') {
+        betAmount = 0;
         lobbyPlayers = [null, null, null, null];
       }
       renderStep();
@@ -274,14 +285,47 @@ export function render(container) {
           transform: translateY(-5px);
         }
 
-        .mode--custom {
-          border-color: rgba(231, 76, 60, 0.35);
-          background-image: radial-gradient(circle at top right, rgba(231, 76, 60, 0.15) 0%, transparent 60%);
+        .mode--betting {
+          border-color: rgba(245, 200, 66, 0.45);
+          background-image: radial-gradient(circle at top right, rgba(245, 200, 66, 0.2) 0%, transparent 60%);
         }
-        .mode--custom:hover {
-          border-color: var(--status-lose);
-          box-shadow: 0 0 25px rgba(231, 76, 60, 0.4);
+        .mode--betting:hover {
+          border-color: var(--gold-bright);
+          box-shadow: 0 0 25px rgba(245, 200, 66, 0.5);
           transform: translateY(-5px);
+        }
+
+        .chip-card {
+          position: relative;
+          padding: var(--sp-5) var(--sp-3);
+          border-radius: var(--radius-lg);
+          border: 2px solid rgba(212, 160, 23, 0.2);
+          background: rgba(20, 26, 16, 0.7);
+          cursor: pointer;
+          transition: all 0.3s var(--ease-spring);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+          box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+        }
+        .chip-card:hover:not(.chip-disabled) {
+          border-color: var(--gold-bright);
+          box-shadow: 0 0 20px rgba(245, 200, 66, 0.35);
+          transform: translateY(-3px);
+        }
+        .chip-disabled {
+          border-color: rgba(231, 76, 60, 0.3) !important;
+          background: rgba(40, 20, 20, 0.45) !important;
+          cursor: not-allowed;
+          opacity: 0.6;
+        }
+        .chip-disabled .chip-lock {
+          font-size: 10px;
+          color: var(--status-lose);
+          font-weight: bold;
+          margin-top: 6px;
         }
 
         /* Lobby Grid Slots */
@@ -518,15 +562,15 @@ export function render(container) {
       <!-- Step Header -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--sp-5);flex-shrink:0;">
         <div>
-          ${step === 'lobby' ? `
+          ${step !== 'mode' ? `
             <button class="btn btn-ghost btn-sm" id="btn-back-step" style="display:inline-flex;align-items:center;gap:6px;padding:8px 0;margin-bottom:var(--sp-2);color:var(--text-secondary);cursor:pointer;font-family:var(--font-mono);text-transform:none;">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:2px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-              MENU UTAMA
+              KEMBALI
             </button>
           ` : ''}
           <h1 class="text-display text-gold" style="margin:0;font-size:36px;letter-spacing:-0.02em;font-family:var(--font-display);">MATCHMAKING</h1>
           <p class="text-secondary" style="font-size:14px;margin-top:4px;">
-            ${step === 'mode' ? 'Pilih mode permainan bertema casino Gaple Royale' : 'Kelola lobi Anda, undang Bot latihan, atau mulai bertanding'}
+            ${step === 'mode' ? 'Pilih mode permainan bertema casino Gaple Royale' : step === 'format' ? 'Pilih jumlah pemain untuk meja permainan Anda' : step === 'bet_selection' ? 'Tentukan taruhan koin emas sebelum masuk meja' : 'Kelola lobi Anda, undang Bot latihan, atau mulai bertanding'}
           </p>
         </div>
       </div>
@@ -544,45 +588,106 @@ export function render(container) {
               <div class="grid grid-2" style="gap:var(--sp-4);">
                 
                 <!-- CLASSIC MODE CARD -->
-                <div class="mm-mode-card mode--classic" data-mode="fourplayer" data-opponent="pvp">
+                <div class="mm-mode-card mode--classic" data-modetype="classic">
                   <div class="mm-icon-wrapper" style="width:64px;height:64px;border-radius:50%;background:rgba(46,204,113,0.15);border:1.5px solid rgba(46,204,113,0.4);display:flex;align-items:center;justify-content:center;margin-bottom:var(--sp-4);box-shadow:0 6px 16px rgba(0,0,0,0.3);">
                     <span style="font-size:28px;">⚔️</span>
                   </div>
                   <div style="font-family:var(--font-heading);font-size:20px;font-weight:700;color:var(--text-primary);margin-bottom:4px;letter-spacing:0.04em;">CLASSIC</div>
-                  <div style="font-size:11px;color:var(--status-win);font-weight:700;margin-bottom:12px;font-family:var(--font-mono);letter-spacing:0.05em;">TRADISIONAL | 4 PEMAIN</div>
-                  <p class="text-xs text-secondary" style="line-height:1.5;margin:0;">Bermain santai 4 pemain dengan aturan klasik gaple lengkap. 7 kartu per pemain.</p>
+                  <div style="font-size:11px;color:var(--status-win);font-weight:700;margin-bottom:12px;font-family:var(--font-mono);letter-spacing:0.05em;">TRADISIONAL | CASUAL</div>
+                  <p class="text-xs text-secondary" style="line-height:1.5;margin:0;">Bermain santai bersama pemain lain dengan aturan tradisional gaple lengkap.</p>
                 </div>
 
                 <!-- RANKED MODE CARD -->
-                <div class="mm-mode-card mode--ranked" data-mode="fourplayer" data-opponent="pvp" data-ranked="true">
+                <div class="mm-mode-card mode--ranked" data-modetype="ranked">
                   <div class="mm-icon-wrapper" style="width:64px;height:64px;border-radius:50%;background:rgba(212,160,23,0.15);border:1.5px solid rgba(212,160,23,0.4);display:flex;align-items:center;justify-content:center;margin-bottom:var(--sp-4);box-shadow:0 6px 16px rgba(0,0,0,0.3);">
                     <span style="font-size:28px;">👑</span>
                   </div>
                   <div style="font-family:var(--font-heading);font-size:20px;font-weight:700;color:var(--text-gold);margin-bottom:4px;letter-spacing:0.04em;">RANKED</div>
-                  <div style="font-size:11px;color:var(--gold-bright);font-weight:700;margin-bottom:12px;font-family:var(--font-mono);letter-spacing:0.05em;">KOMPETITIF | MEJA TARUHAN</div>
-                  <p class="text-xs text-secondary" style="line-height:1.5;margin:0;">Gengsi tinggi! Bertanding mempertaruhkan koin, naikkan tingkat klasemen dan raih reputasi.</p>
+                  <div style="font-size:11px;color:var(--gold-bright);font-weight:700;margin-bottom:12px;font-family:var(--font-mono);letter-spacing:0.05em;">KOMPETITIF | MEJA PRESTASI</div>
+                  <p class="text-xs text-secondary" style="line-height:1.5;margin:0;">Gengsi tinggi! Naikkan tingkat klasemen kompetitif dan raih lencana kemuliaan.</p>
                 </div>
 
                 <!-- VS A.I. MODE CARD -->
-                <div class="mm-mode-card mode--ai" data-mode="fourplayer" data-opponent="bot">
+                <div class="mm-mode-card mode--ai" data-modetype="ai">
                   <div class="mm-icon-wrapper" style="width:64px;height:64px;border-radius:50%;background:rgba(52,152,219,0.15);border:1.5px solid rgba(52,152,219,0.4);display:flex;align-items:center;justify-content:center;margin-bottom:var(--sp-4);box-shadow:0 6px 16px rgba(0,0,0,0.3);">
                     <span style="font-size:28px;">🤖</span>
                   </div>
                   <div style="font-family:var(--font-heading);font-size:20px;font-weight:700;color:var(--text-primary);margin-bottom:4px;letter-spacing:0.04em;">VS A.I.</div>
-                  <div style="font-size:11px;color:#3498db;font-weight:700;margin-bottom:12px;font-family:var(--font-mono);letter-spacing:0.05em;">LATIHAN | 4 PEMAIN</div>
+                  <div style="font-size:11px;color:#3498db;font-weight:700;margin-bottom:12px;font-family:var(--font-mono);letter-spacing:0.05em;">LATIHAN | LURING</div>
                   <p class="text-xs text-secondary" style="line-height:1.5;margin:0;">Latih taktik Anda secara instan melawan bot komputer dengan level kecerdasan buatan.</p>
                 </div>
 
-                <!-- CUSTOM / DUEL CARD -->
-                <div class="mm-mode-card mode--custom" data-mode="duel" data-opponent="pvp">
-                  <div class="mm-icon-wrapper" style="width:64px;height:64px;border-radius:50%;background:rgba(231,76,60,0.15);border:1.5px solid rgba(231,76,60,0.4);display:flex;align-items:center;justify-content:center;margin-bottom:var(--sp-4);box-shadow:0 6px 16px rgba(0,0,0,0.3);">
-                    <span style="font-size:28px;">👥</span>
+                <!-- BERTARUH CARD -->
+                <div class="mm-mode-card mode--betting" data-modetype="betting">
+                  <div class="mm-icon-wrapper" style="width:64px;height:64px;border-radius:50%;background:rgba(245,200,66,0.15);border:1.5px solid rgba(245,200,66,0.4);display:flex;align-items:center;justify-content:center;margin-bottom:var(--sp-4);box-shadow:0 6px 16px rgba(0,0,0,0.3);">
+                    <span style="font-size:28px;">💰</span>
+                  </div>
+                  <div style="font-family:var(--font-heading);font-size:20px;font-weight:700;color:var(--text-gold);margin-bottom:4px;letter-spacing:0.04em;">BERTARUH</div>
+                  <div style="font-size:11px;color:var(--gold-bright);font-weight:700;margin-bottom:12px;font-family:var(--font-mono);letter-spacing:0.05em;">MEJA STAKE | REBUT POOL</div>
+                  <p class="text-xs text-secondary" style="line-height:1.5;margin:0;">Pertaruhkan koin Anda! Pemenang tunggal menyapu bersih seluruh pool taruhan meja.</p>
+                </div>
+
+              </div>
+            </div>
+          ` : ''}
+
+          <!-- STEP 1.5: FORMAT SELECTION -->
+          ${step === 'format' ? `
+            <div id="step-format">
+              <h3 class="text-label text-secondary" style="margin-bottom:var(--sp-4);font-size:11px;letter-spacing:0.15em;">PILIH FORMAT MEJA PERMAINAN</h3>
+              <div class="grid grid-2" style="gap:var(--sp-4);">
+                
+                <!-- DUEL 1v1 -->
+                <div class="mm-mode-card mode--classic mm-format-card" data-format="duel">
+                  <div class="mm-icon-wrapper" style="width:64px;height:64px;border-radius:50%;background:rgba(46,204,113,0.15);border:1.5px solid rgba(46,204,113,0.4);display:flex;align-items:center;justify-content:center;margin-bottom:var(--sp-4);box-shadow:0 6px 16px rgba(0,0,0,0.3);">
+                    <span style="font-size:28px;">⚔️</span>
                   </div>
                   <div style="font-family:var(--font-heading);font-size:20px;font-weight:700;color:var(--text-primary);margin-bottom:4px;letter-spacing:0.04em;">DUEL 1v1</div>
-                  <div style="font-size:11px;color:var(--status-lose);font-weight:700;margin-bottom:12px;font-family:var(--font-mono);letter-spacing:0.05em;">CEPAT | 14 KARTU</div>
+                  <div style="font-size:11px;color:var(--status-win);font-weight:700;margin-bottom:12px;font-family:var(--font-mono);letter-spacing:0.05em;">CEPAT | 14 KARTU</div>
                   <p class="text-xs text-secondary" style="line-height:1.5;margin:0;">Satu lawan satu di meja eksklusif. Duel murni konsentrasi tinggi, 14 kartu di tangan.</p>
                 </div>
 
+                <!-- 4 PEMAIN -->
+                <div class="mm-mode-card mode--ai mm-format-card" data-format="fourplayer">
+                  <div class="mm-icon-wrapper" style="width:64px;height:64px;border-radius:50%;background:rgba(52,152,219,0.15);border:1.5px solid rgba(52,152,219,0.4);display:flex;align-items:center;justify-content:center;margin-bottom:var(--sp-4);box-shadow:0 6px 16px rgba(0,0,0,0.3);">
+                    <span style="font-size:28px;">👥</span>
+                  </div>
+                  <div style="font-family:var(--font-heading);font-size:20px;font-weight:700;color:var(--text-primary);margin-bottom:4px;letter-spacing:0.04em;">4 PEMAIN</div>
+                  <div style="font-size:11px;color:#3498db;font-weight:700;margin-bottom:12px;font-family:var(--font-mono);letter-spacing:0.05em;">KLASIK | 7 KARTU</div>
+                  <p class="text-xs text-secondary" style="line-height:1.5;margin:0;">Bermain berempat penuh persaingan sengit. Pembagian 7 kartu per pemain.</p>
+                </div>
+
+              </div>
+            </div>
+          ` : ''}
+
+          <!-- STEP 1.8: STAKE SELECTION (BETTING MODE ONLY) -->
+          ${step === 'bet_selection' ? `
+            <div id="step-bet-selection">
+              <h3 class="text-label text-secondary" style="margin-bottom:var(--sp-4);font-size:11px;letter-spacing:0.15em;">TENTUKAN NOMINAL TARUHAN</h3>
+              <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(130px, 1fr));gap:var(--sp-4);width:100%;">
+                ${[100, 500, 1000, 2000, 5000].map(amt => {
+                  const isDisabled = user.coin < amt;
+                  const totalPool = amt * (selectedMode === 'duel' ? 2 : 4);
+                  return `
+                    <div class="chip-card ${isDisabled ? 'chip-disabled' : ''}" data-bet="${amt}">
+                      <div style="font-size:32px;margin-bottom:8px;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3));">
+                        ${amt === 100 ? '🪙' : amt === 500 ? '💰' : amt === 1000 ? '💎' : amt === 2000 ? '👑' : '🔥'}
+                      </div>
+                      <div style="font-family:var(--font-heading);font-size:18px;font-weight:900;color:${isDisabled ? 'var(--text-muted)' : 'var(--text-gold)'};">
+                        ${formatNumber(amt)}
+                      </div>
+                      <div style="font-size:9px;font-family:var(--font-mono);color:var(--text-secondary);margin-top:2px;">
+                        Pool: 💰 ${formatNumber(totalPool)}
+                      </div>
+                      ${isDisabled ? `
+                        <div class="chip-lock">❌ Koin Kurang</div>
+                      ` : `
+                        <div style="font-size:9px;color:var(--status-win);font-weight:bold;margin-top:4px;text-transform:uppercase;font-family:var(--font-mono);">SIAP MASUK</div>
+                      `}
+                    </div>
+                  `;
+                }).join('')}
               </div>
             </div>
           ` : ''}
@@ -606,7 +711,7 @@ export function render(container) {
                       <div class="lobby-slot-card slot--filled ${isLeader ? 'slot--leader' : ''}">
                         ${player.isBot ? `<button class="kick-btn" data-slot="${idx}" title="Tendang Bot">✕</button>` : ''}
                         <div class="character-container character-idle" style="width:70px;height:105px;margin-bottom:var(--sp-2);display:inline-flex;align-items:center;justify-content:center;">
-                          ${renderCharacter(player.activeCharacter, 'small')}
+                           ${renderCharacter(player.activeCharacter, 'small')}
                         </div>
                         <div style="font-family:var(--font-heading);font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%;">${player.username}</div>
                         <div style="font-size:9px;font-family:var(--font-mono);color:${player.isBot ? 'var(--status-lose)' : 'var(--status-win)'};letter-spacing:0.05em;text-transform:uppercase;font-weight:600;">
@@ -655,7 +760,7 @@ export function render(container) {
                 ${lobbyPlayers.slice(0, selectedMode === 'fourplayer' ? 4 : 2).includes(null) ? `
                   <!-- Empty slots exist -> queue for PvP matchmaking -->
                   <button class="btn btn-primary btn-lg" id="btn-start-matchmaking" style="box-shadow:0 0 25px rgba(245,200,66,0.35);font-size:18px;padding:16px 48px;letter-spacing:0.08em;font-weight:900;">
-                    MULAI ANTRIAN (PvP)
+                    ${betAmount > 0 ? `MULAI TARUHAN (💰 ${formatNumber(betAmount)})` : 'MULAI ANTRIAN (PvP)'}
                   </button>
                   <p class="text-xs text-muted" style="margin-top:10px;font-family:var(--font-body);font-style:italic;">
                     Sistem akan mencari pemain asli secara daring untuk mengisi slot kosong yang tersisa.
@@ -838,29 +943,78 @@ export function render(container) {
       content.querySelectorAll('.mm-mode-card').forEach(card => {
         card.addEventListener('click', () => {
           playClick();
-          selectedMode = card.dataset.mode;
-          selectedOpponent = card.dataset.opponent;
-          isRanked = card.dataset.ranked === 'true';
+          modeType = card.dataset.modetype;
+          step = 'format';
+          stepHistory.push('format');
+          renderStep();
+        });
+      });
+    }
+
+    // FORMAT SELECTION EVENT CLICKS
+    if (step === 'format') {
+      content.querySelectorAll('.mm-format-card').forEach(card => {
+        card.addEventListener('click', () => {
+          playClick();
+          selectedMode = card.dataset.format;
           
+          if (modeType === 'betting') {
+            step = 'bet_selection';
+            stepHistory.push('bet_selection');
+          } else {
+            if (modeType === 'classic') {
+              isRanked = false;
+              selectedOpponent = 'pvp';
+            } else if (modeType === 'ranked') {
+              isRanked = true;
+              selectedOpponent = 'pvp';
+            } else if (modeType === 'ai') {
+              isRanked = false;
+              selectedOpponent = 'bot';
+            }
+            betAmount = 0;
+            initializeLobby();
+            step = 'lobby';
+            stepHistory.push('lobby');
+          }
+          renderStep();
+        });
+      });
+    }
+
+    // STAKE SELECTION EVENT CLICKS
+    if (step === 'bet_selection') {
+      content.querySelectorAll('.chip-card:not(.chip-disabled)').forEach(card => {
+        card.addEventListener('click', () => {
+          playClick();
+          betAmount = parseInt(card.dataset.bet);
+          isRanked = false;
+          selectedOpponent = 'pvp';
           initializeLobby();
           step = 'lobby';
           stepHistory.push('lobby');
           renderStep();
         });
       });
+      content.querySelectorAll('.chip-card.chip-disabled').forEach(card => {
+        card.addEventListener('click', () => {
+          playSynthSound('fail');
+          showToast('Koin Anda tidak mencukupi untuk taruhan ini!', 'error');
+        });
+      });
+    }
+
+    // GENERAL BACK STEP CLICK
+    const backBtn = content.querySelector('#btn-back-step');
+    if (backBtn) {
+      backBtn.addEventListener('click', () => {
+        playClick();
+        handleBack();
+      });
     }
 
     // LOBBY INTERACTION EVENT CLICKS
     if (step === 'lobby') {
-      // Back button
-      const backBtn = content.querySelector('#btn-back-step');
-      if (backBtn) {
-        backBtn.addEventListener('click', () => {
-          playClick();
-          handleBack();
-        });
-      }
-
       // Add bot clicks on empty slots
       content.querySelectorAll('.lobby-slot-card.slot--empty').forEach(card => {
         card.addEventListener('click', () => {
@@ -912,12 +1066,15 @@ export function render(container) {
               apiCall('POST', '/matchmaking/create', {
                 mode: selectedMode,
                 opponentType: 'bot',
-                botLevel
+                botLevel,
+                betAmount: betAmount
               }).then(res => {
                 startBtn.disabled = false;
                 startBtn.textContent = 'MULAI PERMAINAN';
                 if (!res.error && res.data) {
-                  startGame(botLevel, { roomId: res.data.roomId, sessionId: res.data.sessionId });
+                  state.syncWithBackend().then(() => {
+                    startGame(botLevel, { roomId: res.data.roomId, sessionId: res.data.sessionId });
+                  });
                 } else {
                   startGame(botLevel);
                 }
@@ -1015,7 +1172,8 @@ export function render(container) {
       mode: selectedMode,
       opponentType: 'pvp',
       botLevel,
-      isRanked: isRanked
+      isRanked: isRanked,
+      betAmount: betAmount
     });
 
     if (res.error) {
@@ -1266,6 +1424,9 @@ export function render(container) {
         warningText.innerHTML = '<span style="color:var(--status-win);font-weight:bold;animation:textPulse 0.5s infinite;">MEJA SIAP! MEMASUKI PERTANDINGAN...</span>';
       }
 
+      // Sync backend balance before transitioning to game screen
+      state.syncWithBackend();
+
       // Wait 1.2 seconds for visual confirmation and audio chime feedback
       setTimeout(() => {
         startGame(botLevel, pvpRoomId ? { roomId: pvpRoomId, sessionId: pvpSessionId } : null);
@@ -1325,6 +1486,7 @@ export function render(container) {
       opponentType: isRealPvP ? 'pvp' : selectedOpponent,
       isRealPvP,          // ← game.js uses this to decide socket vs local
       isRanked,           // ← store ranked state!
+      betAmount,          // ← store bet amount!
       players: finalPlayers
     });
     location.hash = `#/game/${roomId}`;

@@ -11,7 +11,8 @@ export function render(container) {
   const result = state.lastGameResult;
   if (!result) { location.hash = '#/lobby'; return; }
 
-  const { scores, coinResult, isWinner, reason, mode, players, newAchievements, rankedInfo } = result;
+  const { scores, coinResult, isWinner, reason, mode, players, newAchievements, rankedInfo, betAmount } = result;
+  const betAmountInt = parseInt(betAmount || 0);
 
   container.innerHTML = `
     <div style="min-height:100vh;background:var(--bg-primary);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:var(--sp-8) var(--sp-6) var(--sp-10);position:relative;overflow-y:auto;" id="result-screen">
@@ -76,32 +77,53 @@ export function render(container) {
         <!-- Column 2: Coin Rewards & Passive Skill -->
         <div style="flex:1;min-width:320px;max-width:480px;display:flex;flex-direction:column;gap:var(--sp-4);">
           <!-- Coin Earned Card -->
-          <div class="card card--premium" style="text-align:center;margin-bottom:0;">
-            <div class="coin-display" style="font-size:36px;justify-content:center;margin-bottom:var(--sp-4);">
-              <div class="coin-icon coin-icon--lg"></div>
-              <span id="coin-earned">0</span>
+          ${betAmountInt > 0 ? `
+            <div class="card card--premium" style="text-align:center;margin-bottom:0;border:1.5px solid rgba(245, 200, 66, 0.4);background-image:radial-gradient(circle at top right, rgba(245, 200, 66, 0.1) 0%, transparent 60%);">
+              <div style="font-family:var(--font-display);font-size:11px;color:var(--text-secondary);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:var(--sp-2);">HASIL STAKE TARUHAN</div>
+              <div class="coin-display" style="font-size:36px;justify-content:center;margin-bottom:var(--sp-4);color:${isWinner ? 'var(--gold-bright)' : 'var(--text-muted)'};">
+                <div class="coin-icon coin-icon--lg"></div>
+                <span id="coin-earned">0</span>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-2);text-align:left;font-size:var(--text-sm);">
+                <span class="text-secondary">Taruhan Anda:</span>
+                <span class="text-mono" style="text-align:right;color:var(--status-lose);">- ${formatNumber(betAmountInt)}</span>
+                <span class="text-secondary">Pool Kemenangan:</span>
+                <span class="text-mono" style="text-align:right;color:var(--status-win);">${isWinner ? `+ ${formatNumber(coinResult.total)}` : '+ 0'}</span>
+                <div style="grid-column: span 2; border-top:1px solid rgba(255,255,255,0.08); margin: 6px 0;"></div>
+                <span class="text-secondary" style="font-weight:bold;">Laba Bersih:</span>
+                <span class="text-mono" style="text-align:right;font-weight:bold;color:${isWinner ? 'var(--status-win)' : 'var(--status-lose)'};">
+                  ${isWinner ? `+ ${formatNumber(coinResult.total - betAmountInt)}` : `- ${formatNumber(betAmountInt)}`}
+                </span>
+              </div>
             </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-2);text-align:left;font-size:var(--text-sm);">
-              <span class="text-secondary">Base reward:</span>
-              <span class="text-mono" style="text-align:right;">+${coinResult.base}</span>
-              ${coinResult.winBonus > 0 ? `
-                <span class="text-secondary">Win bonus:</span>
-                <span class="text-mono" style="text-align:right;color:var(--status-win);">+${coinResult.winBonus}</span>
-              ` : ''}
-              ${coinResult.streakBonus > 0 ? `
-                <span class="text-secondary">Streak bonus:</span>
-                <span class="text-mono" style="text-align:right;color:var(--text-gold);">+${coinResult.streakBonus}</span>
-              ` : ''}
-              ${coinResult.passiveBonus > 0 ? `
-                <span class="text-secondary">Passive skill:</span>
-                <span class="text-mono" style="text-align:right;color:var(--text-gold);">+${coinResult.passiveBonus}</span>
-              ` : ''}
-              ${coinResult.multiplier > 1 ? `
-                <span class="text-secondary">Double Coin:</span>
-                <span class="text-mono" style="text-align:right;color:var(--text-gold);">×${coinResult.multiplier}</span>
-              ` : ''}
+          ` : `
+            <div class="card card--premium" style="text-align:center;margin-bottom:0;">
+              <div class="coin-display" style="font-size:36px;justify-content:center;margin-bottom:var(--sp-4);">
+                <div class="coin-icon coin-icon--lg"></div>
+                <span id="coin-earned">0</span>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-2);text-align:left;font-size:var(--text-sm);">
+                <span class="text-secondary">Base reward:</span>
+                <span class="text-mono" style="text-align:right;">+${coinResult.base}</span>
+                ${coinResult.winBonus > 0 ? `
+                  <span class="text-secondary">Win bonus:</span>
+                  <span class="text-mono" style="text-align:right;color:var(--status-win);">+${coinResult.winBonus}</span>
+                ` : ''}
+                ${coinResult.streakBonus > 0 ? `
+                  <span class="text-secondary">Streak bonus:</span>
+                  <span class="text-mono" style="text-align:right;color:var(--text-gold);">+${coinResult.streakBonus}</span>
+                ` : ''}
+                ${coinResult.passiveBonus > 0 ? `
+                  <span class="text-secondary">Passive skill:</span>
+                  <span class="text-mono" style="text-align:right;color:var(--text-gold);">+${coinResult.passiveBonus}</span>
+                ` : ''}
+                ${coinResult.multiplier > 1 ? `
+                  <span class="text-secondary">Double Coin:</span>
+                  <span class="text-mono" style="text-align:right;color:var(--text-gold);">×${coinResult.multiplier}</span>
+                ` : ''}
+              </div>
             </div>
-          </div>
+          `}
 
           <!-- Passive Skill Card (if active) -->
           ${coinResult.passiveBonus > 0 ? `

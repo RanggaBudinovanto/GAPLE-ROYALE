@@ -28,6 +28,17 @@ export function render(container) {
   const numPlayers = mode === 'duel' ? 2 : 4;
   const isRealPvP = gameConfig.isRealPvP === true;
 
+  // Deduct upfront coins for offline/local betting games (where backend was offline/skipped)
+  const betAmount = gameConfig.betAmount || 0;
+  if (!isRealPvP && !gameConfig.sessionId && betAmount > 0) {
+    const success = state.spendCoin(betAmount);
+    if (!success) {
+      showToast('Koin Anda tidak cukup untuk taruhan ini!', 'error');
+      location.hash = '#/matchmaking';
+      return;
+    }
+  }
+
   // ── PvP mode: get backend JWT token ───────────────────────────────────────
   const backendToken = sessionStorage.getItem('backend_token') || sessionStorage.getItem('gaple_token');
 
@@ -116,7 +127,13 @@ export function render(container) {
       <div class="game-header">
         <div class="game-header-left">
           <span class="game-room-id">${gameConfig.roomId}</span>
-          <span class="text-xs text-secondary">${mode === 'duel' ? 'Duel 1v1' : '4 Pemain'} · ${botLevel === 'easy' ? 'Mudah' : 'Sulit'}</span>
+          <span class="text-xs text-secondary">
+            ${mode === 'duel' ? 'Duel 1v1' : '4 Pemain'}
+            ${gameConfig.betAmount > 0 
+              ? `· <strong style="color:var(--gold-bright);">Taruhan: 💰 ${formatNumber(gameConfig.betAmount)} (Pool: 💰 ${formatNumber(gameConfig.betAmount * numPlayers)})</strong>` 
+              : `· ${botLevel === 'easy' ? 'Mudah' : 'Sulit'}`
+            }
+          </span>
         </div>
         <div class="game-timer">
           <div class="game-timer-bar">
@@ -845,7 +862,8 @@ export function render(container) {
     const isWinner = winnerIdx === myIdx;
     const scores = calculateGameResult(gs.hands, gs.players, mode, winnerIdx, gs.doubleCoin);
     const streak = isWinner ? (user.stats.currentStreak || 0) + 1 : 0;
-    const coinResult = calculateCoinReward(user, isWinner, mode, streak, gs.doubleCoin, user.activeCharacter);
+    // betAmount is accessible from outer render() scope
+    const coinResult = calculateCoinReward(user, isWinner, mode, streak, gs.doubleCoin, user.activeCharacter, betAmount, numPlayers);
 
     // Update user stats
     user.stats.totalGames++;
@@ -912,7 +930,8 @@ export function render(container) {
       reason,
       mode,
       players: gs.players,
-      newAchievements
+      newAchievements,
+      betAmount
     });
 
     renderGame();
@@ -1098,7 +1117,8 @@ export function render(container) {
         mode,
         players: gs.players,
         newAchievements: [],
-        rankedInfo: myRankedInfo
+        rankedInfo: myRankedInfo,
+        betAmount: gameConfig.betAmount || 0
       });
 
       renderGame();

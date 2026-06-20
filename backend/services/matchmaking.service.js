@@ -23,18 +23,43 @@ function generateRoomId() {
  * For PvP: tries to join an existing waiting room with the same mode first.
  * For bot: immediately creates a full room and starts the session.
  */
-async function createSession(userId, mode, opponentType, botLevel, isRanked) {
+async function createSession(userId, mode, opponentType, botLevel, isRanked, betAmount) {
   const maxPlayers = mode === 'duel' ? 2 : 4;
   const isRankedBool = isRanked === true || isRanked === 'true';
+  const betAmountInt = parseInt(betAmount || 0);
+
+  // Validate coin balance for betting games
+  if (betAmountInt > 0) {
+    const [uRows] = await db.query('SELECT coin FROM users WHERE id = ?', [userId]);
+    const currentCoin = uRows[0]?.coin || 0;
+    if (currentCoin < betAmountInt) {
+      return {
+        status: 400,
+        error: 'INSUFFICIENT_COINS',
+        message: 'Koin Anda tidak cukup untuk taruhan ini!'
+      };
+    }
+  }
 
   // ── BOT MODE ─────────────────────────────────────────────────────────────
   if (opponentType === 'bot') {
     const roomId = generateRoomId();
     const sessionId = uuidv4();
 
+    // Deduct coins upfront for bot mode
+    if (betAmountInt > 0) {
+      await db.query('UPDATE users SET coin = coin - ? WHERE id = ?', [betAmountInt, userId]);
+      const [uRows2] = await db.query('SELECT coin FROM users WHERE id = ?', [userId]);
+      const balanceAfter = uRows2[0]?.coin || 0;
+      await db.query(
+        'INSERT INTO transactions (user_id, type, amount, reason, balance_after) VALUES (?, "spend", ?, ?, ?)',
+        [userId, betAmountInt, `Taruhan game VS A.I.`, balanceAfter]
+      );
+    }
+
     await db.query(
-      'INSERT INTO game_sessions (id, room_id, mode, status, is_ranked) VALUES (?, ?, ?, ?, FALSE)',
-      [sessionId, roomId, mode, 'active']
+      'INSERT INTO game_sessions (id, room_id, mode, status, is_ranked, bet_amount) VALUES (?, ?, ?, ?, FALSE, ?)',
+      [sessionId, roomId, mode, 'active', betAmountInt]
     );
     await db.query(
       'INSERT INTO game_players (session_id, user_id, position) VALUES (?, ?, 0)',
@@ -66,11 +91,12 @@ async function createSession(userId, mode, opponentType, botLevel, isRanked) {
   }
 
   // ── PVP MODE ──────────────────────────────────────────────────────────────
-  // Try to find an existing waiting room for the same mode and ranked status
+  // Try to find an existing waiting room for the same mode, ranked status, and bet amount
   for (const [existingRoomId, room] of waitingRooms.entries()) {
     if (
       room.mode === mode &&
       room.isRanked === isRankedBool &&
+      (room.betAmount || 0) === betAmountInt &&
       room.players.length < room.maxPlayers &&
       !room.players.includes(userId)
     ) {
@@ -89,6 +115,21 @@ async function createSession(userId, mode, opponentType, botLevel, isRanked) {
           'UPDATE game_sessions SET status = "active", started_at = NOW() WHERE id = ?',
           [room.sessionId]
         );
+
+        // Deduct upfront coins from all PvP players
+        if (betAmountInt > 0) {
+          for (const pId of room.players) {
+            await db.query('UPDATE users SET coin = coin - ? WHERE id = ?', [betAmountInt, pId]);
+            const [uRows2] = await db.query('SELECT coin FROM users WHERE id = ?', [pId]);
+            const balanceAfter = uRows2[0]?.coin || 0;
+            const modeText = mode === 'duel' ? '1v1' : 'Ber-4';
+            await db.query(
+              'INSERT INTO transactions (user_id, type, amount, reason, balance_after) VALUES (?, "spend", ?, ?, ?)',
+              [pId, betAmountInt, `Taruhan game ${modeText}`, balanceAfter]
+            );
+          }
+        }
+
         waitingRooms.delete(existingRoomId);
 
         // Fetch players info
@@ -164,8 +205,8 @@ async function createSession(userId, mode, opponentType, botLevel, isRanked) {
   const sessionId = uuidv4();
 
   await db.query(
-    'INSERT INTO game_sessions (id, room_id, mode, status, is_ranked) VALUES (?, ?, ?, ?, ?)',
-    [sessionId, roomId, mode, 'waiting', isRankedBool]
+    'INSERT INTO game_sessions (id, room_id, mode, status, is_ranked, bet_amount) VALUES (?, ?, ?, ?, ?, ?)',
+    [sessionId, roomId, mode, 'waiting', isRankedBool, betAmountInt]
   );
   await db.query(
     'INSERT INTO game_players (session_id, user_id, position) VALUES (?, ?, 0)',
@@ -178,7 +219,8 @@ async function createSession(userId, mode, opponentType, botLevel, isRanked) {
     maxPlayers,
     players: [userId],
     createdAt: Date.now(),
-    isRanked: isRankedBool
+    isRanked: isRankedBool,
+    betAmount: betAmountInt
   });
 
   // Fetch creator info
@@ -238,13 +280,14 @@ async function getStatus(roomId) {
         maxPlayers: waiting.maxPlayers,
         players,
         isRanked: waiting.isRanked,
+        betAmount: waiting.betAmount || 0,
         waitingSeconds: Math.floor((Date.now() - waiting.createdAt) / 1000)
       }
     };
   }
 
   const [sessions] = await db.readQuery(
-    'SELECT id, status, is_ranked FROM game_sessions WHERE room_id = ?',
+    'SELECT id, status, is_ranked, bet_amount FROM game_sessions WHERE room_id = ?',
     [roomId]
   );
   if (sessions.length === 0) return { status: 404, error: 'ROOM_NOT_FOUND' };
@@ -269,7 +312,8 @@ async function getStatus(roomId) {
       roomId,
       status: session.status,
       players,
-      isRanked: !!session.is_ranked
+      isRanked: !!session.is_ranked,
+      betAmount: session.bet_amount || 0
     }
   };
 }

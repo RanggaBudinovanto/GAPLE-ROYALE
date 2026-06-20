@@ -116,6 +116,16 @@ async function autoInitDatabase() {
     } catch (colErr) {
       console.warn('Failed to check/add game_sessions.is_ranked:', colErr.message);
     }
+
+    try {
+      const [betCols] = await db.query("SHOW COLUMNS FROM game_sessions LIKE 'bet_amount'");
+      if (betCols.length === 0) {
+        console.log('Adding column "bet_amount" to "game_sessions" table...');
+        await db.query("ALTER TABLE game_sessions ADD COLUMN bet_amount INT DEFAULT 0");
+      }
+    } catch (colErr) {
+      console.warn('Failed to check/add game_sessions.bet_amount:', colErr.message);
+    }
     // Check if "users" table exists
     const [tables] = await db.query("SHOW TABLES LIKE 'users'");
     if (tables.length === 0) {

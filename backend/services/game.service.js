@@ -287,7 +287,8 @@ async function initGame(roomId, io) {
     currentTurn: 0,
     consecutivePasses: 0,
     gameOver: false,
-    turnTimer: null
+    turnTimer: null,
+    betAmount: session.bet_amount || 0
   };
 }
 
@@ -401,11 +402,19 @@ async function endGame(nsp, roomId, game, winnerIdx, reason) {
   scores.forEach((s, i) => s.rank = i + 1);
 
   const coinEarned = {};
+  const betAmount = game.betAmount || 0;
+  const numPlayers = game.players.length;
+
   game.players.forEach((p, i) => {
     const isWinner = i === winnerIdx;
-    const base = isWinner ? COIN_REWARDS.base_per_game : COIN_REWARDS.lose;
-    const winBonus = isWinner ? (game.mode === 'duel' ? COIN_REWARDS.win_duel : COIN_REWARDS.win_4player) : 0;
-    coinEarned[p.id] = { base, winBonus, passive: 0, doubleMultiplier: 1, total: base + winBonus };
+    if (betAmount > 0) {
+      const winBonus = isWinner ? (betAmount * numPlayers) : 0;
+      coinEarned[p.id] = { base: 0, winBonus, passive: 0, doubleMultiplier: 1, total: winBonus };
+    } else {
+      const base = isWinner ? COIN_REWARDS.base_per_game : COIN_REWARDS.lose;
+      const winBonus = isWinner ? (game.mode === 'duel' ? COIN_REWARDS.win_duel : COIN_REWARDS.win_4player) : 0;
+      coinEarned[p.id] = { base, winBonus, passive: 0, doubleMultiplier: 1, total: base + winBonus };
+    }
   });
 
   // Calculate Rank Points (RP) changes before emitting game_over
@@ -460,6 +469,18 @@ async function endGame(nsp, roomId, game, winnerIdx, reason) {
       await db.query('UPDATE game_sessions SET status = "finished", winner_id = ?, finished_at = NOW() WHERE room_id = ?', [winnerId, roomId]);
       const earned = coinEarned[winnerId]?.total || 0;
       await db.query('UPDATE users SET coin = coin + ? WHERE id = ?', [earned, winnerId]);
+
+      // Record transaction log for PvP winner
+      const [uRows] = await db.query('SELECT coin FROM users WHERE id = ?', [winnerId]);
+      const balanceAfter = uRows[0]?.coin || 0;
+      const isBetting = betAmount > 0;
+      const reason = isBetting 
+        ? `Kemenangan taruhan game ${game.mode === 'duel' ? '1v1' : 'Ber-4'}` 
+        : `Kemenangan game ${game.mode === 'duel' ? '1v1' : 'Ber-4'}`;
+      await db.query(
+        'INSERT INTO transactions (user_id, type, amount, reason, balance_after) VALUES (?, "earn", ?, ?, ?)',
+        [winnerId, earned, reason, balanceAfter]
+      );
     } else {
       await db.query('UPDATE game_sessions SET status = "finished", finished_at = NOW() WHERE room_id = ?', [roomId]);
     }

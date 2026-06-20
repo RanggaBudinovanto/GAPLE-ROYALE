@@ -28,7 +28,30 @@ export function calculateGameResult(hands, players, mode, winnerIndex, doubleCoi
   return scores;
 }
 
-export function calculateCoinReward(player, isWinner, mode, streak, doubleCoin, activeCharacter) {
+export function calculateCoinReward(player, isWinner, mode, streak, doubleCoin, activeCharacter, betAmount = 0, numPlayers = 2) {
+  const betAmountInt = parseInt(betAmount || 0);
+  if (betAmountInt > 0) {
+    if (isWinner) {
+      return {
+        base: 0,
+        winBonus: betAmountInt * numPlayers,
+        streakBonus: 0,
+        passiveBonus: 0,
+        multiplier: 1,
+        total: betAmountInt * numPlayers
+      };
+    } else {
+      return {
+        base: 0,
+        winBonus: 0,
+        streakBonus: 0,
+        passiveBonus: 0,
+        multiplier: 1,
+        total: 0
+      };
+    }
+  }
+
   let base = COIN_REWARDS.base_per_game;
   let winBonus = 0;
   let streakBonus = 0;
