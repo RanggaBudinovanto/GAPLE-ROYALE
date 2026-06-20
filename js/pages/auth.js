@@ -231,15 +231,10 @@ export function render(container) {
         .auth-content {
           position: relative; z-index: 1;
           display: flex; flex-direction: column; align-items: center;
-          width: 100%; max-width: 920px;
-        }
-        .auth-cards-row {
-          display: flex; gap: var(--sp-6); width: 100%;
-          justify-content: center; align-items: stretch;
+          width: 100%; max-width: 460px;
         }
         .auth-card {
-          flex: 1; max-width: 420px; min-width: 280px;
-          display: flex; flex-direction: column;
+          width: 100%;
           background: linear-gradient(135deg, rgba(20, 26, 16, 0.92), rgba(9, 24, 14, 0.95));
           border: 1.5px solid var(--border-gold);
           border-radius: var(--radius-xl);
@@ -247,6 +242,7 @@ export function render(container) {
           box-shadow: 0 8px 40px rgba(0,0,0,0.5), 0 0 30px rgba(245,200,66,0.05);
           backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
           position: relative; overflow: hidden;
+          animation: scaleIn 0.5s var(--ease-spring) forwards;
         }
         .auth-card::before {
           content: '';
@@ -254,54 +250,34 @@ export function render(container) {
           background: linear-gradient(90deg, transparent, var(--gold-bright), transparent);
           opacity: 0.6;
         }
-        .auth-card--login { animation: cardSlideLeft 0.6s var(--ease-spring) forwards; }
-        .auth-card--register { animation: cardSlideRight 0.6s 0.1s var(--ease-spring) both; }
 
-        .auth-card-title {
-          font-family: var(--font-display);
-          font-size: 18px; font-weight: 800; letter-spacing: 0.1em;
-          color: var(--text-gold); text-transform: uppercase;
-          text-align: center; margin-bottom: var(--sp-5);
-          display: flex; align-items: center; justify-content: center; gap: var(--sp-3);
+        .auth-tabs {
+          display: flex; width: 100%; margin-bottom: var(--sp-5);
+          border-bottom: 2px solid var(--border-default);
+          position: relative;
         }
-        .auth-card-title::before, .auth-card-title::after {
-          content: ''; flex: 1; height: 1px; max-width: 50px;
-          background: linear-gradient(90deg, transparent, var(--border-gold));
+        .auth-tab {
+          flex: 1; padding: var(--sp-3) var(--sp-4);
+          background: none; border: none; cursor: pointer;
+          font-family: var(--font-display); font-size: 15px; font-weight: 700;
+          letter-spacing: 0.1em; text-transform: uppercase;
+          color: var(--text-muted);
+          transition: color 0.3s ease;
+          position: relative;
         }
-        .auth-card-title::after {
-          background: linear-gradient(90deg, var(--border-gold), transparent);
+        .auth-tab::after {
+          content: ''; position: absolute; bottom: -2px; left: 0; right: 0; height: 2px;
+          background: var(--gold-bright);
+          transform: scaleX(0); transition: transform 0.3s var(--ease-spring);
         }
-
-        .auth-divider {
-          display: flex; align-items: center; justify-content: center;
-          align-self: center; flex-shrink: 0;
-          writing-mode: vertical-lr; text-orientation: mixed;
-          font-family: var(--font-display); font-size: 11px;
-          color: var(--text-muted); letter-spacing: 0.15em;
-          padding: 0 var(--sp-2); position: relative;
+        .auth-tab--active {
+          color: var(--text-gold);
         }
-        .auth-divider::before, .auth-divider::after {
-          content: ''; position: absolute; left: 50%;
-          width: 1px; height: 60px;
-          background: linear-gradient(180deg, transparent, rgba(212,160,23,0.3), transparent);
+        .auth-tab--active::after {
+          transform: scaleX(1);
         }
-        .auth-divider::before { bottom: 100%; }
-        .auth-divider::after { top: 100%; }
-
-        @media (max-width: 767px) {
-          .auth-cards-row { flex-direction: column; align-items: center; }
-          .auth-card { max-width: 100%; }
-          .auth-divider {
-            writing-mode: horizontal-tb;
-            padding: var(--sp-2) 0;
-          }
-          .auth-divider::before, .auth-divider::after {
-            width: 60px; height: 1px; top: 50%; left: auto;
-            background: linear-gradient(90deg, transparent, rgba(212,160,23,0.3), transparent);
-          }
-          .auth-divider::before { right: 100%; left: auto; }
-          .auth-divider::after { left: 100%; right: auto; }
-          .auth-card--login, .auth-card--register { animation: scaleIn 0.5s var(--ease-spring) forwards; }
+        .auth-tab:hover:not(.auth-tab--active) {
+          color: var(--text-secondary);
         }
       </style>
 
@@ -345,57 +321,58 @@ export function render(container) {
           </div>
         </div>
 
-        <!-- Side-by-side Login & Register -->
-        <div class="auth-cards-row">
-          <!-- LOGIN CARD -->
-          <div class="auth-card auth-card--login">
-            <div class="auth-card-title">Masuk</div>
-            <form id="form-login" autocomplete="off" style="flex:1;display:flex;flex-direction:column;">
-              <div class="input-group">
-                <label class="input-label">Username</label>
-                <input class="input" type="text" id="login-username" placeholder="Nama Pengguna" required minlength="3" autocomplete="username">
-                <div class="input-error-msg" id="login-username-error"></div>
-              </div>
-              <div class="input-group">
-                <label class="input-label">Password</label>
-                <input class="input" type="password" id="login-password" placeholder="Kata Sandi" required minlength="6" autocomplete="current-password">
-                <div class="input-error-msg" id="login-password-error"></div>
-              </div>
-              <div style="flex:1;"></div>
-              <button type="submit" class="btn btn-primary btn-block btn-lg" id="btn-login" style="margin-top:var(--sp-4);letter-spacing:0.08em;font-weight:800;">MASUK KE MEJA</button>
-            </form>
+        <!-- Single Card with Tabs -->
+        <div class="auth-card">
+          <div class="auth-tabs">
+            <button class="auth-tab auth-tab--active" id="tab-login">Masuk</button>
+            <button class="auth-tab" id="tab-register">Daftar</button>
           </div>
 
-          <!-- Divider -->
-          <div class="auth-divider">ATAU</div>
+          <!-- Login Form -->
+          <form id="form-login" autocomplete="off">
+            <div class="input-group">
+              <label class="input-label">Username</label>
+              <input class="input" type="text" id="login-username" placeholder="Nama Pengguna" required minlength="3" autocomplete="username">
+              <div class="input-error-msg" id="login-username-error"></div>
+            </div>
+            <div class="input-group">
+              <label class="input-label">Password</label>
+              <input class="input" type="password" id="login-password" placeholder="Kata Sandi" required minlength="6" autocomplete="current-password">
+              <div class="input-error-msg" id="login-password-error"></div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block btn-lg" id="btn-login" style="margin-top:var(--sp-5);letter-spacing:0.08em;font-weight:800;">MASUK KE MEJA</button>
+            <p style="text-align:center;margin-top:var(--sp-4);font-size:var(--text-sm);color:var(--text-secondary);">
+              Belum punya akun? <a href="#" id="link-to-register" style="color:var(--text-gold);font-weight:600;">Daftar</a>
+            </p>
+          </form>
 
-          <!-- REGISTER CARD -->
-          <div class="auth-card auth-card--register">
-            <div class="auth-card-title">Daftar Baru</div>
-            <form id="form-register" autocomplete="off">
-              <div class="input-group">
-                <label class="input-label">Username</label>
-                <input class="input" type="text" id="reg-username" placeholder="Nama Pengguna" required minlength="3" maxlength="20" autocomplete="off">
-                <div class="input-error-msg" id="reg-username-error"></div>
-              </div>
-              <div class="input-group">
-                <label class="input-label">Email</label>
-                <input class="input" type="email" id="reg-email" placeholder="Email" required autocomplete="off">
-                <div class="input-error-msg" id="reg-email-error"></div>
-              </div>
-              <div class="input-group">
-                <label class="input-label">Password</label>
-                <input class="input" type="password" id="reg-password" placeholder="Kata Sandi (min 6 karakter)" required minlength="6" autocomplete="new-password">
-                <div class="input-error-msg" id="reg-password-error"></div>
-              </div>
-              <div class="input-group">
-                <label class="input-label">Konfirmasi Password</label>
-                <input class="input" type="password" id="reg-confirm" placeholder="Ulangi Kata Sandi" required autocomplete="new-password">
-                <div class="input-error-msg" id="reg-confirm-error"></div>
-              </div>
-              <button type="submit" class="btn btn-primary btn-block btn-lg" id="btn-register" style="margin-top:var(--sp-4);letter-spacing:0.08em;font-weight:800;">BUAT AKUN BARU</button>
-            </form>
-          </div>
+          <!-- Register Form -->
+          <form id="form-register" class="hidden" autocomplete="off">
+            <div class="input-group">
+              <label class="input-label">Username</label>
+              <input class="input" type="text" id="reg-username" placeholder="Nama Pengguna" required minlength="3" maxlength="20" autocomplete="off">
+              <div class="input-error-msg" id="reg-username-error"></div>
+            </div>
+            <div class="input-group">
+              <label class="input-label">Email</label>
+              <input class="input" type="email" id="reg-email" placeholder="Email" required autocomplete="off">
+              <div class="input-error-msg" id="reg-email-error"></div>
+            </div>
+            <div class="input-group">
+              <label class="input-label">Password</label>
+              <input class="input" type="password" id="reg-password" placeholder="Kata Sandi (min 6 karakter)" required minlength="6" autocomplete="new-password">
+              <div class="input-error-msg" id="reg-password-error"></div>
+            </div>
+            <div class="input-group">
+              <label class="input-label">Konfirmasi Password</label>
+              <input class="input" type="password" id="reg-confirm" placeholder="Ulangi Kata Sandi" required autocomplete="new-password">
+              <div class="input-error-msg" id="reg-confirm-error"></div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block btn-lg" id="btn-register" style="margin-top:var(--sp-5);letter-spacing:0.08em;font-weight:800;">BUAT AKUN BARU</button>
+            <p style="text-align:center;margin-top:var(--sp-4);font-size:var(--text-sm);color:var(--text-secondary);">
+              Sudah punya akun? <a href="#" id="link-to-login" style="color:var(--text-gold);font-weight:600;">Masuk</a>
+            </p>
+          </form>
         </div>
       </div>
     </div>
@@ -440,8 +417,23 @@ export function render(container) {
     });
   });
 
+  const tabLogin = container.querySelector('#tab-login');
+  const tabRegister = container.querySelector('#tab-register');
   const formLogin = container.querySelector('#form-login');
   const formRegister = container.querySelector('#form-register');
+
+  function switchTab(tab) {
+    tabLogin.classList.toggle('auth-tab--active', tab === 'login');
+    tabRegister.classList.toggle('auth-tab--active', tab === 'register');
+    formLogin.classList.toggle('hidden', tab !== 'login');
+    formRegister.classList.toggle('hidden', tab !== 'register');
+    clearErrors();
+  }
+
+  tabLogin.addEventListener('click', () => switchTab('login'));
+  tabRegister.addEventListener('click', () => switchTab('register'));
+  container.querySelector('#link-to-register').addEventListener('click', (e) => { e.preventDefault(); switchTab('register'); });
+  container.querySelector('#link-to-login').addEventListener('click', (e) => { e.preventDefault(); switchTab('login'); });
 
   formLogin.addEventListener('submit', async (e) => {
     e.preventDefault();
