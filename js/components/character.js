@@ -377,151 +377,29 @@ function siPalingGaple(w, h, s) {
 }
 
 function ratuCasino(w, h, s) {
-  return `<svg viewBox="0 0 120 200" width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <linearGradient id="blazerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="#1a0533"/>
-        <stop offset="50%" stop-color="#2d0b5c"/>
-        <stop offset="100%" stop-color="#1a0533"/>
-      </linearGradient>
-      <linearGradient id="skinGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" stop-color="#FFDAB9"/>
-        <stop offset="100%" stop-color="#F4A87C"/>
-      </linearGradient>
-      <linearGradient id="hairGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="#1a0533"/>
-        <stop offset="60%" stop-color="#4a1080"/>
-        <stop offset="100%" stop-color="#1a0533"/>
-      </linearGradient>
-      <radialGradient id="blushGrad" cx="50%" cy="50%" r="50%">
-        <stop offset="0%" stop-color="#FF8FAB" stop-opacity="0.7"/>
-        <stop offset="100%" stop-color="#FF8FAB" stop-opacity="0"/>
-      </radialGradient>
-    </defs>
-
-    <!-- ===== BLAZER BODY ===== -->
-    <!-- Main blazer -->
-    <path d="M25 110 Q25 188 60 192 Q95 188 95 110 L85 98 Q72 104 60 105 Q48 104 35 98 Z" fill="url(#blazerGrad)"/>
-    <!-- Left lapel -->
-    <path d="M35 98 L48 112 L54 105 L60 100 L42 94 Z" fill="#0d001f"/>
-    <!-- Right lapel -->
-    <path d="M85 98 L72 112 L66 105 L60 100 L78 94 Z" fill="#0d001f"/>
-    <!-- White inner shirt / blouse -->
-    <path d="M48 112 L54 105 L60 100 L66 105 L72 112 L60 128 Z" fill="#f8f4ff"/>
-    <!-- Gold brooch -->
-    <ellipse cx="60" cy="116" rx="5" ry="3.5" fill="#FFD700" stroke="#B8860B" stroke-width="0.8"/>
-    <circle cx="60" cy="116" r="1.5" fill="#FFF8DC"/>
-    <!-- Blazer buttons -->
-    <circle cx="60" cy="136" r="2" fill="#B8860B" stroke="#FFD700" stroke-width="0.5"/>
-    <circle cx="60" cy="148" r="2" fill="#B8860B" stroke="#FFD700" stroke-width="0.5"/>
-    <!-- Pocket square (right) -->
-    <path d="M72 112 L80 112 L80 116 L76 118 Z" fill="#f8f4ff"/>
-    <!-- Blazer lapel gold trim -->
-    <path d="M35 98 L48 112" stroke="#FFD700" stroke-width="0.8" fill="none" opacity="0.6"/>
-    <path d="M85 98 L72 112" stroke="#FFD700" stroke-width="0.8" fill="none" opacity="0.6"/>
-
-    <!-- ===== LONG WAVY HAIR (behind body) ===== -->
-    <!-- Left hair flow -->
-    <path d="M32 68 Q16 90 20 130 Q22 155 28 170" stroke="url(#hairGrad)" stroke-width="10" fill="none" stroke-linecap="round" opacity="0.95"/>
-    <path d="M34 72 Q18 100 22 140" stroke="#3d0a72" stroke-width="6" fill="none" stroke-linecap="round" opacity="0.7"/>
-    <!-- Right hair flow -->
-    <path d="M88 68 Q104 90 100 130 Q98 155 92 170" stroke="url(#hairGrad)" stroke-width="10" fill="none" stroke-linecap="round" opacity="0.95"/>
-    <path d="M86 72 Q102 100 98 140" stroke="#3d0a72" stroke-width="6" fill="none" stroke-linecap="round" opacity="0.7"/>
-
-    <!-- ===== NECK ===== -->
-    <path d="M50 94 Q55 100 60 101 Q65 100 70 94 L68 88 L52 88 Z" fill="url(#skinGrad)"/>
-
-    <!-- ===== HEAD ===== -->
-    <ellipse cx="60" cy="60" rx="30" ry="32" fill="url(#skinGrad)"/>
-
-    <!-- ===== HAIR (top/front) ===== -->
-    <!-- Crown hair volume -->
-    <path d="M30 52 Q30 22 60 18 Q90 22 90 52 Q78 42 60 40 Q42 42 30 52 Z" fill="url(#hairGrad)"/>
-    <!-- Side parting / wave -->
-    <path d="M30 52 Q36 36 52 32" stroke="#6b21a8" stroke-width="3" fill="none" opacity="0.5"/>
-    <!-- Loose strand left -->
-    <path d="M34 54 Q28 62 30 72" stroke="#3d0a72" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-    <!-- Loose strand right -->
-    <path d="M86 54 Q92 62 90 72" stroke="#3d0a72" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-
-    <!-- ===== EYES ===== -->
-    <!-- Eye whites -->
-    <ellipse cx="46" cy="58" rx="6.5" ry="5" fill="#fff"/>
-    <ellipse cx="74" cy="58" rx="6.5" ry="5" fill="#fff"/>
-    <!-- Iris (violet) -->
-    <circle cx="46" cy="58" r="3.8" fill="#7c3aed"/>
-    <circle cx="74" cy="58" r="3.8" fill="#7c3aed"/>
-    <!-- Pupils -->
-    <circle cx="46" cy="58" r="2.2" fill="#0d001f"/>
-    <circle cx="74" cy="58" r="2.2" fill="#0d001f"/>
-    <!-- Eye shine -->
-    <circle cx="44.5" cy="56.5" r="1.2" fill="#fff" opacity="0.9"/>
-    <circle cx="72.5" cy="56.5" r="1.2" fill="#fff" opacity="0.9"/>
-    <!-- Upper eyelid / lash line (thick, dramatic) -->
-    <path d="M38.5 54 Q46 49.5 53.5 54" stroke="#0d001f" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-    <path d="M66.5 54 Q74 49.5 81.5 54" stroke="#0d001f" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-    <!-- Lash flicks left eye -->
-    <line x1="39" y1="54.5" x2="36" y2="51" stroke="#0d001f" stroke-width="1.5" stroke-linecap="round"/>
-    <line x1="41" y1="53" x2="39" y2="49.5" stroke="#0d001f" stroke-width="1.2" stroke-linecap="round"/>
-    <!-- Lash flicks right eye -->
-    <line x1="81" y1="54.5" x2="84" y2="51" stroke="#0d001f" stroke-width="1.5" stroke-linecap="round"/>
-    <line x1="79" y1="53" x2="81" y2="49.5" stroke="#0d001f" stroke-width="1.2" stroke-linecap="round"/>
-    <!-- Lower lash line -->
-    <path d="M39.5 62 Q46 64.5 52.5 62" stroke="#0d001f" stroke-width="1" fill="none" opacity="0.5"/>
-    <path d="M67.5 62 Q74 64.5 80.5 62" stroke="#0d001f" stroke-width="1" fill="none" opacity="0.5"/>
-    <!-- Eyeshadow (shimmer purple) -->
-    <path d="M38.5 54 Q46 49.5 53.5 54 L53.5 56 Q46 51.5 38.5 56 Z" fill="#9333ea" opacity="0.35"/>
-    <path d="M66.5 54 Q74 49.5 81.5 54 L81.5 56 Q74 51.5 66.5 56 Z" fill="#9333ea" opacity="0.35"/>
-
-    <!-- ===== EYEBROWS (arched, elegant) ===== -->
-    <path d="M38 48 Q46 43 54 47" stroke="#0d001f" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-    <path d="M66 47 Q74 43 82 48" stroke="#0d001f" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-
-    <!-- ===== NOSE ===== -->
-    <path d="M57 66 Q56 74 58 76 Q60 78 62 76 Q64 74 63 66" stroke="#D4956A" stroke-width="1.2" fill="none" stroke-linecap="round"/>
-
-    <!-- ===== BLUSH ===== -->
-    <ellipse cx="38" cy="70" rx="7" ry="4.5" fill="url(#blushGrad)"/>
-    <ellipse cx="82" cy="70" rx="7" ry="4.5" fill="url(#blushGrad)"/>
-
-    <!-- ===== LIPS ===== -->
-    <!-- Upper lip -->
-    <path d="M50 82 Q54 79 60 82 Q66 79 70 82 Q66 85 60 86 Q54 85 50 82 Z" fill="#C0392B"/>
-    <!-- Cupid's bow -->
-    <path d="M50 82 Q55 77 60 80 Q65 77 70 82" fill="#E74C3C"/>
-    <!-- Lower lip -->
-    <path d="M50 82 Q60 90 70 82 Q66 87 60 88 Q54 87 50 82 Z" fill="#E74C3C"/>
-    <!-- Lip shine -->
-    <path d="M54 82 Q60 79 66 82" stroke="#FF7979" stroke-width="1" fill="none" opacity="0.6" stroke-linecap="round"/>
-
-    <!-- ===== EARRINGS ===== -->
-    <!-- Left earring -->
-    <circle cx="30" cy="66" r="3" fill="#FFD700" stroke="#B8860B" stroke-width="0.5"/>
-    <ellipse cx="30" cy="73" rx="2.5" ry="5" fill="#FFD700" stroke="#B8860B" stroke-width="0.5"/>
-    <circle cx="30" cy="78" r="1.5" fill="#fff" opacity="0.8"/>
-    <!-- Right earring -->
-    <circle cx="90" cy="66" r="3" fill="#FFD700" stroke="#B8860B" stroke-width="0.5"/>
-    <ellipse cx="90" cy="73" rx="2.5" ry="5" fill="#FFD700" stroke="#B8860B" stroke-width="0.5"/>
-    <circle cx="90" cy="78" r="1.5" fill="#fff" opacity="0.8"/>
-
-    <!-- ===== ARMS ===== -->
-    <!-- Left arm (blazer sleeve) -->
-    <path d="M26 112 Q16 130 18 155 L30 152 Q28 134 36 115 Z" fill="url(#blazerGrad)"/>
-    <ellipse cx="20" cy="156" rx="8" ry="5" fill="url(#skinGrad)" transform="rotate(-10 20 156)"/>
-    <!-- Right arm (blazer sleeve) -->
-    <path d="M94 112 Q104 130 102 155 L90 152 Q92 134 84 115 Z" fill="url(#blazerGrad)"/>
-    <ellipse cx="100" cy="156" rx="8" ry="5" fill="url(#skinGrad)" transform="rotate(10 100 156)"/>
-    <!-- Sleeve cuff gold trim -->
-    <line x1="18" y1="149" x2="30" y2="150" stroke="#FFD700" stroke-width="1.5" stroke-linecap="round"/>
-    <line x1="90" y1="150" x2="102" y2="149" stroke="#FFD700" stroke-width="1.5" stroke-linecap="round"/>
-
-    <!-- ===== SPARKLE DETAILS ===== -->
-    <circle cx="78" cy="42" r="1.5" fill="#FFD700" opacity="0.8"/>
-    <circle cx="42" cy="38" r="1" fill="#FFD700" opacity="0.6"/>
-    <circle cx="86" cy="90" r="1" fill="#FFD700" opacity="0.5"/>
+  return `<svg viewBox="0 0 120 180" width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
+    <!-- Body (Red gown) -->
+    <path d="M35 95 L25 160 L95 160 L85 95 Z" fill="#9b59b6"/>
+    <path d="M45 95 L60 115 L75 95" fill="#f1c40f"/>
+    <!-- Head -->
+    <ellipse cx="60" cy="62" rx="26" ry="28" fill="#F5B7B1"/>
+    <!-- Tiara -->
+    <polygon points="40,38 48,22 54,32 60,18 66,32 72,22 80,38" fill="#e74c3c" stroke="#c0392b" stroke-width="1"/>
+    <circle cx="60" cy="18" r="2" fill="#f1c40f"/>
+    <!-- Long Eyelashes / Eyes -->
+    <ellipse cx="48" cy="58" rx="4" ry="3" fill="#fff"/>
+    <ellipse cx="72" cy="58" rx="4" ry="3" fill="#fff"/>
+    <circle cx="48" cy="58" r="2" fill="#8e44ad"/>
+    <circle cx="72" cy="58" r="2" fill="#8e44ad"/>
+    <path d="M42 54 Q48 48 54 54" stroke="#111" stroke-width="1.5" fill="none"/>
+    <path d="M66 54 Q72 48 78 54" stroke="#111" stroke-width="1.5" fill="none"/>
+    <!-- Lipstick smile -->
+    <path d="M50 78 Q60 88 70 78" stroke="#e74c3c" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <!-- Arms -->
+    <ellipse cx="24" cy="115" rx="10" ry="6" fill="#F5B7B1" transform="rotate(-20 24 115)"/>
+    <ellipse cx="96" cy="115" rx="10" ry="6" fill="#F5B7B1" transform="rotate(20 96 115)"/>
   </svg>`;
 }
-
 
 function bandarDarat(w, h, s) {
   return `<svg viewBox="0 0 120 180" width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">

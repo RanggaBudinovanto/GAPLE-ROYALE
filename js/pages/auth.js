@@ -437,22 +437,6 @@ export function render(container) {
     setItem('token', localToken);
 
     state.init();
-
-    // Fetch full inventory from backend and sync to local state
-    try {
-      const invRes = await apiCall('GET', `/users/${backendUser.id}/inventory`, null, backendToken);
-      if (!invRes.error && invRes.data?.inventory) {
-        const fullInventory = invRes.data.inventory.map(item => item.itemId);
-        // Always include free defaults
-        if (!fullInventory.includes('bocah_pemula')) fullInventory.unshift('bocah_pemula');
-        if (!fullInventory.includes('classic')) fullInventory.unshift('classic');
-        // Merge with existing local inventory (to preserve offline purchases)
-        const merged = Array.from(new Set([...(state.user.inventory || []), ...fullInventory]));
-        state.user.inventory = merged;
-        state.persistUser();
-      }
-    } catch (_) { /* non-fatal */ }
-
     showToast('Selamat datang kembali!', 'success');
     location.hash = '#/lobby';
   });

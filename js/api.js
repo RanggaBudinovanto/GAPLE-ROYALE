@@ -1,7 +1,6 @@
 import { getItem, setItem, findUserById, getAllUsers } from './utils/storage.js';
 import { getToday } from './utils/format.js';
 import state from './state.js';
-import { apiCall } from './config.js';
 
 const ITEMS_CATALOG = {
   characters: [
@@ -127,12 +126,6 @@ export function purchaseItem(itemId, itemType, quantity = 1) {
 
   checkAchievements();
 
-  // Sync to backend database if token exists
-  const token = sessionStorage.getItem('backend_token') || sessionStorage.getItem('gaple_token');
-  if (token) {
-    apiCall('POST', `/users/${user.id}/inventory/purchase`, { itemId, itemType, quantity }).catch(console.error);
-  }
-
   return { success: true, newBalance: user.coin };
 }
 
@@ -142,13 +135,6 @@ export function activateCharacter(characterId) {
   if (!user.inventory.includes(characterId)) return { error: 'ITEM_NOT_OWNED' };
   user.activeCharacter = characterId;
   state.persistUser();
-
-  // Sync to backend database if token exists
-  const token = sessionStorage.getItem('backend_token') || sessionStorage.getItem('gaple_token');
-  if (token) {
-    apiCall('PUT', `/users/${user.id}/character`, { characterId }).catch(console.error);
-  }
-
   return { success: true };
 }
 
@@ -158,13 +144,6 @@ export function activateSkin(skinId) {
   if (!user.inventory.includes(skinId)) return { error: 'ITEM_NOT_OWNED' };
   user.activeSkin = skinId;
   state.persistUser();
-
-  // Sync to backend database if token exists
-  const token = sessionStorage.getItem('backend_token') || sessionStorage.getItem('gaple_token');
-  if (token) {
-    apiCall('PUT', `/users/${user.id}/skin`, { skinId }).catch(console.error);
-  }
-
   return { success: true };
 }
 
