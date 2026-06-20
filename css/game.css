@@ -523,9 +523,14 @@
 .domino--midnight .domino-divider { background: #444; }
 
 .domino--royal_gold {
+  background: linear-gradient(110deg, #111510 35%, #ffd700 45%, #fff1a8 50%, #ffd700 55%, #111510 65%);
+  background-size: 300% 100%;
+  animation: goldSweep 3s linear infinite;
   border-color: var(--gold-warm);
-  box-shadow: 0 0 8px rgba(212,160,23,0.3);
+  box-shadow: 0 0 12px rgba(212,160,23,0.5);
 }
+.domino--royal_gold .domino-pip { background: #ffd700; }
+.domino--royal_gold .domino-divider { background: #ffd700; }
 
 .domino--emerald {
   background: #e8f5e9;
@@ -543,12 +548,14 @@
 .domino--ruby_red .domino-divider { background: var(--gold-warm); }
 
 .domino--cyberpunk {
-  background: #1e1b4b;
+  background: #0f0b29;
   border-color: #f43f5e;
-  box-shadow: 0 0 8px rgba(244,63,94,0.4);
+  animation: cyberpunkGlow 1.5s infinite ease-in-out;
+  background-image: radial-gradient(circle, #2e0854 1px, transparent 1px);
+  background-size: 8px 8px;
 }
-.domino--cyberpunk .domino-pip { background: #06b6d4; }
-.domino--cyberpunk .domino-divider { background: #f43f5e; }
+.domino--cyberpunk .domino-pip { background: #00ffff; box-shadow: 0 0 6px #00ffff; }
+.domino--cyberpunk .domino-divider { background: #ff007f; box-shadow: 0 0 6px #ff007f; }
 
 .domino--ocean_blue {
   background: #0f172a;
@@ -566,10 +573,11 @@
 
 .domino--golden_luxury {
   background: linear-gradient(135deg, #FFE875 0%, #d4a017 50%, #FFE875 100%);
+  background-size: 200% 200%;
   border-color: #ffffff;
-  box-shadow: 0 0 12px rgba(245,200,66,0.5);
+  animation: goldShine 4s ease infinite, goldLuxuryGlow 2s infinite ease-in-out;
 }
-.domino--golden_luxury .domino-pip { background: #ffffff; }
+.domino--golden_luxury .domino-pip { background: #3d2a04; }
 .domino--golden_luxury .domino-divider { background: #ffffff; }
 
 .domino--volcano {
@@ -605,11 +613,13 @@
 .domino--marble_white .domino-divider { background: #d6d3d1; }
 
 .domino--rainbow_unicorn {
-  background: linear-gradient(45deg, #fbcfe8, #dbeafe, #fef08a);
+  background: linear-gradient(120deg, #ff9a9e 0%, #fecfef 20%, #a1c4fd 40%, #c2e9fb 60%, #f6d365 80%, #ff9a9e 100%);
+  background-size: 300% 100%;
+  animation: rainbowShift 5s linear infinite;
   border-color: #ffffff;
-  box-shadow: 0 0 10px rgba(255,255,255,0.4);
+  box-shadow: 0 0 12px rgba(255,255,255,0.6);
 }
-.domino--rainbow_unicorn .domino-pip { background: #4f46e5; }
+.domino--rainbow_unicorn .domino-pip { background: #333333; }
 .domino--rainbow_unicorn .domino-divider { background: #ffffff; }
 
 /* ===== CHAT PANEL ===== */
@@ -780,3 +790,34 @@
   .domino--horizontal { width: 52px; height: 28px; }
   .domino-pip { width: 3px; height: 3px; }
 }
+
+/* Animations for premium cards */
+@keyframes goldSweep {
+  0% { background-position: 250% 0; }
+  100% { background-position: -150% 0; }
+}
+
+@keyframes goldShine {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes rainbowShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes cyberpunkGlow {
+  0% { box-shadow: 0 0 8px rgba(244,63,94,0.4), 0 0 4px rgba(6,182,212,0.2); }
+  50% { box-shadow: 0 0 16px rgba(244,63,94,0.8), 0 0 8px rgba(6,182,212,0.5); }
+  100% { box-shadow: 0 0 8px rgba(244,63,94,0.4), 0 0 4px rgba(6,182,212,0.2); }
+}
+
+@keyframes goldLuxuryGlow {
+  0% { box-shadow: 0 0 10px rgba(245,200,66,0.4), inset 0 0 4px rgba(255,255,255,0.2); }
+  50% { box-shadow: 0 0 20px rgba(245,200,66,0.8), inset 0 0 8px rgba(255,255,255,0.4); }
+  100% { box-shadow: 0 0 10px rgba(245,200,66,0.4), inset 0 0 4px rgba(255,255,255,0.2); }
+}
+
