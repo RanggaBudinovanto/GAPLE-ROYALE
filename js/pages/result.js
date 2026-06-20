@@ -3,7 +3,7 @@ import { renderCharacter, getCharacterName } from '../components/character.js';
 import { formatNumber } from '../utils/format.js';
 import { countUp, coinRain, staggerFadeIn } from '../utils/animation.js';
 import { getRankTier } from './matchmaking.js';
-import { renderIcon } from '../components/emotes.js';
+import { renderIcon, renderRankBadge } from '../components/emotes.js';
 import { playCoinCount } from '../utils/sfx.js';
 
 export function render(container) {
@@ -153,7 +153,7 @@ export function render(container) {
                 <div style="font-family:var(--font-display);font-size:11px;color:var(--text-secondary);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:var(--sp-2);">PERKEMBANGAN RANK</div>
                 
                 <div class="flex items-center justify-center gap-4" style="margin:var(--sp-3) 0;">
-                  <img src="${newTier.icon}" style="width:48px;height:48px;object-fit:contain;filter:drop-shadow(0 0 8px ${newTier.color});" />
+                  <span class="icon-inline" style="filter:drop-shadow(0 0 8px ${newTier.color});">${renderRankBadge(newTier.badge, newTier.level, 48)}</span>
                   <div style="text-align:left;">
                     <div style="font-family:var(--font-heading);font-size:20px;font-weight:800;color:${newTier.color};letter-spacing:0.04em;">${newTier.name.toUpperCase()}</div>
                     <div style="font-family:var(--font-mono);font-size:13px;color:var(--text-secondary);display:flex;align-items:center;gap:6px;">

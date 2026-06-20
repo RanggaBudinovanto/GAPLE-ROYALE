@@ -419,3 +419,59 @@ function iconX(s) {
     <line x1="18" y1="6" x2="6" y2="18"/>
   </svg>`;
 }
+
+// ══════════════════════════════════════════════════════════════════
+// RANK BADGE SVG ICONS (replace broken PNG files)
+// ══════════════════════════════════════════════════════════════════
+
+const RANK_COLORS = {
+  bronze:   { primary: '#cd7f32', secondary: '#8B5A2B', accent: '#e8a050', shine: '#f0c090' },
+  silver:   { primary: '#C0C0C0', secondary: '#8a8a8a', accent: '#e0e0e0', shine: '#ffffff' },
+  gold:     { primary: '#ffd700', secondary: '#d4a017', accent: '#ffe875', shine: '#fff8dc' },
+  platinum: { primary: '#00f6ff', secondary: '#0099aa', accent: '#80fbff', shine: '#e0ffff' },
+  diamond:  { primary: '#ba55d3', secondary: '#8b2ea8', accent: '#d48ce8', shine: '#f0d0ff' },
+  royale:   { primary: '#f5c842', secondary: '#996500', accent: '#ffe875', shine: '#fffbe0' }
+};
+
+export function renderRankBadge(tier, level, size = 24) {
+  const c = RANK_COLORS[tier] || RANK_COLORS.bronze;
+  const lvl = level || '';
+  const isRoyale = tier === 'royale';
+
+  if (isRoyale) {
+    return `<svg viewBox="0 0 40 40" width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">
+      <defs><linearGradient id="rg_${size}" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="${c.accent}"/><stop offset="50%" stop-color="${c.primary}"/><stop offset="100%" stop-color="${c.secondary}"/>
+      </linearGradient></defs>
+      <polygon points="20,2 26,12 38,12 28,20 32,32 20,25 8,32 12,20 2,12 14,12" fill="url(#rg_${size})" stroke="${c.secondary}" stroke-width="1.5"/>
+      <polygon points="20,8 24,14 32,14 26,19 28,27 20,22 12,27 14,19 8,14 16,14" fill="${c.shine}" opacity="0.3"/>
+      <circle cx="20" cy="17" r="4" fill="${c.secondary}" opacity="0.5"/>
+      <text x="20" y="20" fill="${c.shine}" font-size="6" font-weight="900" text-anchor="middle" font-family="sans-serif">R</text>
+    </svg>`;
+  }
+
+  return `<svg viewBox="0 0 40 44" width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">
+    <defs><linearGradient id="rb_${tier}_${size}" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="${c.accent}"/><stop offset="50%" stop-color="${c.primary}"/><stop offset="100%" stop-color="${c.secondary}"/>
+    </linearGradient></defs>
+    <!-- Shield shape -->
+    <path d="M20 2 L36 8 L36 24 Q36 36 20 42 Q4 36 4 24 L4 8 Z" fill="url(#rb_${tier}_${size})" stroke="${c.secondary}" stroke-width="1.5"/>
+    <!-- Inner border -->
+    <path d="M20 6 L32 11 L32 23 Q32 33 20 38 Q8 33 8 23 L8 11 Z" fill="none" stroke="${c.shine}" stroke-width="0.8" opacity="0.5"/>
+    <!-- Shine highlight -->
+    <path d="M20 6 L32 11 L32 16 Q26 14 20 14 Q14 14 8 16 L8 11 Z" fill="${c.shine}" opacity="0.15"/>
+    <!-- Level number -->
+    <text x="20" y="28" fill="${c.secondary}" font-size="14" font-weight="900" text-anchor="middle" font-family="sans-serif" stroke="${c.shine}" stroke-width="0.3">${lvl}</text>
+    <!-- Stars for level -->
+    ${lvl === 'III' ? `
+      <circle cx="14" cy="14" r="2" fill="${c.shine}" opacity="0.7"/>
+      <circle cx="20" cy="12" r="2" fill="${c.shine}" opacity="0.7"/>
+      <circle cx="26" cy="14" r="2" fill="${c.shine}" opacity="0.7"/>
+    ` : lvl === 'II' ? `
+      <circle cx="16" cy="13" r="2" fill="${c.shine}" opacity="0.7"/>
+      <circle cx="24" cy="13" r="2" fill="${c.shine}" opacity="0.7"/>
+    ` : `
+      <circle cx="20" cy="13" r="2" fill="${c.shine}" opacity="0.7"/>
+    `}
+  </svg>`;
+}

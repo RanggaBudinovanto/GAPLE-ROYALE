@@ -5,7 +5,7 @@ import { generateRoomId, formatNumber, winRate } from '../utils/format.js';
 import { staggerFadeIn } from '../utils/animation.js';
 import { playClick, playHover } from '../utils/sfx.js';
 import { apiCall, SOCKET_URL } from '../config.js';
-import { renderIcon } from '../components/emotes.js';
+import { renderIcon, renderRankBadge } from '../components/emotes.js';
 
 // Web Audio API Sound Synthesizer for high-end SFX
 function playSynthSound(type) {
@@ -798,7 +798,7 @@ export function render(container) {
               const tier = getRankTier(user.rankPoints || 0);
               return `
                 <div style="margin-bottom:var(--sp-4);display:flex;align-items:center;gap:6px;padding:4px 12px;background:rgba(255,255,255,0.03);border:1px solid rgba(212,160,23,0.15);border-radius:var(--radius-full);">
-                  <img src="${tier.icon}" style="width:18px;height:18px;object-fit:contain;vertical-align:middle;" />
+                  <span class="icon-inline">${renderRankBadge(tier.badge, tier.level, 18)}</span>
                   <span style="font-family:var(--font-heading);font-weight:700;font-size:11px;letter-spacing:0.04em;color:${tier.color};">${tier.name.toUpperCase()}</span>
                   <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);margin-left:4px;">(${user.rankPoints || 0} RP)</span>
                 </div>
@@ -1507,29 +1507,29 @@ export function render(container) {
 
 export function getRankTier(rp) {
   const points = rp || 0;
-  if (points >= 1500) return { name: 'Royale Champion', icon: '/assets/ranks/royale_champion.png', color: 'var(--gold-bright)' };
-  
+  if (points >= 1500) return { name: 'Royale Champion', badge: 'royale', level: '', color: 'var(--gold-bright)' };
+
   const tiers = [
-    { limit: 100, name: 'Bronze I', icon: '/assets/ranks/bronze_1.png', color: '#cd7f32' },
-    { limit: 200, name: 'Bronze II', icon: '/assets/ranks/bronze_2.png', color: '#cd7f32' },
-    { limit: 300, name: 'Bronze III', icon: '/assets/ranks/bronze_3.png', color: '#cd7f32' },
-    { limit: 400, name: 'Silver I', icon: '/assets/ranks/silver_1.png', color: '#C0C0C0' },
-    { limit: 500, name: 'Silver II', icon: '/assets/ranks/silver_2.png', color: '#C0C0C0' },
-    { limit: 600, name: 'Silver III', icon: '/assets/ranks/silver_3.png', color: '#C0C0C0' },
-    { limit: 700, name: 'Gold I', icon: '/assets/ranks/gold_1.png', color: '#ffd700' },
-    { limit: 800, name: 'Gold II', icon: '/assets/ranks/gold_2.png', color: '#ffd700' },
-    { limit: 900, name: 'Gold III', icon: '/assets/ranks/gold_3.png', color: '#ffd700' },
-    { limit: 1000, name: 'Platinum I', icon: '/assets/ranks/platinum_1.png', color: '#00f6ff' },
-    { limit: 1100, name: 'Platinum II', icon: '/assets/ranks/platinum_2.png', color: '#00f6ff' },
-    { limit: 1200, name: 'Platinum III', icon: '/assets/ranks/platinum_3.png', color: '#00f6ff' },
-    { limit: 1300, name: 'Diamond I', icon: '/assets/ranks/diamond_1.png', color: '#ba55d3' },
-    { limit: 1400, name: 'Diamond II', icon: '/assets/ranks/diamond_2.png', color: '#ba55d3' },
-    { limit: 1500, name: 'Diamond III', icon: '/assets/ranks/diamond_3.png', color: '#ba55d3' }
+    { limit: 100, name: 'Bronze I', badge: 'bronze', level: 'I', color: '#cd7f32' },
+    { limit: 200, name: 'Bronze II', badge: 'bronze', level: 'II', color: '#cd7f32' },
+    { limit: 300, name: 'Bronze III', badge: 'bronze', level: 'III', color: '#cd7f32' },
+    { limit: 400, name: 'Silver I', badge: 'silver', level: 'I', color: '#C0C0C0' },
+    { limit: 500, name: 'Silver II', badge: 'silver', level: 'II', color: '#C0C0C0' },
+    { limit: 600, name: 'Silver III', badge: 'silver', level: 'III', color: '#C0C0C0' },
+    { limit: 700, name: 'Gold I', badge: 'gold', level: 'I', color: '#ffd700' },
+    { limit: 800, name: 'Gold II', badge: 'gold', level: 'II', color: '#ffd700' },
+    { limit: 900, name: 'Gold III', badge: 'gold', level: 'III', color: '#ffd700' },
+    { limit: 1000, name: 'Platinum I', badge: 'platinum', level: 'I', color: '#00f6ff' },
+    { limit: 1100, name: 'Platinum II', badge: 'platinum', level: 'II', color: '#00f6ff' },
+    { limit: 1200, name: 'Platinum III', badge: 'platinum', level: 'III', color: '#00f6ff' },
+    { limit: 1300, name: 'Diamond I', badge: 'diamond', level: 'I', color: '#ba55d3' },
+    { limit: 1400, name: 'Diamond II', badge: 'diamond', level: 'II', color: '#ba55d3' },
+    { limit: 1500, name: 'Diamond III', badge: 'diamond', level: 'III', color: '#ba55d3' }
   ];
-  
+
   for (const tier of tiers) {
     if (points < tier.limit) return tier;
   }
-  
-  return { name: 'Bronze I', icon: '/assets/ranks/bronze_1.png', color: '#cd7f32' };
+
+  return { name: 'Bronze I', badge: 'bronze', level: 'I', color: '#cd7f32' };
 }

@@ -6,7 +6,7 @@ import { apiCall } from '../config.js';
 import { staggerFadeIn } from '../utils/animation.js';
 import { formatNumber } from '../utils/format.js';
 import { getRankTier } from './matchmaking.js';
-import { renderIcon } from '../components/emotes.js';
+import { renderIcon, renderRankBadge } from '../components/emotes.js';
 
 export function render(container) {
   const user = state.user;
@@ -83,7 +83,7 @@ export function render(container) {
                       <span style="font-weight:${entry.userId === user.id ? '700' : '400'};color:${entry.userId === user.id ? 'var(--text-gold)' : 'var(--text-primary)'};">${entry.username}</span>
                       ${(() => {
                         const tier = getRankTier(entry.rankPoints || 0);
-                        return `<span style="font-size:9.5px;font-family:var(--font-mono);font-weight:bold;color:${tier.color};letter-spacing:0.04em;margin-top:2px;display:flex;align-items:center;gap:4px;"><img src="${tier.icon}" style="width:12px;height:12px;object-fit:contain;" /> ${tier.name.toUpperCase()}</span>`;
+                        return `<span style="font-size:9.5px;font-family:var(--font-mono);font-weight:bold;color:${tier.color};letter-spacing:0.04em;margin-top:2px;display:flex;align-items:center;gap:4px;"><span class="icon-inline">${renderRankBadge(tier.badge, tier.level, 12)}</span> ${tier.name.toUpperCase()}</span>`;
                       })()}
                     </div>
                   </div>
@@ -143,7 +143,7 @@ export function render(container) {
         </div>
         <div style="font-family:var(--font-heading);font-size:${rank === 1 ? '16px' : '13px'};font-weight:600;margin-bottom:var(--sp-1);">${entry.username}</div>
         <div style="font-size:10px;font-family:var(--font-mono);font-weight:bold;color:${tier.color};margin-bottom:2px;display:flex;align-items:center;justify-content:center;gap:4px;">
-          <img src="${tier.icon}" style="width:14px;height:14px;object-fit:contain;" /> ${tier.name.toUpperCase()}
+          <span class="icon-inline">${renderRankBadge(tier.badge, tier.level, 14)}</span> ${tier.name.toUpperCase()}
         </div>
         <div style="font-family:var(--font-mono);font-size:12px;color:var(--text-secondary);margin-bottom:var(--sp-2);">
           ${activeTab === 'ranked' ? `${entry.rankPoints || 0} RP` : `${entry.wins} menang`}
