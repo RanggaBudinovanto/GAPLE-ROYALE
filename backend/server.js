@@ -87,8 +87,55 @@ matchmakingService.setIO(io);
 // Initialize game socket service
 require('./services/game.service')(io);
 
+// Auto-initialize database tables if they don't exist
+async function autoInitDatabase() {
+  const db = require('./models/db');
+  const fs = require('fs');
+  const path = require('path');
+  
+  try {
+    console.log('Checking if database tables exist...');
+    // Check if "users" table exists
+    const [tables] = await db.query("SHOW TABLES LIKE 'users'");
+    if (tables.length === 0) {
+      console.log('Table "users" not found. Initializing database schema...');
+      
+      const sqlPath = path.join(__dirname, '..', 'docker', 'mysql', 'init.sql');
+      if (fs.existsSync(sqlPath)) {
+        let schema = fs.readFileSync(sqlPath, 'utf8');
+        
+        // Remove CREATE DATABASE and USE statements because Railway already manages the database
+        schema = schema.replace(/CREATE DATABASE[\s\S]*?USE[\s\S]*?;/i, '');
+        
+        const statements = schema
+          .split(';')
+          .map(s => s.trim())
+          .filter(s => s.length > 0 && !s.startsWith('--'));
+
+        for (const stmt of statements) {
+          try {
+            await db.query(stmt);
+          } catch (err) {
+            console.warn(`Warning executing stmt: ${err.message}`);
+          }
+        }
+        console.log('✅ Database schema initialized successfully!');
+      } else {
+        console.error(`Schema file not found at ${sqlPath}`);
+      }
+    } else {
+      console.log('Database tables already exist.');
+    }
+  } catch (err) {
+    console.error('Failed to auto-initialize database:', err.message);
+  }
+}
+
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log(`Gaple Royale Backend running on port ${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+autoInitDatabase().then(() => {
+  server.listen(PORT, () => {
+    console.log(`Gaple Royale Backend running on port ${PORT}`);
+    console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  });
 });
+
