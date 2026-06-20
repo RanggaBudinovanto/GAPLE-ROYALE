@@ -95,6 +95,27 @@ async function autoInitDatabase() {
   
   try {
     console.log('Checking if database tables exist...');
+
+    // Check and add Ranked column modifications dynamically if missing
+    try {
+      const [userCols] = await db.query("SHOW COLUMNS FROM users LIKE 'rank_points'");
+      if (userCols.length === 0) {
+        console.log('Adding column "rank_points" to "users" table...');
+        await db.query("ALTER TABLE users ADD COLUMN rank_points INT DEFAULT 0");
+      }
+    } catch (colErr) {
+      console.warn('Failed to check/add users.rank_points:', colErr.message);
+    }
+
+    try {
+      const [sessionCols] = await db.query("SHOW COLUMNS FROM game_sessions LIKE 'is_ranked'");
+      if (sessionCols.length === 0) {
+        console.log('Adding column "is_ranked" to "game_sessions" table...');
+        await db.query("ALTER TABLE game_sessions ADD COLUMN is_ranked BOOLEAN DEFAULT FALSE");
+      }
+    } catch (colErr) {
+      console.warn('Failed to check/add game_sessions.is_ranked:', colErr.message);
+    }
     // Check if "users" table exists
     const [tables] = await db.query("SHOW TABLES LIKE 'users'");
     if (tables.length === 0) {

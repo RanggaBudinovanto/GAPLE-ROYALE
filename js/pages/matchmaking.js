@@ -118,6 +118,7 @@ export function render(container) {
   let selectedMode = null; // duel | fourplayer
   let selectedOpponent = null; // bot | pvp
   let botLevel = 'easy'; // easy | hard
+  let isRanked = false;
   
   // Lobby state
   let lobbyPlayers = [null, null, null, null]; // [Player1(You), Player2, Player3, Player4]
@@ -682,10 +683,22 @@ export function render(container) {
               ${renderCharacter(user.activeCharacter, 'large')}
             </div>
             <div style="font-family:var(--font-heading);font-size:22px;font-weight:700;color:var(--text-gold);margin-bottom:var(--sp-1);">${user.username}</div>
-            <div class="coin-display" style="font-size:16px;margin-bottom:var(--sp-4);display:inline-flex;align-items:center;gap:6px;">
+            <div class="coin-display" style="font-size:16px;margin-bottom:var(--sp-2);display:inline-flex;align-items:center;gap:6px;">
               <div class="coin-icon coin-icon--sm"></div>
               <span class="text-mono" style="font-weight:bold;color:var(--gold-bright);">${formatNumber(user.coin)}</span>
             </div>
+            
+            ${(() => {
+              const tier = getRankTier(user.rankPoints || 0);
+              return `
+                <div style="margin-bottom:var(--sp-4);display:flex;align-items:center;gap:6px;padding:4px 12px;background:rgba(255,255,255,0.03);border:1px solid rgba(212,160,23,0.15);border-radius:var(--radius-full);">
+                  <span style="font-size:14px;">${tier.icon}</span>
+                  <span style="font-family:var(--font-heading);font-weight:700;font-size:11px;letter-spacing:0.04em;color:${tier.color};">${tier.name.toUpperCase()}</span>
+                  <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);margin-left:4px;">(${user.rankPoints || 0} RP)</span>
+                </div>
+              `;
+            })()}
+
             <div style="display:grid;grid-template-columns:1fr 1fr;width:100%;gap:var(--sp-2);text-align:left;border-top:1px solid var(--border-default);padding-top:var(--sp-3);font-size:13px;">
               <span class="text-secondary">Total Main:</span>
               <span class="text-mono" style="text-align:right;font-weight:600;">${user.stats.totalGames}</span>
@@ -827,6 +840,7 @@ export function render(container) {
           playClick();
           selectedMode = card.dataset.mode;
           selectedOpponent = card.dataset.opponent;
+          isRanked = card.dataset.ranked === 'true';
           
           initializeLobby();
           step = 'lobby';
@@ -1000,7 +1014,8 @@ export function render(container) {
     const res = await apiCall('POST', '/matchmaking/create', {
       mode: selectedMode,
       opponentType: 'pvp',
-      botLevel
+      botLevel,
+      isRanked: isRanked
     });
 
     if (res.error) {
@@ -1309,6 +1324,7 @@ export function render(container) {
       botLevel: level,
       opponentType: isRealPvP ? 'pvp' : selectedOpponent,
       isRealPvP,          // ← game.js uses this to decide socket vs local
+      isRanked,           // ← store ranked state!
       players: finalPlayers
     });
     location.hash = `#/game/${roomId}`;
@@ -1324,4 +1340,33 @@ export function render(container) {
     if (pvpAcceptSocket) { pvpAcceptSocket.disconnect(); pvpAcceptSocket = null; }
     if (navCleanup) navCleanup();
   };
+}
+
+export function getRankTier(rp) {
+  const points = rp || 0;
+  if (points >= 1500) return { name: 'Royale Champion', icon: '👑', color: 'var(--gold-bright)' };
+  
+  const tiers = [
+    { limit: 100, name: 'Bronze I', icon: '🟫', color: '#cd7f32' },
+    { limit: 200, name: 'Bronze II', icon: '🟫', color: '#cd7f32' },
+    { limit: 300, name: 'Bronze III', icon: '🟫', color: '#cd7f32' },
+    { limit: 400, name: 'Silver I', icon: '⬜', color: '#C0C0C0' },
+    { limit: 500, name: 'Silver II', icon: '⬜', color: '#C0C0C0' },
+    { limit: 600, name: 'Silver III', icon: '⬜', color: '#C0C0C0' },
+    { limit: 700, name: 'Gold I', icon: '🪙', color: '#ffd700' },
+    { limit: 800, name: 'Gold II', icon: '🪙', color: '#ffd700' },
+    { limit: 900, name: 'Gold III', icon: '🪙', color: '#ffd700' },
+    { limit: 1000, name: 'Platinum I', icon: '💎', color: '#00f6ff' },
+    { limit: 1100, name: 'Platinum II', icon: '💎', color: '#00f6ff' },
+    { limit: 1200, name: 'Platinum III', icon: '💎', color: '#00f6ff' },
+    { limit: 1300, name: 'Diamond I', icon: '🔮', color: '#ba55d3' },
+    { limit: 1400, name: 'Diamond II', icon: '🔮', color: '#ba55d3' },
+    { limit: 1500, name: 'Diamond III', icon: '🔮', color: '#ba55d3' }
+  ];
+  
+  for (const tier of tiers) {
+    if (points < tier.limit) return tier;
+  }
+  
+  return { name: 'Bronze I', icon: '🟫', color: '#cd7f32' };
 }

@@ -107,6 +107,7 @@ const state = {
       this.user.activeCharacter = backendUser.activeCharacter;
       this.user.activeSkin = backendUser.activeSkin;
       this.user.inventory = backendInventory;
+      this.user.rankPoints = backendUser.rankPoints || 0;
 
       this.user.powerups = {};
       if (!invRes.error && invRes.data && invRes.data.inventory) {

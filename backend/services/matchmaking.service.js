@@ -23,8 +23,9 @@ function generateRoomId() {
  * For PvP: tries to join an existing waiting room with the same mode first.
  * For bot: immediately creates a full room and starts the session.
  */
-async function createSession(userId, mode, opponentType, botLevel) {
+async function createSession(userId, mode, opponentType, botLevel, isRanked) {
   const maxPlayers = mode === 'duel' ? 2 : 4;
+  const isRankedBool = isRanked === true || isRanked === 'true';
 
   // ── BOT MODE ─────────────────────────────────────────────────────────────
   if (opponentType === 'bot') {
@@ -32,7 +33,7 @@ async function createSession(userId, mode, opponentType, botLevel) {
     const sessionId = uuidv4();
 
     await db.query(
-      'INSERT INTO game_sessions (id, room_id, mode, status) VALUES (?, ?, ?, ?)',
+      'INSERT INTO game_sessions (id, room_id, mode, status, is_ranked) VALUES (?, ?, ?, ?, FALSE)',
       [sessionId, roomId, mode, 'active']
     );
     await db.query(
@@ -65,10 +66,11 @@ async function createSession(userId, mode, opponentType, botLevel) {
   }
 
   // ── PVP MODE ──────────────────────────────────────────────────────────────
-  // Try to find an existing waiting room for the same mode
+  // Try to find an existing waiting room for the same mode and ranked status
   for (const [existingRoomId, room] of waitingRooms.entries()) {
     if (
       room.mode === mode &&
+      room.isRanked === isRankedBool &&
       room.players.length < room.maxPlayers &&
       !room.players.includes(userId)
     ) {
@@ -162,8 +164,8 @@ async function createSession(userId, mode, opponentType, botLevel) {
   const sessionId = uuidv4();
 
   await db.query(
-    'INSERT INTO game_sessions (id, room_id, mode, status) VALUES (?, ?, ?, ?)',
-    [sessionId, roomId, mode, 'waiting']
+    'INSERT INTO game_sessions (id, room_id, mode, status, is_ranked) VALUES (?, ?, ?, ?, ?)',
+    [sessionId, roomId, mode, 'waiting', isRankedBool]
   );
   await db.query(
     'INSERT INTO game_players (session_id, user_id, position) VALUES (?, ?, 0)',
@@ -175,7 +177,8 @@ async function createSession(userId, mode, opponentType, botLevel) {
     mode,
     maxPlayers,
     players: [userId],
-    createdAt: Date.now()
+    createdAt: Date.now(),
+    isRanked: isRankedBool
   });
 
   // Fetch creator info
@@ -234,13 +237,14 @@ async function getStatus(roomId) {
         currentPlayers: waiting.players.length,
         maxPlayers: waiting.maxPlayers,
         players,
+        isRanked: waiting.isRanked,
         waitingSeconds: Math.floor((Date.now() - waiting.createdAt) / 1000)
       }
     };
   }
 
   const [sessions] = await db.readQuery(
-    'SELECT id, status FROM game_sessions WHERE room_id = ?',
+    'SELECT id, status, is_ranked FROM game_sessions WHERE room_id = ?',
     [roomId]
   );
   if (sessions.length === 0) return { status: 404, error: 'ROOM_NOT_FOUND' };
@@ -264,7 +268,8 @@ async function getStatus(roomId) {
     data: {
       roomId,
       status: session.status,
-      players
+      players,
+      isRanked: !!session.is_ranked
     }
   };
 }

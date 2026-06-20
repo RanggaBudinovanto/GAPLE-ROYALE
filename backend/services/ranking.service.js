@@ -21,7 +21,7 @@ async function getLeaderboard(type = 'global', page = 1, limit = 20) {
   const offset = (page - 1) * limit;
 
   const [rows] = await db.readQuery(
-    `SELECT u.id as userId, u.username, u.active_character as activeCharacter,
+    `SELECT u.id as userId, u.username, u.active_character as activeCharacter, u.rank_points as rankPoints,
       COUNT(CASE WHEN gs.winner_id = u.id THEN 1 END) as wins,
       COUNT(gs.id) as totalGames,
       ROUND(COALESCE(COUNT(CASE WHEN gs.winner_id = u.id THEN 1 END) / NULLIF(COUNT(gs.id), 0) * 100, 0), 1) as winRate
@@ -29,7 +29,7 @@ async function getLeaderboard(type = 'global', page = 1, limit = 20) {
      LEFT JOIN game_players gp ON u.id = gp.user_id
      LEFT JOIN game_sessions gs ON gp.session_id = gs.id AND gs.status = 'finished' ${dateFilter}
      GROUP BY u.id
-     ORDER BY wins DESC, winRate DESC
+     ORDER BY ${type === 'ranked' ? 'rankPoints DESC, wins DESC' : 'wins DESC, winRate DESC'}
      LIMIT ? OFFSET ?`,
     [limit, offset]
   );
@@ -37,7 +37,8 @@ async function getLeaderboard(type = 'global', page = 1, limit = 20) {
   const data = rows.map((r, i) => ({
     rank: offset + i + 1,
     userId: r.userId, username: r.username, activeCharacter: r.activeCharacter,
-    wins: r.wins, totalGames: r.totalGames, winRate: r.winRate
+    wins: r.wins, totalGames: r.totalGames, winRate: r.winRate,
+    rankPoints: r.rankPoints || 0
   }));
 
   const result = { type, page, limit, total, data };
@@ -48,12 +49,12 @@ async function getLeaderboard(type = 'global', page = 1, limit = 20) {
 
 async function getMyRank(userId) {
   const [rows] = await db.readQuery(
-    `SELECT ranked.rank, ranked.wins, ranked.totalGames, ranked.winRate FROM (
-      SELECT u.id,
+    `SELECT ranked.rank, ranked.wins, ranked.totalGames, ranked.winRate, ranked.rankPoints FROM (
+      SELECT u.id, u.rank_points as rankPoints,
         COUNT(CASE WHEN gs.winner_id = u.id THEN 1 END) as wins,
         COUNT(gs.id) as totalGames,
         ROUND(COALESCE(COUNT(CASE WHEN gs.winner_id = u.id THEN 1 END) / NULLIF(COUNT(gs.id), 0) * 100, 0), 1) as winRate,
-        RANK() OVER (ORDER BY COUNT(CASE WHEN gs.winner_id = u.id THEN 1 END) DESC) as \`rank\`
+        RANK() OVER (ORDER BY u.rank_points DESC, COUNT(CASE WHEN gs.winner_id = u.id THEN 1 END) DESC) as \`rank\`
       FROM users u
       LEFT JOIN game_players gp ON u.id = gp.user_id
       LEFT JOIN game_sessions gs ON gp.session_id = gs.id AND gs.status = 'finished'
@@ -62,7 +63,7 @@ async function getMyRank(userId) {
     [userId]
   );
 
-  if (rows.length === 0) return { status: 200, data: { rank: 0, wins: 0, totalGames: 0, winRate: 0 } };
+  if (rows.length === 0) return { status: 200, data: { rank: 0, wins: 0, totalGames: 0, winRate: 0, rankPoints: 0 } };
   return { status: 200, data: rows[0] };
 }
 

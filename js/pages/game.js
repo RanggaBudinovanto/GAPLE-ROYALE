@@ -14,6 +14,7 @@ import { addGameHistory } from '../utils/storage.js';
 import { staggerFadeIn } from '../utils/animation.js';
 import { playCardPlace, playWin, playLose, playPass, playClick } from '../utils/sfx.js';
 import { SOCKET_URL, apiCall } from '../config.js';
+import { getRankTier } from './matchmaking.js';
 
 export function render(container) {
   const user = state.user;
@@ -645,7 +646,7 @@ export function render(container) {
     }, 1000);
   }
 
-  function showGameOverPopup(isWinner, coinTotal, activeCharacter, reason) {
+  function showGameOverPopup(isWinner, coinTotal, activeCharacter, reason, rankedInfo) {
     if (isWinner) {
       playWin();
     } else {
@@ -771,13 +772,46 @@ export function render(container) {
           ${renderCharacter(activeCharacter, 'medium')}
         </div>
         
-        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border-default);padding:14px 28px;border-radius:var(--radius-lg);margin-bottom:var(--sp-5);box-shadow:inset 0 0 10px rgba(0,0,0,0.4);width:100%;max-width:280px;">
-          <div style="font-family:var(--font-display);font-size:11px;color:var(--text-secondary);letter-spacing:0.08em;margin-bottom:6px;">KOIN DIPEROLEH</div>
-          <div class="coin-display" style="font-size:26px;justify-content:center;color:var(--gold-bright);font-weight:bold;display:flex;align-items:center;gap:8px;">
-            <div class="coin-icon coin-icon--md"></div>
-            <span class="text-mono" style="animation:textPulse 1.5s infinite;">+${coinTotal}</span>
+        
+        ${rankedInfo && rankedInfo.isRanked ? (() => {
+          const tier = getRankTier(rankedInfo.newRp);
+          const rpChangeText = rankedInfo.change >= 0 ? `+${rankedInfo.change} RP` : `${rankedInfo.change} RP`;
+          const rpChangeColor = rankedInfo.change >= 0 ? 'var(--status-win)' : 'var(--status-lose)';
+          return `
+            <div style="display:flex;flex-direction:column;gap:12px;width:100%;max-width:280px;margin-bottom:var(--sp-5);">
+              <!-- Coin rewards -->
+              <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border-default);padding:10px 16px;border-radius:var(--radius-lg);box-shadow:inset 0 0 10px rgba(0,0,0,0.4);">
+                <div style="font-family:var(--font-display);font-size:10px;color:var(--text-secondary);letter-spacing:0.08em;margin-bottom:4px;">KOIN DIPEROLEH</div>
+                <div class="coin-display" style="font-size:20px;justify-content:center;color:var(--gold-bright);font-weight:bold;display:flex;align-items:center;gap:6px;">
+                  <div class="coin-icon coin-icon--sm"></div>
+                  <span class="text-mono">+${coinTotal}</span>
+                </div>
+              </div>
+
+              <!-- Rank progression -->
+              <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(212,160,23,0.25);padding:10px 16px;border-radius:var(--radius-lg);box-shadow:inset 0 0 10px rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:space-between;">
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <span style="font-size:24px;">${tier.icon}</span>
+                  <div style="text-align:left;">
+                    <div style="font-family:var(--font-heading);font-weight:700;font-size:11px;color:${tier.color};">${tier.name.toUpperCase()}</div>
+                    <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-secondary);">${rankedInfo.newRp} RP</div>
+                  </div>
+                </div>
+                <div style="font-family:var(--font-mono);font-size:14px;font-weight:bold;color:${rpChangeColor};">
+                  ${rpChangeText}
+                </div>
+              </div>
+            </div>
+          `;
+        })() : `
+          <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border-default);padding:14px 28px;border-radius:var(--radius-lg);margin-bottom:var(--sp-5);box-shadow:inset 0 0 10px rgba(0,0,0,0.4);width:100%;max-width:280px;">
+            <div style="font-family:var(--font-display);font-size:11px;color:var(--text-secondary);letter-spacing:0.08em;margin-bottom:6px;">KOIN DIPEROLEH</div>
+            <div class="coin-display" style="font-size:26px;justify-content:center;color:var(--gold-bright);font-weight:bold;display:flex;align-items:center;gap:8px;">
+              <div class="coin-icon coin-icon--md"></div>
+              <span class="text-mono" style="animation:textPulse 1.5s infinite;">+${coinTotal}</span>
+            </div>
           </div>
-        </div>
+        `}
         
         <button class="btn btn-primary btn-block btn-lg" id="btn-continue-to-results" style="box-shadow:0 0 20px ${isWinner ? 'rgba(245,200,66,0.35)' : 'rgba(255,255,255,0.1)'};letter-spacing:0.08em;font-weight:900;font-family:var(--font-display);text-transform:uppercase;">
           LIHAT HASIL DETAIL
@@ -1047,6 +1081,12 @@ export function render(container) {
       }
       user.coin += myCoins;
       user.stats.totalCoinEarned += myCoins;
+
+      const myRankedInfo = data.rankedInfo?.[user.id] || null;
+      if (myRankedInfo && myRankedInfo.isRanked) {
+        user.rankPoints = myRankedInfo.newRp;
+      }
+
       state.set('coin', user.coin);
       state.persistUser();
 
@@ -1057,11 +1097,12 @@ export function render(container) {
         reason: data.reason,
         mode,
         players: gs.players,
-        newAchievements: []
+        newAchievements: [],
+        rankedInfo: myRankedInfo
       });
 
       renderGame();
-      showGameOverPopup(isWinner, myCoins, user.activeCharacter, data.reason);
+      showGameOverPopup(isWinner, myCoins, user.activeCharacter, data.reason, myRankedInfo);
     });
 
     socket.on('error', (err) => {

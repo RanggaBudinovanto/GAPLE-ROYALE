@@ -4,8 +4,8 @@ const matchmakingService = require('../services/matchmaking.service');
 
 router.post('/create', authMiddleware, async (req, res) => {
   try {
-    const { mode, opponentType, botLevel } = req.body;
-    const result = await matchmakingService.createSession(req.userId, mode, opponentType, botLevel);
+    const { mode, opponentType, botLevel, isRanked } = req.body;
+    const result = await matchmakingService.createSession(req.userId, mode, opponentType, botLevel, isRanked);
     res.status(result.status).json(result.data || { error: result.error });
   } catch (err) {
     res.status(500).json({ error: 'SERVER_ERROR', message: err.message });

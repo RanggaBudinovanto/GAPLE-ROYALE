@@ -45,7 +45,7 @@ async function register(username, email, password) {
     status: 201,
     data: {
       token,
-      user: { id, username, email, coin: 1000, activeCharacter: 'bocah_pemula', activeSkin: 'classic', createdAt: new Date().toISOString() }
+      user: { id, username, email, coin: 1000, activeCharacter: 'bocah_pemula', activeSkin: 'classic', rankPoints: 0, createdAt: new Date().toISOString() }
     }
   };
 }
@@ -70,7 +70,8 @@ async function login(username, password) {
       user: {
         id: user.id, username: user.username, coin: user.coin,
         activeCharacter: user.active_character, activeSkin: user.active_skin,
-        loginStreak: user.login_streak, lastLogin: user.last_login
+        loginStreak: user.login_streak, lastLogin: user.last_login,
+        rankPoints: user.rank_points || 0
       }
     }
   };
@@ -87,7 +88,8 @@ async function getMe(userId) {
       user: {
         id: u.id, username: u.username, email: u.email, coin: u.coin,
         activeCharacter: u.active_character, activeSkin: u.active_skin,
-        loginStreak: u.login_streak, lastLogin: u.last_login, createdAt: u.created_at
+        loginStreak: u.login_streak, lastLogin: u.last_login, createdAt: u.created_at,
+        rankPoints: u.rank_points || 0
       }
     }
   };

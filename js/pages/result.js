@@ -2,6 +2,7 @@ import state from '../state.js';
 import { renderCharacter, getCharacterName } from '../components/character.js';
 import { formatNumber } from '../utils/format.js';
 import { countUp, coinRain, staggerFadeIn } from '../utils/animation.js';
+import { getRankTier } from './matchmaking.js';
 
 export function render(container) {
   const user = state.user;
@@ -10,7 +11,7 @@ export function render(container) {
   const result = state.lastGameResult;
   if (!result) { location.hash = '#/lobby'; return; }
 
-  const { scores, coinResult, isWinner, reason, mode, players, newAchievements } = result;
+  const { scores, coinResult, isWinner, reason, mode, players, newAchievements, rankedInfo } = result;
 
   container.innerHTML = `
     <div style="min-height:100vh;background:var(--bg-primary);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:var(--sp-8) var(--sp-6) var(--sp-10);position:relative;overflow-y:auto;" id="result-screen">
@@ -112,6 +113,44 @@ export function render(container) {
               </div>
             </div>
           ` : ''}
+
+          <!-- Ranked Progression Card (if ranked match) -->
+          ${rankedInfo && rankedInfo.isRanked ? (() => {
+            const oldTier = getRankTier(rankedInfo.oldRp);
+            const newTier = getRankTier(rankedInfo.newRp);
+            const rpChangeText = rankedInfo.change >= 0 ? `+${rankedInfo.change} RP` : `${rankedInfo.change} RP`;
+            const rpChangeColor = rankedInfo.change >= 0 ? 'var(--status-win)' : 'var(--status-lose)';
+            
+            // Calculate progress percentage
+            const progressPercent = newTier.name === 'Royale Champion' ? 100 : (rankedInfo.newRp % 100);
+            
+            return `
+              <div class="card card--premium" style="text-align:center;margin-bottom:0;position:relative;overflow:hidden;border:1px solid rgba(212,160,23,0.3);box-shadow:0 8px 32px rgba(212,160,23,0.1);">
+                <div style="font-family:var(--font-display);font-size:11px;color:var(--text-secondary);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:var(--sp-2);">PERKEMBANGAN RANK</div>
+                
+                <div class="flex items-center justify-center gap-4" style="margin:var(--sp-3) 0;">
+                  <span style="font-size:42px;filter:drop-shadow(0 0 10px ${newTier.color});">${newTier.icon}</span>
+                  <div style="text-align:left;">
+                    <div style="font-family:var(--font-heading);font-size:20px;font-weight:800;color:${newTier.color};letter-spacing:0.04em;">${newTier.name.toUpperCase()}</div>
+                    <div style="font-family:var(--font-mono);font-size:13px;color:var(--text-secondary);display:flex;align-items:center;gap:6px;">
+                      <span>${rankedInfo.newRp} RP</span>
+                      <span style="color:${rpChangeColor};font-weight:bold;">(${rpChangeText})</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Rank Progress Bar -->
+                <div style="width:100%;background:rgba(255,255,255,0.05);height:6px;border-radius:var(--radius-full);overflow:hidden;margin-bottom:8px;border:1px solid rgba(255,255,255,0.05);">
+                  <div style="width:${progressPercent}%;background:linear-gradient(90deg, ${newTier.color}, var(--gold-bright));height:100%;border-radius:var(--radius-full);transition:width 1s cubic-bezier(0.4, 0, 0.2, 1);"></div>
+                </div>
+                
+                <div style="display:flex;justify-content:space-between;font-size:10px;font-family:var(--font-mono);color:var(--text-muted);">
+                  <span>Divisi Saat Ini</span>
+                  <span>${newTier.name === 'Royale Champion' ? 'ROYALE' : `${100 - progressPercent} RP ke Rank Berikutnya`}</span>
+                </div>
+              </div>
+            `;
+          })() : ''}
         </div>
       </div>
 

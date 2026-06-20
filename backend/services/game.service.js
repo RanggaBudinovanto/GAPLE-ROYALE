@@ -408,10 +408,54 @@ async function endGame(nsp, roomId, game, winnerIdx, reason) {
     coinEarned[p.id] = { base, winBonus, passive: 0, doubleMultiplier: 1, total: base + winBonus };
   });
 
-  nsp.to(roomId).emit('game_over', { reason, winner: game.players[winnerIdx].id, scores, coinEarned });
+  // Calculate Rank Points (RP) changes before emitting game_over
+  let isRankedGame = false;
+  try {
+    const [sessRows] = await db.query('SELECT is_ranked FROM game_sessions WHERE room_id = ?', [roomId]);
+    if (sessRows.length > 0) {
+      isRankedGame = !!sessRows[0].is_ranked;
+    }
+  } catch (dbErr) {
+    console.error('Failed to query session is_ranked state:', dbErr);
+  }
+
+  const rankedInfo = {};
+  const winnerId = game.players[winnerIdx].id;
+
+  for (const p of game.players) {
+    if (p.id.startsWith('bot_')) {
+      rankedInfo[p.id] = { isRanked: false, oldRp: 0, newRp: 0, change: 0 };
+      continue;
+    }
+
+    if (isRankedGame) {
+      try {
+        const [userRows] = await db.query('SELECT rank_points FROM users WHERE id = ?', [p.id]);
+        const currentRp = userRows[0]?.rank_points || 0;
+        const isWinner = p.id === winnerId;
+        const change = isWinner ? (reason === 'gaple' ? 30 : 25) : -15;
+        let newRp = currentRp + change;
+        if (newRp < 0) newRp = 0;
+
+        await db.query('UPDATE users SET rank_points = ? WHERE id = ?', [newRp, p.id]);
+        rankedInfo[p.id] = {
+          isRanked: true,
+          oldRp: currentRp,
+          newRp: newRp,
+          change: change
+        };
+      } catch (uErr) {
+        console.error(`Failed to update RP for user ${p.id}:`, uErr);
+        rankedInfo[p.id] = { isRanked: true, oldRp: 0, newRp: 0, change: 0 };
+      }
+    } else {
+      rankedInfo[p.id] = { isRanked: false, oldRp: 0, newRp: 0, change: 0 };
+    }
+  }
+
+  nsp.to(roomId).emit('game_over', { reason, winner: winnerId, scores, coinEarned, rankedInfo });
 
   try {
-    const winnerId = game.players[winnerIdx].id;
     if (!winnerId.startsWith('bot_')) {
       await db.query('UPDATE game_sessions SET status = "finished", winner_id = ?, finished_at = NOW() WHERE room_id = ?', [winnerId, roomId]);
       const earned = coinEarned[winnerId]?.total || 0;
