@@ -183,6 +183,30 @@ module.exports = function (io) {
       });
     });
 
+    socket.on('webrtc_signal', (data) => {
+      const { to, signal } = data;
+      if (!socket.userId || !to) return;
+      const roomMap = roomConnections.get(roomId);
+      if (roomMap) {
+        const targetSocket = roomMap.get(to);
+        if (targetSocket) {
+          targetSocket.emit('webrtc_signal', {
+            from: socket.userId,
+            signal
+          });
+        }
+      }
+    });
+
+    socket.on('voice_state_change', (data) => {
+      if (!socket.userId) return;
+      socket.to(roomId).emit('voice_state_change', {
+        userId: socket.userId,
+        isMuted: data.isMuted,
+        isSpeaking: data.isSpeaking
+      });
+    });
+
     socket.on('disconnect', () => {
       if (socket.roomId && roomConnections.has(socket.roomId)) {
         roomConnections.get(socket.roomId).delete(socket.userId);

@@ -864,3 +864,104 @@ body:has(.game-container), body:has(.matchmaking-container) {
   100% { box-shadow: 0 0 10px rgba(245,200,66,0.4), inset 0 0 4px rgba(255,255,255,0.2); }
 }
 
+/* ===== VOICE CHAT UI ===== */
+.voice-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+.voice-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-full);
+  background: var(--bg-elevated);
+  border: 1.5px solid var(--border-default);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all var(--dur-fast) ease;
+  user-select: none;
+}
+.voice-btn:hover:not(:disabled) {
+  border-color: var(--gold-bright);
+  background: rgba(245, 200, 66, 0.08);
+  box-shadow: 0 0 8px rgba(245, 200, 66, 0.2);
+}
+.voice-btn--muted {
+  border-color: var(--status-lose) !important;
+  color: var(--status-lose) !important;
+  background: rgba(239, 68, 68, 0.05) !important;
+}
+.voice-btn--muted:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.12) !important;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.2) !important;
+}
+.voice-btn--speaking {
+  animation: voiceMicPulse 1s infinite ease-in-out;
+  border-color: var(--status-win) !important;
+  color: var(--status-win) !important;
+  background: rgba(46, 204, 113, 0.05) !important;
+}
+
+.opponent-voice-badge {
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-full);
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  z-index: 6;
+  user-select: none;
+}
+.opponent-voice-badge--muted {
+  border-color: var(--status-lose) !important;
+  color: var(--status-lose) !important;
+  background: rgba(239, 68, 68, 0.15) !important;
+}
+.opponent-voice-badge--speaking {
+  border-color: var(--status-win) !important;
+  color: var(--status-win) !important;
+  background: rgba(46, 204, 113, 0.15) !important;
+  animation: badgePulse 1s infinite ease-in-out;
+}
+
+/* Speaking Pulsing Glow around Avatar */
+.opponent.voice-speaking {
+  border-color: var(--status-win) !important;
+  box-shadow: 0 0 15px rgba(46, 204, 113, 0.35) !important;
+  background: rgba(46, 204, 113, 0.03) !important;
+}
+.opponent.voice-speaking .opponent-avatar {
+  border-color: var(--status-win) !important;
+  box-shadow: 0 0 12px rgba(46, 204, 113, 0.5) !important;
+}
+
+@keyframes voiceMicPulse {
+  0% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.4); }
+  70% { box-shadow: 0 0 0 6px rgba(46, 204, 113, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); }
+}
+
+@keyframes badgePulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+@media (max-width: 767px) {
+  .voice-btn {
+    width: 30px;
+    height: 30px;
+    font-size: 12px;
+  }
+}
+
+

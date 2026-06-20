@@ -38,6 +38,8 @@ export function render(container) {
   const hands = dealCards(numPlayers);
   const board = createBoard();
 
+  let cleanupVoiceChatFn = null;
+
   const gs = {
     players,
     hands,
@@ -58,7 +60,10 @@ export function render(container) {
     passiveUsed: { si_hoki: false, juragan_meja: false, sang_bluffer: false },
     undoState: null,
     pvpSocket: null,       // Socket.io connection for PvP
-    myPlayerIndex: 0       // Will be set by server for PvP
+    myPlayerIndex: 0,      // Will be set by server for PvP
+    voiceMuted: true,
+    voiceInitialized: false,
+    playerVoiceStates: {}  // key: userId, value: { isMuted: true, isSpeaking: false }
   };
 
   container.innerHTML = '';
@@ -82,8 +87,14 @@ export function render(container) {
       const isActive = gs.currentPlayerIndex === idx && !gs.gameOver;
       const isBlocked = gs.blockedPlayer === idx;
       
+      const vState = gs.playerVoiceStates[p.id] || { isMuted: true, isSpeaking: false };
+      const voiceBadgeClass = `opponent-voice-badge ${vState.isMuted ? 'opponent-voice-badge--muted' : ''} ${vState.isSpeaking ? 'opponent-voice-badge--speaking' : ''}`;
+      const voiceBadgeContent = vState.isMuted ? '🎤❌' : '🎤';
+      const voiceBadgeTitle = vState.isMuted ? 'Mic Nonaktif' : 'Mic Aktif';
+      
       return `
-        <div class="opponent ${isActive ? 'opponent--active' : ''} ${isBlocked ? 'opponent-blocked' : ''}">
+        <div class="opponent ${isActive ? 'opponent--active' : ''} ${isBlocked ? 'opponent-blocked' : ''} ${vState.isSpeaking ? 'voice-speaking' : ''}" id="opponent-card-${p.id}">
+          ${isRealPvP ? `<div class="${voiceBadgeClass}" id="voice-badge-${p.id}" title="${voiceBadgeTitle}">${voiceBadgeContent}</div>` : ''}
           <div class="opponent-avatar ${isActive ? 'avatar--glow' : ''}">
             ${renderCharacter(p.activeCharacter, 'tiny')}
           </div>
@@ -114,6 +125,16 @@ export function render(container) {
           <span>${gs.turnTimer}s</span>
         </div>
         <div class="flex items-center gap-3">
+          ${isRealPvP ? `
+            <div class="voice-controls">
+              <button class="voice-btn ${gs.voiceMuted ? 'voice-btn--muted' : ''}" 
+                      id="btn-toggle-mic" 
+                      title="${!gs.voiceInitialized ? 'Voice chat menghubungkan...' : gs.voiceMuted ? 'Mikrofon Mati' : 'Mikrofon Aktif'}" 
+                      ${!gs.voiceInitialized ? 'disabled' : ''}>
+                ${gs.voiceMuted ? '🎤❌' : '🎤 ON'}
+              </button>
+            </div>
+          ` : ''}
           <div class="coin-display" style="font-size:14px;${gs.doubleCoin ? 'animation:doubleGlow 1s ease infinite;' : ''}">
             <div class="coin-icon coin-icon--sm"></div>
             <span>${formatNumber(user.coin)}</span>
@@ -867,7 +888,6 @@ export function render(container) {
   // ════════════════════════════════════════════════════════════════
   // START GAME
   // ════════════════════════════════════════════════════════════════
-
   if (isRealPvP && backendToken && typeof io !== 'undefined') {
     // ── REAL PVP: Connect via Socket.io ────────────────────────────────────
     showToast('Menghubungkan ke server...', 'info');
@@ -877,6 +897,10 @@ export function render(container) {
       transports: ['websocket', 'polling']
     });
     gs.pvpSocket = socket;
+
+    // Initialize WebRTC Voice Chat Manager
+    const { initVoiceChat, cleanupVoiceChat } = setupVoiceChat(socket, gs, user, renderGame);
+    cleanupVoiceChatFn = cleanupVoiceChat;
 
     // ── Send join event with auth token ────────────────────────────────────
     socket.on('connect', () => {
@@ -918,6 +942,9 @@ export function render(container) {
       renderGame();
       resetTimer();
       showToast(`Pertandingan dimulai! Giliran: ${gs.players[gs.currentPlayerIndex].username}`, 'success');
+
+      // Start peer WebRTC connections and prompt local mic permissions
+      initVoiceChat().catch(err => console.error('Failed to init voice chat:', err));
     });
 
     // ── Waiting for other players ──────────────────────────────────────────
@@ -1099,6 +1126,9 @@ export function render(container) {
       gs.pvpSocket.disconnect();
       gs.pvpSocket = null;
     }
+    if (cleanupVoiceChatFn) {
+      cleanupVoiceChatFn();
+    }
   };
 } // end of render()
 
@@ -1189,4 +1219,268 @@ function escapeHtml(text) {
   const div = document.createElement('div');
   div.textContent = text;
   return div.innerHTML;
+}
+
+function setupVoiceChat(socket, gs, user, renderGame) {
+  const myUserId = user.id;
+  const configuration = {
+    iceServers: [
+      { urls: 'stun:stun.l.google.com:19302' },
+      { urls: 'stun:stun1.l.google.com:19302' }
+    ]
+  };
+
+  let localStream = null;
+  const peers = new Map();
+
+  let audioCtx = null;
+  let analyser = null;
+  let micSource = null;
+  let checkInterval = null;
+  let lastSpeakingState = false;
+
+  function getOrCreatePeer(targetUserId) {
+    if (peers.has(targetUserId)) {
+      return peers.get(targetUserId);
+    }
+
+    const pc = new RTCPeerConnection(configuration);
+    pc.iceQueue = [];
+    pc.remoteDescriptionSet = false;
+
+    if (localStream) {
+      localStream.getTracks().forEach(track => {
+        pc.addTrack(track, localStream);
+      });
+    }
+
+    pc.onicecandidate = (event) => {
+      if (event.candidate) {
+        socket.emit('webrtc_signal', {
+          to: targetUserId,
+          signal: { type: 'candidate', candidate: event.candidate }
+        });
+      }
+    };
+
+    pc.onconnectionstatechange = () => {
+      console.log(`WebRTC connection state with ${targetUserId}: ${pc.connectionState}`);
+    };
+
+    pc.ontrack = (event) => {
+      console.log(`Received remote audio track from ${targetUserId}`);
+      const remoteStream = event.streams[0];
+      let audioEl = document.getElementById(`audio-remote-${targetUserId}`);
+      if (!audioEl) {
+        audioEl = document.createElement('audio');
+        audioEl.id = `audio-remote-${targetUserId}`;
+        audioEl.autoplay = true;
+        audioEl.style.display = 'none';
+        document.body.appendChild(audioEl);
+      }
+      audioEl.srcObject = remoteStream;
+    };
+
+    peers.set(targetUserId, pc);
+    return pc;
+  }
+
+  async function initVoiceChat() {
+    console.log('Initializing voice chat...');
+    try {
+      localStream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        }
+      });
+      // Default to muted
+      localStream.getAudioTracks().forEach(track => {
+        track.enabled = false;
+      });
+
+      gs.voiceInitialized = true;
+      gs.voiceMuted = true;
+      renderGame();
+    } catch (err) {
+      console.warn('Microphone access denied or not available:', err);
+      showToast('Akses mikrofon ditolak/tidak tersedia.', 'warning');
+      gs.voiceInitialized = true;
+      gs.voiceMuted = true;
+      renderGame();
+    }
+
+    // Set up local speaking detection
+    startSpeakingDetection();
+
+    // Initiate connections with peers
+    for (const p of gs.players) {
+      if (p.id === myUserId || p.isBot) continue;
+
+      if (myUserId < p.id) {
+        console.log(`Initiating WebRTC offer to ${p.username} (${p.id})`);
+        try {
+          const pc = getOrCreatePeer(p.id);
+          const offer = await pc.createOffer();
+          await pc.setLocalDescription(offer);
+
+          socket.emit('webrtc_signal', {
+            to: p.id,
+            signal: { type: 'offer', sdp: pc.localDescription }
+          });
+        } catch (err) {
+          console.error(`Failed to create offer for ${p.id}:`, err);
+        }
+      }
+    }
+  }
+
+  function startSpeakingDetection() {
+    if (!localStream) return;
+    try {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      audioCtx = new AudioContextClass();
+      analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 256;
+      
+      micSource = audioCtx.createMediaStreamSource(localStream);
+      micSource.connect(analyser);
+
+      const bufferLength = analyser.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+
+      checkInterval = setInterval(() => {
+        if (gs.voiceMuted) {
+          if (lastSpeakingState) {
+            lastSpeakingState = false;
+            socket.emit('voice_state_change', { isMuted: true, isSpeaking: false });
+          }
+          return;
+        }
+
+        analyser.getByteFrequencyData(dataArray);
+        let sum = 0;
+        for (let i = 0; i < bufferLength; i++) {
+          sum += dataArray[i];
+        }
+        const average = sum / bufferLength;
+
+        // Amplitude threshold for speaking detection
+        const isSpeaking = average > 15;
+
+        if (isSpeaking !== lastSpeakingState) {
+          lastSpeakingState = isSpeaking;
+          socket.emit('voice_state_change', { isMuted: false, isSpeaking });
+        }
+      }, 200);
+    } catch (err) {
+      console.warn('Failed to start local speaking detection:', err);
+    }
+  }
+
+  // Socket listener for signal
+  socket.on('webrtc_signal', async (data) => {
+    const { from, signal } = data;
+    if (!from || !signal) return;
+
+    try {
+      const pc = getOrCreatePeer(from);
+
+      if (signal.type === 'offer') {
+        await pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
+        pc.remoteDescriptionSet = true;
+        
+        while (pc.iceQueue.length > 0) {
+          const cand = pc.iceQueue.shift();
+          await pc.addIceCandidate(new RTCIceCandidate(cand));
+        }
+
+        const answer = await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+
+        socket.emit('webrtc_signal', {
+          to: from,
+          signal: { type: 'answer', sdp: pc.localDescription }
+        });
+      } else if (signal.type === 'answer') {
+        await pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
+        pc.remoteDescriptionSet = true;
+
+        while (pc.iceQueue.length > 0) {
+          const cand = pc.iceQueue.shift();
+          await pc.addIceCandidate(new RTCIceCandidate(cand));
+        }
+      } else if (signal.type === 'candidate') {
+        if (pc.remoteDescriptionSet) {
+          await pc.addIceCandidate(new RTCIceCandidate(signal.candidate));
+        } else {
+          pc.iceQueue.push(signal.candidate);
+        }
+      }
+    } catch (err) {
+      console.error('Error handling WebRTC signal:', err);
+    }
+  });
+
+  // Socket listener for peer state change
+  socket.on('voice_state_change', (data) => {
+    const { userId, isMuted: peerMuted, isSpeaking: peerSpeaking } = data;
+    gs.playerVoiceStates[userId] = { isMuted: peerMuted, isSpeaking: peerSpeaking };
+    renderGame();
+  });
+
+  const onMicClick = (e) => {
+    const btn = e.target.closest('#btn-toggle-mic');
+    if (!btn) return;
+
+    gs.voiceMuted = !gs.voiceMuted;
+    
+    if (localStream) {
+      localStream.getAudioTracks().forEach(track => {
+        track.enabled = !gs.voiceMuted;
+      });
+    }
+
+    renderGame();
+
+    socket.emit('voice_state_change', { isMuted: gs.voiceMuted, isSpeaking: false });
+  };
+  document.addEventListener('click', onMicClick);
+
+  function cleanupVoiceChat() {
+    console.log('Cleaning up WebRTC voice chat...');
+    document.removeEventListener('click', onMicClick);
+
+    if (checkInterval) {
+      clearInterval(checkInterval);
+      checkInterval = null;
+    }
+    
+    if (audioCtx) {
+      if (audioCtx.state !== 'closed') {
+        audioCtx.close();
+      }
+      audioCtx = null;
+    }
+    
+    if (micSource) {
+      micSource.disconnect();
+      micSource = null;
+    }
+    
+    if (localStream) {
+      localStream.getTracks().forEach(track => track.stop());
+      localStream = null;
+    }
+
+    peers.forEach((pc, targetId) => {
+      pc.close();
+      const audioEl = document.getElementById(`audio-remote-${targetId}`);
+      if (audioEl) audioEl.remove();
+    });
+    peers.clear();
+  }
+
+  return { initVoiceChat, cleanupVoiceChat };
 }
