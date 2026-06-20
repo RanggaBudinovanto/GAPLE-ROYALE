@@ -42,6 +42,10 @@ async function createSession(userId, mode, opponentType, botLevel, isRanked, bet
   }
 
   // ── BOT MODE ─────────────────────────────────────────────────────────────
+  if (isRankedBool && opponentType === 'bot') {
+    return { status: 400, error: 'RANKED_NO_BOT', message: 'Mode Ranked harus melawan pemain asli, tidak bisa VS Bot' };
+  }
+
   if (opponentType === 'bot') {
     const roomId = generateRoomId();
     const sessionId = uuidv4();

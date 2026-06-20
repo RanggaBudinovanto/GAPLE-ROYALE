@@ -964,6 +964,19 @@ body:has(.game-container), body:has(.matchmaking-container) {
   }
 }
 
+/* ===== AUDIO TOGGLES: move to left in game (chat is on right) ===== */
+body:has(.game-container) .music-toggle-btn,
+body:has(.game-container) .sfx-toggle-btn {
+  right: auto;
+}
+body:has(.game-container) .music-toggle-btn { left: 20px; }
+body:has(.game-container) .sfx-toggle-btn { left: 80px; }
+
+@media (max-width: 767px) {
+  body:has(.game-container) .music-toggle-btn { left: 16px; }
+  body:has(.game-container) .sfx-toggle-btn { left: 68px; }
+}
+
 /* ===== EMOTE BAR (replaces chat-emoji-bar) ===== */
 .emote-bar {
   display: grid;

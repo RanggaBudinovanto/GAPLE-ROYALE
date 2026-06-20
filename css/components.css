@@ -623,11 +623,11 @@
 }
 
 .music-toggle-btn {
-  left: 20px;
+  right: 20px;
 }
 
 .sfx-toggle-btn {
-  left: 80px;
+  right: 80px;
 }
 
 .music-toggle-btn:hover, .sfx-toggle-btn:hover {
@@ -648,10 +648,10 @@
     font-size: 16px;
   }
   .music-toggle-btn {
-    left: 16px;
+    right: 16px;
   }
   .sfx-toggle-btn {
-    left: 68px;
+    right: 68px;
   }
 }
 

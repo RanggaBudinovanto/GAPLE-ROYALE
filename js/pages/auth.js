@@ -45,10 +45,8 @@ function renderPokerChip() {
 }
 
 export function render(container) {
-  let activeTab = 'login';
-
   // Generate dynamic floating items for premium background
-  const itemsCount = 26;
+  const itemsCount = 50;
   const itemsHtml = [];
 
   for (let i = 0; i < itemsCount; i++) {
@@ -131,7 +129,7 @@ export function render(container) {
   }
 
   // Generate floating gold particles
-  const particleCount = 20;
+  const particleCount = 45;
   const particlesHtml = [];
   for (let i = 0; i < particleCount; i++) {
     const left = Math.random() * 100;
@@ -165,80 +163,156 @@ export function render(container) {
     <div class="auth-wrapper" style="
       min-height:100vh;display:flex;align-items:center;justify-content:center;
       background:var(--bg-felt);
-      background-image:radial-gradient(circle at calc(50% + var(--mouse-x, 0) * 15%) calc(50% + var(--mouse-y, 0) * 15%), rgba(20, 90, 42, 0.4) 0%, transparent 60%),
-                       radial-gradient(ellipse at top left, rgba(0,0,0,0.5) 0%, transparent 50%),
-                       radial-gradient(ellipse at top right, rgba(0,0,0,0.5) 0%, transparent 50%);
+      background-image:
+        radial-gradient(circle at calc(50% + var(--mouse-x, 0) * 15%) calc(50% + var(--mouse-y, 0) * 15%), rgba(20, 90, 42, 0.5) 0%, transparent 50%),
+        radial-gradient(ellipse at 20% 20%, rgba(245,200,66,0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(245,200,66,0.04) 0%, transparent 50%),
+        radial-gradient(ellipse at top left, rgba(0,0,0,0.6) 0%, transparent 50%),
+        radial-gradient(ellipse at bottom right, rgba(0,0,0,0.6) 0%, transparent 50%);
       padding:var(--sp-5);position:relative;overflow:hidden;
     ">
-      <!-- Style injection for background animations -->
       <style>
         @keyframes floatBgItem {
-          0% {
-            transform: translate(0, 0) rotate(var(--rot-start, 0deg));
-          }
-          100% {
-            transform: translate(var(--tx, 20px), var(--ty, -40px)) rotate(var(--rot-end, 15deg));
-          }
+          0% { transform: translate(0, 0) rotate(var(--rot-start, 0deg)); }
+          100% { transform: translate(var(--tx, 20px), var(--ty, -40px)) rotate(var(--rot-end, 15deg)); }
         }
         @keyframes floatBgParticle {
-          0% {
-            transform: translateY(0) translateX(0);
-            opacity: 0;
-          }
-          10% {
-            opacity: var(--p-op, 0.2);
-          }
-          90% {
-            opacity: var(--p-op, 0.2);
-          }
-          100% {
-            transform: translateY(-150px) translateX(var(--ptx, 15px));
-            opacity: 0;
-          }
+          0% { transform: translateY(0) translateX(0); opacity: 0; }
+          10% { opacity: var(--p-op, 0.2); }
+          90% { opacity: var(--p-op, 0.2); }
+          100% { transform: translateY(-150px) translateX(var(--ptx, 15px)); opacity: 0; }
+        }
+        @keyframes spotlightSweep {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        @keyframes authLogoGlow {
+          0%, 100% { text-shadow: 0 0 30px rgba(245,200,66,0.3), 0 0 60px rgba(245,200,66,0.1); filter: brightness(1); }
+          50% { text-shadow: 0 0 50px rgba(245,200,66,0.5), 0 0 100px rgba(245,200,66,0.2); filter: brightness(1.1); }
+        }
+        @keyframes ornamentFade {
+          0%, 100% { opacity: 0.3; }
+          50% { opacity: 0.6; }
+        }
+        @keyframes cardSlideLeft {
+          from { opacity: 0; transform: translateX(-40px) scale(0.95); }
+          to { opacity: 1; transform: translateX(0) scale(1); }
+        }
+        @keyframes cardSlideRight {
+          from { opacity: 0; transform: translateX(40px) scale(0.95); }
+          to { opacity: 1; transform: translateX(0) scale(1); }
         }
 
         .floating-bg-item {
           pointer-events: none;
-          /* Apply mouse offset dynamically via margins to avoid conflicts with @keyframes transform */
           margin-left: calc(var(--mouse-x, 0) * var(--pf, 10px));
           margin-top: calc(var(--mouse-y, 0) * var(--pf, 10px));
           transition: margin 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .layer-mg {
-          pointer-events: auto !important;
-        }
-
+        .layer-mg { pointer-events: auto !important; }
         .floating-item-inner {
           transition: transform var(--dur-normal) var(--ease-spring), filter var(--dur-normal) ease, opacity var(--dur-normal) ease;
           transform-origin: center center;
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          display: flex; align-items: center; justify-content: center;
         }
-
-        .layer-mg:hover {
-          z-index: 10 !important;
-          opacity: 1 !important;
-        }
+        .layer-mg:hover { z-index: 10 !important; opacity: 1 !important; }
         .layer-mg:hover .floating-item-inner {
           transform: scale(1.3) rotate(calc(var(--rot) + 15deg)) !important;
           filter: drop-shadow(0 0 16px var(--gold-bright)) brightness(1.2);
           cursor: pointer;
         }
-
         .casino-coin, .casino-chip {
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          display: flex; align-items: center; justify-content: center;
           filter: drop-shadow(2px 3px 6px rgba(0,0,0,0.55));
           user-select: none;
         }
-        .casino-coin svg, .casino-chip svg {
-          display: block;
+        .casino-coin svg, .casino-chip svg { display: block; }
+
+        .auth-content {
+          position: relative; z-index: 1;
+          display: flex; flex-direction: column; align-items: center;
+          width: 100%; max-width: 920px;
+        }
+        .auth-cards-row {
+          display: flex; gap: var(--sp-6); width: 100%;
+          justify-content: center; align-items: stretch;
+        }
+        .auth-card {
+          flex: 1; max-width: 420px; min-width: 280px;
+          display: flex; flex-direction: column;
+          background: linear-gradient(135deg, rgba(20, 26, 16, 0.92), rgba(9, 24, 14, 0.95));
+          border: 1.5px solid var(--border-gold);
+          border-radius: var(--radius-xl);
+          padding: var(--sp-6) var(--sp-5);
+          box-shadow: 0 8px 40px rgba(0,0,0,0.5), 0 0 30px rgba(245,200,66,0.05);
+          backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+          position: relative; overflow: hidden;
+        }
+        .auth-card::before {
+          content: '';
+          position: absolute; top: 0; left: 0; right: 0; height: 2px;
+          background: linear-gradient(90deg, transparent, var(--gold-bright), transparent);
+          opacity: 0.6;
+        }
+        .auth-card--login { animation: cardSlideLeft 0.6s var(--ease-spring) forwards; }
+        .auth-card--register { animation: cardSlideRight 0.6s 0.1s var(--ease-spring) both; }
+
+        .auth-card-title {
+          font-family: var(--font-display);
+          font-size: 18px; font-weight: 800; letter-spacing: 0.1em;
+          color: var(--text-gold); text-transform: uppercase;
+          text-align: center; margin-bottom: var(--sp-5);
+          display: flex; align-items: center; justify-content: center; gap: var(--sp-3);
+        }
+        .auth-card-title::before, .auth-card-title::after {
+          content: ''; flex: 1; height: 1px; max-width: 50px;
+          background: linear-gradient(90deg, transparent, var(--border-gold));
+        }
+        .auth-card-title::after {
+          background: linear-gradient(90deg, var(--border-gold), transparent);
+        }
+
+        .auth-divider {
+          display: flex; align-items: center; justify-content: center;
+          align-self: center; flex-shrink: 0;
+          writing-mode: vertical-lr; text-orientation: mixed;
+          font-family: var(--font-display); font-size: 11px;
+          color: var(--text-muted); letter-spacing: 0.15em;
+          padding: 0 var(--sp-2); position: relative;
+        }
+        .auth-divider::before, .auth-divider::after {
+          content: ''; position: absolute; left: 50%;
+          width: 1px; height: 60px;
+          background: linear-gradient(180deg, transparent, rgba(212,160,23,0.3), transparent);
+        }
+        .auth-divider::before { bottom: 100%; }
+        .auth-divider::after { top: 100%; }
+
+        @media (max-width: 767px) {
+          .auth-cards-row { flex-direction: column; align-items: center; }
+          .auth-card { max-width: 100%; }
+          .auth-divider {
+            writing-mode: horizontal-tb;
+            padding: var(--sp-2) 0;
+          }
+          .auth-divider::before, .auth-divider::after {
+            width: 60px; height: 1px; top: 50%; left: auto;
+            background: linear-gradient(90deg, transparent, rgba(212,160,23,0.3), transparent);
+          }
+          .auth-divider::before { right: 100%; left: auto; }
+          .auth-divider::after { left: 100%; right: auto; }
+          .auth-card--login, .auth-card--register { animation: scaleIn 0.5s var(--ease-spring) forwards; }
         }
       </style>
 
-      <!-- Decorative floating items (Cards, Coins, Chips) -->
+      <!-- Spotlight sweep effect -->
+      <div style="position:absolute;top:-50%;left:-50%;width:200%;height:200%;pointer-events:none;z-index:0;">
+        <div style="position:absolute;top:50%;left:50%;width:300px;height:600px;
+          background:conic-gradient(from 0deg, transparent 85%, rgba(245,200,66,0.03) 90%, transparent 95%);
+          transform-origin:center center;animation:spotlightSweep 20s linear infinite;"></div>
+      </div>
+
+      <!-- Decorative floating items -->
       <div style="position:absolute;inset:0;pointer-events:none;z-index:0;">
         ${itemsHtml.join('')}
       </div>
@@ -248,64 +322,81 @@ export function render(container) {
         ${particlesHtml.join('')}
       </div>
 
-      <div class="card card--glass" style="max-width:420px;width:100%;animation:scaleIn 0.4s var(--ease-spring);position:relative;z-index:1;">
-        <!-- Logo -->
-        <div style="text-align:center;margin-bottom:var(--sp-6);">
-          <h1 style="font-family:var(--font-display);font-size:24px;font-weight:700;color:var(--text-gold);letter-spacing:0.08em;">GAPLE ROYALE</h1>
-          <p style="font-size:var(--text-sm);color:var(--text-muted);margin-top:4px;font-style:italic;">Premium Casino Domino</p>
+      <!-- Vignette overlay -->
+      <div style="position:absolute;inset:0;pointer-events:none;z-index:0;
+        background:radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.5) 100%);"></div>
+
+      <div class="auth-content">
+        <!-- Grand Logo -->
+        <div style="text-align:center;margin-bottom:var(--sp-7);position:relative;">
+          <div style="font-size:10px;font-family:var(--font-mono);color:var(--text-muted);letter-spacing:0.3em;text-transform:uppercase;margin-bottom:var(--sp-2);animation:ornamentFade 3s ease-in-out infinite;">
+            &#9830; &#9830; &#9830; VELVET NOIR CASINO CLUB &#9830; &#9830; &#9830;
+          </div>
+          <h1 style="font-family:var(--font-display);font-size:42px;font-weight:900;color:var(--text-gold);letter-spacing:0.1em;margin:0;animation:authLogoGlow 4s ease-in-out infinite;
+            background:linear-gradient(90deg, #ffe875, #f5c842, #d4a017, #f5c842, #ffe875);background-size:200% auto;
+            -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">GAPLE ROYALE</h1>
+          <p style="font-size:14px;color:var(--text-secondary);margin-top:6px;font-style:italic;font-family:var(--font-body);letter-spacing:0.05em;">Premium Casino Domino Experience</p>
+          <div style="margin-top:var(--sp-3);display:flex;align-items:center;justify-content:center;gap:var(--sp-3);">
+            <div style="flex:1;max-width:80px;height:1px;background:linear-gradient(90deg, transparent, var(--border-gold));"></div>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <polygon points="12,2 15,9 22,9 16,14 18,22 12,17 6,22 8,14 2,9 9,9" fill="#d4a017" opacity="0.6"/>
+            </svg>
+            <div style="flex:1;max-width:80px;height:1px;background:linear-gradient(90deg, var(--border-gold), transparent);"></div>
+          </div>
         </div>
 
-        <!-- Tabs -->
-        <div class="tabs" style="margin-bottom:var(--sp-5);">
-          <button class="tab tab--active" id="tab-login" data-tab="login">Masuk</button>
-          <button class="tab" id="tab-register" data-tab="register">Daftar</button>
+        <!-- Side-by-side Login & Register -->
+        <div class="auth-cards-row">
+          <!-- LOGIN CARD -->
+          <div class="auth-card auth-card--login">
+            <div class="auth-card-title">Masuk</div>
+            <form id="form-login" autocomplete="off" style="flex:1;display:flex;flex-direction:column;">
+              <div class="input-group">
+                <label class="input-label">Username</label>
+                <input class="input" type="text" id="login-username" placeholder="Nama Pengguna" required minlength="3" autocomplete="username">
+                <div class="input-error-msg" id="login-username-error"></div>
+              </div>
+              <div class="input-group">
+                <label class="input-label">Password</label>
+                <input class="input" type="password" id="login-password" placeholder="Kata Sandi" required minlength="6" autocomplete="current-password">
+                <div class="input-error-msg" id="login-password-error"></div>
+              </div>
+              <div style="flex:1;"></div>
+              <button type="submit" class="btn btn-primary btn-block btn-lg" id="btn-login" style="margin-top:var(--sp-4);letter-spacing:0.08em;font-weight:800;">MASUK KE MEJA</button>
+            </form>
+          </div>
+
+          <!-- Divider -->
+          <div class="auth-divider">ATAU</div>
+
+          <!-- REGISTER CARD -->
+          <div class="auth-card auth-card--register">
+            <div class="auth-card-title">Daftar Baru</div>
+            <form id="form-register" autocomplete="off">
+              <div class="input-group">
+                <label class="input-label">Username</label>
+                <input class="input" type="text" id="reg-username" placeholder="Nama Pengguna" required minlength="3" maxlength="20" autocomplete="off">
+                <div class="input-error-msg" id="reg-username-error"></div>
+              </div>
+              <div class="input-group">
+                <label class="input-label">Email</label>
+                <input class="input" type="email" id="reg-email" placeholder="Email" required autocomplete="off">
+                <div class="input-error-msg" id="reg-email-error"></div>
+              </div>
+              <div class="input-group">
+                <label class="input-label">Password</label>
+                <input class="input" type="password" id="reg-password" placeholder="Kata Sandi (min 6 karakter)" required minlength="6" autocomplete="new-password">
+                <div class="input-error-msg" id="reg-password-error"></div>
+              </div>
+              <div class="input-group">
+                <label class="input-label">Konfirmasi Password</label>
+                <input class="input" type="password" id="reg-confirm" placeholder="Ulangi Kata Sandi" required autocomplete="new-password">
+                <div class="input-error-msg" id="reg-confirm-error"></div>
+              </div>
+              <button type="submit" class="btn btn-primary btn-block btn-lg" id="btn-register" style="margin-top:var(--sp-4);letter-spacing:0.08em;font-weight:800;">BUAT AKUN BARU</button>
+            </form>
+          </div>
         </div>
-
-        <!-- Login Form -->
-        <form id="form-login" autocomplete="off">
-          <div class="input-group">
-            <label class="input-label">Username</label>
-            <input class="input" type="text" id="login-username" placeholder="Nama Pengguna" required minlength="3" autocomplete="username">
-            <div class="input-error-msg" id="login-username-error"></div>
-          </div>
-          <div class="input-group">
-            <label class="input-label">Password</label>
-            <input class="input" type="password" id="login-password" placeholder="Kata Sandi" required minlength="6" autocomplete="current-password">
-            <div class="input-error-msg" id="login-password-error"></div>
-          </div>
-          <button type="submit" class="btn btn-primary btn-block btn-lg" id="btn-login">MASUK KE MEJA</button>
-          <p style="text-align:center;margin-top:var(--sp-4);font-size:var(--text-sm);color:var(--text-secondary);">
-            Belum punya akun? <a href="#" id="link-to-register" style="color:var(--text-gold);">Daftar →</a>
-          </p>
-        </form>
-
-        <!-- Register Form -->
-        <form id="form-register" class="hidden" autocomplete="off">
-          <div class="input-group">
-            <label class="input-label">Username</label>
-            <input class="input" type="text" id="reg-username" placeholder="Nama Pengguna" required minlength="3" maxlength="20" autocomplete="off">
-            <div class="input-error-msg" id="reg-username-error"></div>
-          </div>
-          <div class="input-group">
-            <label class="input-label">Email</label>
-            <input class="input" type="email" id="reg-email" placeholder="Email" required autocomplete="off">
-            <div class="input-error-msg" id="reg-email-error"></div>
-          </div>
-          <div class="input-group">
-            <label class="input-label">Password</label>
-            <input class="input" type="password" id="reg-password" placeholder="Kata Sandi (min 6 karakter)" required minlength="6" autocomplete="new-password">
-            <div class="input-error-msg" id="reg-password-error"></div>
-          </div>
-          <div class="input-group">
-            <label class="input-label">Konfirmasi Password</label>
-            <input class="input" type="password" id="reg-confirm" placeholder="Ulangi Kata Sandi" required autocomplete="new-password">
-            <div class="input-error-msg" id="reg-confirm-error"></div>
-          </div>
-          <button type="submit" class="btn btn-primary btn-block btn-lg" id="btn-register">BUAT AKUN BARU</button>
-          <p style="text-align:center;margin-top:var(--sp-4);font-size:var(--text-sm);color:var(--text-secondary);">
-            Sudah punya akun? <a href="#" id="link-to-login" style="color:var(--text-gold);">Masuk →</a>
-          </p>
-        </form>
       </div>
     </div>
   `;
@@ -349,24 +440,8 @@ export function render(container) {
     });
   });
 
-  const tabLogin = container.querySelector('#tab-login');
-  const tabRegister = container.querySelector('#tab-register');
   const formLogin = container.querySelector('#form-login');
   const formRegister = container.querySelector('#form-register');
-
-  function switchTab(tab) {
-    activeTab = tab;
-    tabLogin.classList.toggle('tab--active', tab === 'login');
-    tabRegister.classList.toggle('tab--active', tab === 'register');
-    formLogin.classList.toggle('hidden', tab !== 'login');
-    formRegister.classList.toggle('hidden', tab !== 'register');
-    clearErrors();
-  }
-
-  tabLogin.addEventListener('click', () => switchTab('login'));
-  tabRegister.addEventListener('click', () => switchTab('register'));
-  container.querySelector('#link-to-register').addEventListener('click', (e) => { e.preventDefault(); switchTab('register'); });
-  container.querySelector('#link-to-login').addEventListener('click', (e) => { e.preventDefault(); switchTab('login'); });
 
   formLogin.addEventListener('submit', async (e) => {
     e.preventDefault();
