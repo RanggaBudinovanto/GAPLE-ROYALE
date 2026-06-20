@@ -1344,29 +1344,29 @@ export function render(container) {
 
 export function getRankTier(rp) {
   const points = rp || 0;
-  if (points >= 1500) return { name: 'Royale Champion', icon: 'assets/ranks/royale_champion.png', color: 'var(--gold-bright)' };
+  if (points >= 1500) return { name: 'Royale Champion', icon: '/assets/ranks/royale_champion.png', color: 'var(--gold-bright)' };
   
   const tiers = [
-    { limit: 100, name: 'Bronze I', icon: 'assets/ranks/bronze_1.png', color: '#cd7f32' },
-    { limit: 200, name: 'Bronze II', icon: 'assets/ranks/bronze_2.png', color: '#cd7f32' },
-    { limit: 300, name: 'Bronze III', icon: 'assets/ranks/bronze_3.png', color: '#cd7f32' },
-    { limit: 400, name: 'Silver I', icon: 'assets/ranks/silver_1.png', color: '#C0C0C0' },
-    { limit: 500, name: 'Silver II', icon: 'assets/ranks/silver_2.png', color: '#C0C0C0' },
-    { limit: 600, name: 'Silver III', icon: 'assets/ranks/silver_3.png', color: '#C0C0C0' },
-    { limit: 700, name: 'Gold I', icon: 'assets/ranks/gold_1.png', color: '#ffd700' },
-    { limit: 800, name: 'Gold II', icon: 'assets/ranks/gold_2.png', color: '#ffd700' },
-    { limit: 900, name: 'Gold III', icon: 'assets/ranks/gold_3.png', color: '#ffd700' },
-    { limit: 1000, name: 'Platinum I', icon: 'assets/ranks/platinum_1.png', color: '#00f6ff' },
-    { limit: 1100, name: 'Platinum II', icon: 'assets/ranks/platinum_2.png', color: '#00f6ff' },
-    { limit: 1200, name: 'Platinum III', icon: 'assets/ranks/platinum_3.png', color: '#00f6ff' },
-    { limit: 1300, name: 'Diamond I', icon: 'assets/ranks/diamond_1.png', color: '#ba55d3' },
-    { limit: 1400, name: 'Diamond II', icon: 'assets/ranks/diamond_2.png', color: '#ba55d3' },
-    { limit: 1500, name: 'Diamond III', icon: 'assets/ranks/diamond_3.png', color: '#ba55d3' }
+    { limit: 100, name: 'Bronze I', icon: '/assets/ranks/bronze_1.png', color: '#cd7f32' },
+    { limit: 200, name: 'Bronze II', icon: '/assets/ranks/bronze_2.png', color: '#cd7f32' },
+    { limit: 300, name: 'Bronze III', icon: '/assets/ranks/bronze_3.png', color: '#cd7f32' },
+    { limit: 400, name: 'Silver I', icon: '/assets/ranks/silver_1.png', color: '#C0C0C0' },
+    { limit: 500, name: 'Silver II', icon: '/assets/ranks/silver_2.png', color: '#C0C0C0' },
+    { limit: 600, name: 'Silver III', icon: '/assets/ranks/silver_3.png', color: '#C0C0C0' },
+    { limit: 700, name: 'Gold I', icon: '/assets/ranks/gold_1.png', color: '#ffd700' },
+    { limit: 800, name: 'Gold II', icon: '/assets/ranks/gold_2.png', color: '#ffd700' },
+    { limit: 900, name: 'Gold III', icon: '/assets/ranks/gold_3.png', color: '#ffd700' },
+    { limit: 1000, name: 'Platinum I', icon: '/assets/ranks/platinum_1.png', color: '#00f6ff' },
+    { limit: 1100, name: 'Platinum II', icon: '/assets/ranks/platinum_2.png', color: '#00f6ff' },
+    { limit: 1200, name: 'Platinum III', icon: '/assets/ranks/platinum_3.png', color: '#00f6ff' },
+    { limit: 1300, name: 'Diamond I', icon: '/assets/ranks/diamond_1.png', color: '#ba55d3' },
+    { limit: 1400, name: 'Diamond II', icon: '/assets/ranks/diamond_2.png', color: '#ba55d3' },
+    { limit: 1500, name: 'Diamond III', icon: '/assets/ranks/diamond_3.png', color: '#ba55d3' }
   ];
   
   for (const tier of tiers) {
     if (points < tier.limit) return tier;
   }
   
-  return { name: 'Bronze I', icon: 'assets/ranks/bronze_1.png', color: '#cd7f32' };
+  return { name: 'Bronze I', icon: '/assets/ranks/bronze_1.png', color: '#cd7f32' };
 }
