@@ -40,10 +40,10 @@ const ITEMS_CATALOG = {
     { id: 'golden_luxury', name: 'Golden Luxury', price: 15000, type: 'skin' }
   ],
   powerups: [
-    { id: 'shuffle', name: 'Shuffle', price: 50, icon: '🔀', desc: 'Acak ulang kartu di tangan (1x per game)', maxStock: 99, type: 'powerup' },
-    { id: 'peek', name: 'Peek', price: 80, icon: '👁️', desc: 'Intip 1 kartu acak lawan (1x per game)', maxStock: 99, type: 'powerup' },
-    { id: 'block', name: 'Block', price: 100, icon: '🚫', desc: 'Paksa lawan skip 1 giliran berikutnya', maxStock: 99, type: 'powerup' },
-    { id: 'double_coin', name: 'Double Coin', price: 120, icon: '💰', desc: 'Coin yang didapat ronde ini ×2', maxStock: 99, type: 'powerup' }
+    { id: 'shuffle', name: 'Shuffle', price: 50, iconId: 'icon_shuffle', desc: 'Acak ulang kartu di tangan (1x per game)', maxStock: 99, type: 'powerup' },
+    { id: 'peek', name: 'Peek', price: 80, iconId: 'icon_eye', desc: 'Intip 1 kartu acak lawan (1x per game)', maxStock: 99, type: 'powerup' },
+    { id: 'block', name: 'Block', price: 100, iconId: 'icon_block', desc: 'Paksa lawan skip 1 giliran berikutnya', maxStock: 99, type: 'powerup' },
+    { id: 'double_coin', name: 'Double Coin', price: 120, iconId: 'icon_coins', desc: 'Coin yang didapat ronde ini ×2', maxStock: 99, type: 'powerup' }
   ]
 };
 

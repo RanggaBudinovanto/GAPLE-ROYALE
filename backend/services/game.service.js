@@ -175,6 +175,20 @@ module.exports = function (io) {
       });
     });
 
+    let lastEmoteTime = 0;
+    socket.on('emote', (data) => {
+      if (!socket.userId || !data.emoteId) return;
+      const now = Date.now();
+      if (now - lastEmoteTime < 1000) return;
+      lastEmoteTime = now;
+      gameNsp.to(roomId).emit('emote', {
+        userId: socket.userId,
+        username: socket.username,
+        emoteId: data.emoteId,
+        timestamp: new Date().toISOString()
+      });
+    });
+
     socket.on('use_powerup', (data) => {
       const game = activeGames.get(roomId);
       if (!game || game.gameOver) return;
@@ -474,12 +488,12 @@ async function endGame(nsp, roomId, game, winnerIdx, reason) {
       const [uRows] = await db.query('SELECT coin FROM users WHERE id = ?', [winnerId]);
       const balanceAfter = uRows[0]?.coin || 0;
       const isBetting = betAmount > 0;
-      const reason = isBetting 
-        ? `Kemenangan taruhan game ${game.mode === 'duel' ? '1v1' : 'Ber-4'}` 
+      const txnReason = isBetting
+        ? `Kemenangan taruhan game ${game.mode === 'duel' ? '1v1' : 'Ber-4'}`
         : `Kemenangan game ${game.mode === 'duel' ? '1v1' : 'Ber-4'}`;
       await db.query(
         'INSERT INTO transactions (user_id, type, amount, reason, balance_after) VALUES (?, "earn", ?, ?, ?)',
-        [winnerId, earned, reason, balanceAfter]
+        [winnerId, earned, txnReason, balanceAfter]
       );
     } else {
       await db.query('UPDATE game_sessions SET status = "finished", finished_at = NOW() WHERE room_id = ?', [roomId]);

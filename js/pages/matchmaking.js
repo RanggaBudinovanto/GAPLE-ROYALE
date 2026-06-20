@@ -5,6 +5,7 @@ import { generateRoomId, formatNumber, winRate } from '../utils/format.js';
 import { staggerFadeIn } from '../utils/animation.js';
 import { playClick, playHover } from '../utils/sfx.js';
 import { apiCall, SOCKET_URL } from '../config.js';
+import { renderIcon } from '../components/emotes.js';
 
 // Web Audio API Sound Synthesizer for high-end SFX
 function playSynthSound(type) {
@@ -590,7 +591,7 @@ export function render(container) {
                 <!-- CLASSIC MODE CARD -->
                 <div class="mm-mode-card mode--classic" data-modetype="classic">
                   <div class="mm-icon-wrapper" style="width:64px;height:64px;border-radius:50%;background:rgba(46,204,113,0.15);border:1.5px solid rgba(46,204,113,0.4);display:flex;align-items:center;justify-content:center;margin-bottom:var(--sp-4);box-shadow:0 6px 16px rgba(0,0,0,0.3);">
-                    <span style="font-size:28px;">⚔️</span>
+                    <span style="display:inline-flex;">${renderIcon('icon_swords', 28)}</span>
                   </div>
                   <div style="font-family:var(--font-heading);font-size:20px;font-weight:700;color:var(--text-primary);margin-bottom:4px;letter-spacing:0.04em;">CLASSIC</div>
                   <div style="font-size:11px;color:var(--status-win);font-weight:700;margin-bottom:12px;font-family:var(--font-mono);letter-spacing:0.05em;">TRADISIONAL | CASUAL</div>
@@ -600,7 +601,7 @@ export function render(container) {
                 <!-- RANKED MODE CARD -->
                 <div class="mm-mode-card mode--ranked" data-modetype="ranked">
                   <div class="mm-icon-wrapper" style="width:64px;height:64px;border-radius:50%;background:rgba(212,160,23,0.15);border:1.5px solid rgba(212,160,23,0.4);display:flex;align-items:center;justify-content:center;margin-bottom:var(--sp-4);box-shadow:0 6px 16px rgba(0,0,0,0.3);">
-                    <span style="font-size:28px;">👑</span>
+                    <span style="display:inline-flex;">${renderIcon('icon_crown', 28)}</span>
                   </div>
                   <div style="font-family:var(--font-heading);font-size:20px;font-weight:700;color:var(--text-gold);margin-bottom:4px;letter-spacing:0.04em;">RANKED</div>
                   <div style="font-size:11px;color:var(--gold-bright);font-weight:700;margin-bottom:12px;font-family:var(--font-mono);letter-spacing:0.05em;">KOMPETITIF | MEJA PRESTASI</div>
@@ -610,7 +611,7 @@ export function render(container) {
                 <!-- VS A.I. MODE CARD -->
                 <div class="mm-mode-card mode--ai" data-modetype="ai">
                   <div class="mm-icon-wrapper" style="width:64px;height:64px;border-radius:50%;background:rgba(52,152,219,0.15);border:1.5px solid rgba(52,152,219,0.4);display:flex;align-items:center;justify-content:center;margin-bottom:var(--sp-4);box-shadow:0 6px 16px rgba(0,0,0,0.3);">
-                    <span style="font-size:28px;">🤖</span>
+                    <span style="display:inline-flex;">${renderIcon('icon_robot', 28)}</span>
                   </div>
                   <div style="font-family:var(--font-heading);font-size:20px;font-weight:700;color:var(--text-primary);margin-bottom:4px;letter-spacing:0.04em;">VS A.I.</div>
                   <div style="font-size:11px;color:#3498db;font-weight:700;margin-bottom:12px;font-family:var(--font-mono);letter-spacing:0.05em;">LATIHAN | LURING</div>
@@ -620,7 +621,7 @@ export function render(container) {
                 <!-- BERTARUH CARD -->
                 <div class="mm-mode-card mode--betting" data-modetype="betting">
                   <div class="mm-icon-wrapper" style="width:64px;height:64px;border-radius:50%;background:rgba(245,200,66,0.15);border:1.5px solid rgba(245,200,66,0.4);display:flex;align-items:center;justify-content:center;margin-bottom:var(--sp-4);box-shadow:0 6px 16px rgba(0,0,0,0.3);">
-                    <span style="font-size:28px;">💰</span>
+                    <span style="display:inline-flex;">${renderIcon('icon_coins', 28)}</span>
                   </div>
                   <div style="font-family:var(--font-heading);font-size:20px;font-weight:700;color:var(--text-gold);margin-bottom:4px;letter-spacing:0.04em;">BERTARUH</div>
                   <div style="font-size:11px;color:var(--gold-bright);font-weight:700;margin-bottom:12px;font-family:var(--font-mono);letter-spacing:0.05em;">MEJA STAKE | REBUT POOL</div>
@@ -640,7 +641,7 @@ export function render(container) {
                 <!-- DUEL 1v1 -->
                 <div class="mm-mode-card mode--classic mm-format-card" data-format="duel">
                   <div class="mm-icon-wrapper" style="width:64px;height:64px;border-radius:50%;background:rgba(46,204,113,0.15);border:1.5px solid rgba(46,204,113,0.4);display:flex;align-items:center;justify-content:center;margin-bottom:var(--sp-4);box-shadow:0 6px 16px rgba(0,0,0,0.3);">
-                    <span style="font-size:28px;">⚔️</span>
+                    <span style="display:inline-flex;">${renderIcon('icon_swords', 28)}</span>
                   </div>
                   <div style="font-family:var(--font-heading);font-size:20px;font-weight:700;color:var(--text-primary);margin-bottom:4px;letter-spacing:0.04em;">DUEL 1v1</div>
                   <div style="font-size:11px;color:var(--status-win);font-weight:700;margin-bottom:12px;font-family:var(--font-mono);letter-spacing:0.05em;">CEPAT | 14 KARTU</div>
@@ -650,7 +651,7 @@ export function render(container) {
                 <!-- 4 PEMAIN -->
                 <div class="mm-mode-card mode--ai mm-format-card" data-format="fourplayer">
                   <div class="mm-icon-wrapper" style="width:64px;height:64px;border-radius:50%;background:rgba(52,152,219,0.15);border:1.5px solid rgba(52,152,219,0.4);display:flex;align-items:center;justify-content:center;margin-bottom:var(--sp-4);box-shadow:0 6px 16px rgba(0,0,0,0.3);">
-                    <span style="font-size:28px;">👥</span>
+                    <span style="display:inline-flex;">${renderIcon('icon_users', 28)}</span>
                   </div>
                   <div style="font-family:var(--font-heading);font-size:20px;font-weight:700;color:var(--text-primary);margin-bottom:4px;letter-spacing:0.04em;">4 PEMAIN</div>
                   <div style="font-size:11px;color:#3498db;font-weight:700;margin-bottom:12px;font-family:var(--font-mono);letter-spacing:0.05em;">KLASIK | 7 KARTU</div>
@@ -672,16 +673,16 @@ export function render(container) {
                   return `
                     <div class="chip-card ${isDisabled ? 'chip-disabled' : ''}" data-bet="${amt}">
                       <div style="font-size:32px;margin-bottom:8px;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3));">
-                        ${amt === 100 ? '🪙' : amt === 500 ? '💰' : amt === 1000 ? '💎' : amt === 2000 ? '👑' : '🔥'}
+                        ${amt === 100 ? renderIcon('icon_coin', 32) : amt === 500 ? renderIcon('icon_coins', 32) : amt === 1000 ? renderIcon('icon_diamond', 32) : amt === 2000 ? renderIcon('icon_crown', 32) : renderIcon('icon_fire', 32)}
                       </div>
                       <div style="font-family:var(--font-heading);font-size:18px;font-weight:900;color:${isDisabled ? 'var(--text-muted)' : 'var(--text-gold)'};">
                         ${formatNumber(amt)}
                       </div>
                       <div style="font-size:9px;font-family:var(--font-mono);color:var(--text-secondary);margin-top:2px;">
-                        Pool: 💰 ${formatNumber(totalPool)}
+                        Pool: <span class="icon-inline">${renderIcon('icon_coins', 10)}</span> ${formatNumber(totalPool)}
                       </div>
                       ${isDisabled ? `
-                        <div class="chip-lock">❌ Koin Kurang</div>
+                        <div class="chip-lock"><span class="icon-inline">${renderIcon('icon_x', 10)}</span> Koin Kurang</div>
                       ` : `
                         <div style="font-size:9px;color:var(--status-win);font-weight:bold;margin-top:4px;text-transform:uppercase;font-family:var(--font-mono);">SIAP MASUK</div>
                       `}
@@ -723,7 +724,7 @@ export function render(container) {
                     return `
                       <div class="lobby-slot-card slot--empty ${selectedOpponent === 'pvp' ? 'slot--pvp-only' : ''}" style="${selectedOpponent === 'pvp' ? 'pointer-events:none; cursor:default; border-style:solid; border-color:rgba(212,160,23,0.1);' : ''}" data-slot="${idx}">
                         ${selectedOpponent === 'pvp' ? `
-                          <div style="font-size:28px;margin-bottom:8px;color:rgba(212, 160, 23, 0.2);">👥</div>
+                          <div style="margin-bottom:8px;opacity:0.2;">${renderIcon('icon_users', 28)}</div>
                           <div style="font-family:var(--font-heading);font-size:12px;font-weight:600;color:var(--text-secondary);letter-spacing:0.04em;">CARI LAWAN</div>
                           <div style="font-size:10px;color:var(--text-muted);margin-top:4px;">Menunggu antrean...</div>
                         ` : `
@@ -747,8 +748,8 @@ export function render(container) {
                     </div>
                     <div>
                       <select id="select-bot-level" class="input" style="padding:8px 16px;font-family:var(--font-mono);font-size:12px;border-color:var(--border-gold);color:var(--text-gold);background:var(--bg-void);width:auto;cursor:pointer;">
-                        <option value="easy" ${botLevel === 'easy' ? 'selected' : ''}>🤖 BOT MUDAH (Easy)</option>
-                        <option value="hard" ${botLevel === 'hard' ? 'selected' : ''}>😈 BOT SULIT (Hard)</option>
+                        <option value="easy" ${botLevel === 'easy' ? 'selected' : ''}>BOT MUDAH (Easy)</option>
+                        <option value="hard" ${botLevel === 'hard' ? 'selected' : ''}>BOT SULIT (Hard)</option>
                       </select>
                     </div>
                   </div>
@@ -760,7 +761,7 @@ export function render(container) {
                 ${lobbyPlayers.slice(0, selectedMode === 'fourplayer' ? 4 : 2).includes(null) ? `
                   <!-- Empty slots exist -> queue for PvP matchmaking -->
                   <button class="btn btn-primary btn-lg" id="btn-start-matchmaking" style="box-shadow:0 0 25px rgba(245,200,66,0.35);font-size:18px;padding:16px 48px;letter-spacing:0.08em;font-weight:900;">
-                    ${betAmount > 0 ? `MULAI TARUHAN (💰 ${formatNumber(betAmount)})` : 'MULAI ANTRIAN (PvP)'}
+                    ${betAmount > 0 ? `MULAI TARUHAN (${renderIcon('icon_coins', 16)} ${formatNumber(betAmount)})` : 'MULAI ANTRIAN (PvP)'}
                   </button>
                   <p class="text-xs text-muted" style="margin-top:10px;font-family:var(--font-body);font-style:italic;">
                     Sistem akan mencari pemain asli secara daring untuk mengisi slot kosong yang tersisa.
@@ -865,7 +866,7 @@ export function render(container) {
       ${step === 'match_found' ? `
         <div class="accept-overlay">
           <div class="accept-content-card anim-scale-in">
-            <div style="font-size:46px;margin-bottom:var(--sp-1);filter:drop-shadow(0 0 8px rgba(245,200,66,0.4));">🔔</div>
+            <div style="margin-bottom:var(--sp-1);filter:drop-shadow(0 0 8px rgba(245,200,66,0.4));">${renderIcon('icon_bell', 46)}</div>
             <h2 style="font-family:var(--font-heading);font-size:30px;color:var(--text-gold);margin:0 0 var(--sp-1) 0;letter-spacing:0.08em;font-weight:900;text-shadow:0 0 15px rgba(245,200,66,0.3);">PERTANDINGAN DITEMUKAN!</h2>
             <p class="text-secondary" style="font-size:13px;margin:0 0 var(--sp-4);">Konfirmasi kesiapan Anda sebelum batas waktu berakhir</p>
 

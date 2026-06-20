@@ -43,20 +43,31 @@ function botMoveHard(validMoves, boardLeft, boardRight) {
 }
 
 const BOT_CHAT_MESSAGES = [
-  'Ayo lanjut! 💪',
-  'Giliran ku nih 🎲',
+  'Ayo lanjut!',
+  'Giliran ku nih',
   'Hmm, kartu bagus...',
-  'Kena blokir deh 😅',
+  'Kena blokir deh',
   'Pass dulu ya...',
-  'Siap menang! 🔥',
+  'Siap menang!',
   'Mantap banget kartu ini!',
-  'Tenang aja, masih bisa 😎',
+  'Tenang aja, masih bisa',
   'Wah susah nih...',
-  'Ayo main lagi! 🃏',
-  'Seru banget ini meja! 🎰',
-  'Domino time! 👑'
+  'Ayo main lagi!',
+  'Seru banget ini meja!',
+  'Domino time!',
+  '[emote:laugh]',
+  '[emote:cool]',
+  '[emote:fire]',
+  '[emote:thumbsup]',
+  '[emote:taunt]'
 ];
 
 export function getBotChatMessage() {
   return BOT_CHAT_MESSAGES[Math.floor(Math.random() * BOT_CHAT_MESSAGES.length)];
+}
+
+const BOT_EMOTE_POOL = ['laugh', 'cool', 'fire', 'thumbsup', 'taunt', 'moneyeyes', 'gg'];
+
+export function getBotEmoteReply() {
+  return BOT_EMOTE_POOL[Math.floor(Math.random() * BOT_EMOTE_POOL.length)];
 }

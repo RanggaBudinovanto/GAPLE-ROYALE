@@ -8,6 +8,7 @@ import { getCatalog, purchaseItem, activateCharacter, activateSkin } from '../ap
 import { formatNumber } from '../utils/format.js';
 import { staggerFadeIn } from '../utils/animation.js';
 import { playPurchase, playCardPlace } from '../utils/sfx.js';
+import { renderIcon } from '../components/emotes.js';
 
 export function render(container) {
   const user = state.user;
@@ -154,7 +155,7 @@ export function render(container) {
       qtyState[pu.id] = 1;
       return `
         <div class="powerup-card">
-          <div class="powerup-card-icon">${pu.icon}</div>
+          <div class="powerup-card-icon">${renderIcon(pu.iconId, 24)}</div>
           <div class="powerup-card-info">
             <div class="powerup-card-name">${pu.name}</div>
             <div class="powerup-card-desc">${pu.desc}</div>

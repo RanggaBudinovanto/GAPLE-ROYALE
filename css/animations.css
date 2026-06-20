@@ -136,6 +136,32 @@
   50%      { filter: brightness(1.5) drop-shadow(0 0 6px rgba(245,200,66,0.6)); }
 }
 
+/* Emote Float Up (reaction popup above avatar) */
+@keyframes emoteFloatUp {
+  0%   { opacity: 0; transform: translateX(-50%) translateY(10px) scale(0.4); }
+  12%  { opacity: 1; transform: translateX(-50%) translateY(-8px) scale(1.15); }
+  25%  { opacity: 1; transform: translateX(-50%) translateY(-14px) scale(1); }
+  75%  { opacity: 1; transform: translateX(-50%) translateY(-45px) scale(1); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-65px) scale(0.7); }
+}
+
+/* Emote Bounce In (chat message emote) */
+@keyframes emoteBounceIn {
+  0%   { transform: scale(0); }
+  50%  { transform: scale(1.25); }
+  70%  { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+
+/* Emote Shake (angry/shock) */
+@keyframes emoteShake {
+  0%, 100% { transform: translateX(0); }
+  20%      { transform: translateX(-3px) rotate(-4deg); }
+  40%      { transform: translateX(3px) rotate(4deg); }
+  60%      { transform: translateX(-2px) rotate(-2deg); }
+  80%      { transform: translateX(2px) rotate(2deg); }
+}
+
 /* ===== UTILITY CLASSES ===== */
 .anim-fade-in     { animation: fadeIn var(--dur-normal) var(--ease-out) forwards; }
 .anim-fade-in-up  { animation: fadeInUp var(--dur-normal) var(--ease-out) forwards; }

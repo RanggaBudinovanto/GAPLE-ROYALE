@@ -6,6 +6,7 @@ import { apiCall } from '../config.js';
 import { getGameHistory } from '../utils/storage.js';
 import { formatNumber, formatDate, winRate } from '../utils/format.js';
 import { staggerFadeIn, countUp } from '../utils/animation.js';
+import { renderIcon } from '../components/emotes.js';
 
 export function render(container) {
   const user = state.user;
@@ -93,7 +94,7 @@ export function render(container) {
         const unlocked = user.achievements.find(a => a.id === ach.id);
         return `
           <div class="card ${unlocked ? 'card--premium' : ''}" style="text-align:center;padding:var(--sp-4);${unlocked ? '' : 'opacity:0.4;'}">
-            <div style="font-size:32px;margin-bottom:var(--sp-2);">${unlocked ? '🏆' : '🔒'}</div>
+            <div style="margin-bottom:var(--sp-2);">${unlocked ? renderIcon('icon_trophy', 32) : renderIcon('icon_lock', 32)}</div>
             <div style="font-family:var(--font-heading);font-size:13px;font-weight:600;margin-bottom:var(--sp-1);">${ach.name}</div>
             <div class="text-xs text-secondary" style="margin-bottom:var(--sp-2);">${ach.desc}</div>
             <div class="coin-display" style="font-size:12px;justify-content:center;">

@@ -6,6 +6,7 @@ import { showToast } from '../components/toast.js';
 import { countUp, coinRain, staggerFadeIn } from '../utils/animation.js';
 import { formatNumber, getToday, formatDate } from '../utils/format.js';
 import { claimDailyLogin, getDailyMissions, claimMissionReward, getAchievementsList, getCatalog } from '../api.js';
+import { renderIcon } from '../components/emotes.js';
 
 const DAILY_REWARDS = [100, 150, 200, 300, 300, 400, 500];
 
@@ -114,7 +115,7 @@ export function render(container) {
                 const ach = achievements.find(a => a.id === ua.id);
                 return ach ? `
                   <div class="card card--flat" style="padding:var(--sp-3);display:flex;align-items:center;gap:var(--sp-3);">
-                    <div style="width:36px;height:36px;background:rgba(212,160,23,0.15);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:18px;">🏆</div>
+                    <div style="width:36px;height:36px;background:rgba(212,160,23,0.15);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;">${renderIcon('icon_trophy', 22)}</div>
                     <div style="flex:1;">
                       <div style="font-weight:600;font-size:14px;">${ach.name}</div>
                       <div class="text-xs text-secondary">${formatDate(ua.unlockedAt)}</div>
@@ -169,7 +170,7 @@ function showDailyLoginModal() {
   const content = document.createElement('div');
   content.innerHTML = `
     <div style="text-align:center;margin-bottom:var(--sp-5);position:relative;" id="login-bonus-area">
-      <div style="font-size:48px;margin-bottom:var(--sp-3);">🎁</div>
+      <div style="margin-bottom:var(--sp-3);">${renderIcon('icon_gift', 48)}</div>
       <h3 style="font-family:var(--font-heading);font-size:20px;color:var(--text-gold);margin-bottom:var(--sp-2);">Hari ke-${day}</h3>
       <p class="text-secondary">Login harian streak!</p>
     </div>

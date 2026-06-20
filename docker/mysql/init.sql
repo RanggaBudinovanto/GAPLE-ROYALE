@@ -7,7 +7,8 @@ CREATE TABLE users (
   email         VARCHAR(100) NOT NULL UNIQUE,
   password_hash VARCHAR(255) NOT NULL,
   coin          INT NOT NULL DEFAULT 1000,
-  active_character VARCHAR(50) DEFAULT 'raja_domino',
+  rank_points   INT DEFAULT 0,
+  active_character VARCHAR(50) DEFAULT 'bocah_pemula',
   active_skin   VARCHAR(50) DEFAULT 'classic',
   last_login    DATETIME,
   login_streak  INT DEFAULT 0,
@@ -34,11 +35,13 @@ CREATE TABLE game_sessions (
   room_id     VARCHAR(10) NOT NULL UNIQUE,
   mode        ENUM('duel','fourplayer') NOT NULL,
   status      ENUM('waiting','active','finished') DEFAULT 'waiting',
+  is_ranked   BOOLEAN DEFAULT FALSE,
+  bet_amount  INT DEFAULT 0,
   winner_id   VARCHAR(36),
   started_at  DATETIME,
   finished_at DATETIME,
   created_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (winner_id) REFERENCES users(id) ON DELETE SET NULL,
+  -- No FK on winner_id: bots (bot_0, bot_1 etc.) are not in the users table
   INDEX idx_room_id (room_id),
   INDEX idx_status (status)
 );
@@ -52,7 +55,8 @@ CREATE TABLE game_players (
   cards_left  INT DEFAULT 0,
   joined_at   DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (session_id) REFERENCES game_sessions(id) ON DELETE CASCADE,
-  UNIQUE KEY unique_player_session (session_id, user_id)
+  UNIQUE KEY unique_player_session (session_id, user_id),
+  INDEX idx_user_id (user_id)
 );
 
 CREATE TABLE transactions (

@@ -6,6 +6,7 @@ import { apiCall } from '../config.js';
 import { staggerFadeIn } from '../utils/animation.js';
 import { formatNumber } from '../utils/format.js';
 import { getRankTier } from './matchmaking.js';
+import { renderIcon } from '../components/emotes.js';
 
 export function render(container) {
   const user = state.user;
@@ -73,7 +74,7 @@ export function render(container) {
             ${pageData.length > 0 ? pageData.map(entry => `
               <tr style="border-bottom:1px solid var(--border-default);${entry.userId === user.id ? 'background:rgba(212,160,23,0.06);' : ''}">
                 <td style="padding:var(--sp-3);font-family:var(--font-mono);font-weight:600;color:${entry.rank <= 3 ? 'var(--text-gold)' : 'var(--text-secondary)'};">
-                  ${entry.rank <= 3 ? ['🥇','🥈','🥉'][entry.rank-1] : '#' + entry.rank}
+                  ${entry.rank <= 3 ? [renderIcon('icon_gold',18), renderIcon('icon_silver',18), renderIcon('icon_bronze',18)][entry.rank-1] : '#' + entry.rank}
                 </td>
                 <td style="padding:var(--sp-3);">
                   <div class="flex items-center gap-2">
@@ -133,7 +134,7 @@ export function render(container) {
 
   function renderPodium(entry, rank, height) {
     const colors = { 1: 'var(--gold-bright)', 2: '#C0C0C0', 3: '#CD7F32' };
-    const medals = { 1: '🥇', 2: '🥈', 3: '🥉' };
+    const medals = { 1: renderIcon('icon_gold',28), 2: renderIcon('icon_silver',28), 3: renderIcon('icon_bronze',28) };
     const tier = getRankTier(entry.rankPoints || 0);
     return `
       <div style="text-align:center;animation:podiumRise 0.5s var(--ease-spring) ${rank * 0.15}s both;">

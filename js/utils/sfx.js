@@ -518,3 +518,264 @@ export function playPurchase() {
     console.error('SFX error:', e);
   }
 }
+
+// ══════════════════════════════════════════════════════════════════
+// NEW SFX: Coin Count, Turn, Timer, Achievement, Emotes
+// ══════════════════════════════════════════════════════════════════
+
+export function playCoinCount() {
+  if (!isSfxEnabled()) return null;
+  let count = 0;
+  const interval = setInterval(() => {
+    if (!isSfxEnabled()) return;
+    count++;
+    try {
+      const ctx = getAudioContext();
+      const now = ctx.currentTime;
+      const freq = 2400 + (count % 3) * 200;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, now);
+      gain.gain.setValueAtTime(0.08, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.04);
+    } catch {}
+  }, 65);
+  return interval;
+}
+
+export function playTurnNotification() {
+  if (!isSfxEnabled()) return;
+  try {
+    const ctx = getAudioContext();
+    const now = ctx.currentTime;
+
+    const osc1 = ctx.createOscillator();
+    const gain1 = ctx.createGain();
+    osc1.type = 'triangle';
+    osc1.frequency.setValueAtTime(800, now);
+    gain1.gain.setValueAtTime(0.12, now);
+    gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+    osc1.connect(gain1);
+    gain1.connect(ctx.destination);
+    osc1.start(now);
+    osc1.stop(now + 0.12);
+
+    const osc2 = ctx.createOscillator();
+    const gain2 = ctx.createGain();
+    osc2.type = 'triangle';
+    osc2.frequency.setValueAtTime(1200, now + 0.1);
+    gain2.gain.setValueAtTime(0.0, now);
+    gain2.gain.setValueAtTime(0.14, now + 0.1);
+    gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+    osc2.connect(gain2);
+    gain2.connect(ctx.destination);
+    osc2.start(now + 0.1);
+    osc2.stop(now + 0.25);
+  } catch (e) {
+    console.error('SFX error:', e);
+  }
+}
+
+export function playTimerWarning() {
+  if (!isSfxEnabled()) return;
+  try {
+    const ctx = getAudioContext();
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(600, now);
+    gain.gain.setValueAtTime(0.06, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.05);
+  } catch {}
+}
+
+export function playAchievementUnlock() {
+  if (!isSfxEnabled()) return;
+  try {
+    const ctx = getAudioContext();
+    const now = ctx.currentTime;
+    const notes = [523.25, 659.25, 783.99, 1046.50];
+    notes.forEach((freq, idx) => {
+      const t = now + idx * 0.12;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, t);
+      gain.gain.setValueAtTime(0.0, t);
+      gain.gain.linearRampToValueAtTime(0.15, t + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(t);
+      osc.stop(t + 0.4);
+    });
+    const shimmer = ctx.createOscillator();
+    const shimGain = ctx.createGain();
+    shimmer.type = 'sine';
+    shimmer.frequency.setValueAtTime(3200, now + 0.3);
+    shimGain.gain.setValueAtTime(0.0, now);
+    shimGain.gain.setValueAtTime(0.06, now + 0.3);
+    shimGain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
+    shimmer.connect(shimGain);
+    shimGain.connect(ctx.destination);
+    shimmer.start(now + 0.3);
+    shimmer.stop(now + 0.8);
+  } catch (e) {
+    console.error('SFX error:', e);
+  }
+}
+
+export function playEmoteSound(emoteId) {
+  if (!isSfxEnabled()) return;
+  try {
+    const ctx = getAudioContext();
+    const now = ctx.currentTime;
+    switch (emoteId) {
+      case 'laugh': {
+        [400, 600, 900, 1200].forEach((f, i) => {
+          const t = now + i * 0.04;
+          const o = ctx.createOscillator(); const g = ctx.createGain();
+          o.type = 'sine'; o.frequency.setValueAtTime(f, t);
+          g.gain.setValueAtTime(0.1, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
+          o.connect(g); g.connect(ctx.destination); o.start(t); o.stop(t + 0.06);
+        });
+        break;
+      }
+      case 'angry': {
+        const o = ctx.createOscillator(); const g = ctx.createGain();
+        o.type = 'square'; o.frequency.setValueAtTime(120, now);
+        o.frequency.linearRampToValueAtTime(80, now + 0.15);
+        g.gain.setValueAtTime(0.12, now); g.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+        o.connect(g); g.connect(ctx.destination); o.start(now); o.stop(now + 0.15);
+        const o2 = ctx.createOscillator(); const g2 = ctx.createGain();
+        o2.type = 'sawtooth'; o2.frequency.setValueAtTime(200, now + 0.05);
+        g2.gain.setValueAtTime(0.08, now + 0.05); g2.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+        o2.connect(g2); g2.connect(ctx.destination); o2.start(now + 0.05); o2.stop(now + 0.12);
+        break;
+      }
+      case 'cry': {
+        [440, 370, 311, 262].forEach((f, i) => {
+          const t = now + i * 0.08;
+          const o = ctx.createOscillator(); const g = ctx.createGain();
+          o.type = 'triangle'; o.frequency.setValueAtTime(f, t);
+          o.frequency.linearRampToValueAtTime(f - 30, t + 0.08);
+          g.gain.setValueAtTime(0.1, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+          o.connect(g); g.connect(ctx.destination); o.start(t); o.stop(t + 0.12);
+        });
+        break;
+      }
+      case 'thumbsup': {
+        const o = ctx.createOscillator(); const g = ctx.createGain();
+        o.type = 'sine'; o.frequency.setValueAtTime(1200, now);
+        o.frequency.exponentialRampToValueAtTime(1800, now + 0.06);
+        g.gain.setValueAtTime(0.12, now); g.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+        o.connect(g); g.connect(ctx.destination); o.start(now); o.stop(now + 0.1);
+        break;
+      }
+      case 'clap': {
+        [0, 0.08].forEach(delay => {
+          const t = now + delay;
+          const bufSize = Math.floor(ctx.sampleRate * 0.04);
+          const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+          const d = buf.getChannelData(0);
+          for (let i = 0; i < bufSize; i++) d[i] = Math.random() * 2 - 1;
+          const src = ctx.createBufferSource(); src.buffer = buf;
+          const flt = ctx.createBiquadFilter(); flt.type = 'bandpass'; flt.frequency.setValueAtTime(1200, t);
+          const g = ctx.createGain(); g.gain.setValueAtTime(0.15, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
+          src.connect(flt); flt.connect(g); g.connect(ctx.destination); src.start(t); src.stop(t + 0.04);
+        });
+        break;
+      }
+      case 'taunt': {
+        const o = ctx.createOscillator(); const g = ctx.createGain();
+        o.type = 'sine';
+        o.frequency.setValueAtTime(1200, now);
+        o.frequency.exponentialRampToValueAtTime(400, now + 0.08);
+        o.frequency.exponentialRampToValueAtTime(800, now + 0.15);
+        g.gain.setValueAtTime(0.1, now); g.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+        o.connect(g); g.connect(ctx.destination); o.start(now); o.stop(now + 0.18);
+        break;
+      }
+      case 'shock': {
+        const o = ctx.createOscillator(); const g = ctx.createGain();
+        o.type = 'sine'; o.frequency.setValueAtTime(300, now);
+        o.frequency.exponentialRampToValueAtTime(2000, now + 0.1);
+        g.gain.setValueAtTime(0.12, now); g.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+        o.connect(g); g.connect(ctx.destination); o.start(now); o.stop(now + 0.15);
+        const bufSize = Math.floor(ctx.sampleRate * 0.03);
+        const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+        const d = buf.getChannelData(0);
+        for (let i = 0; i < bufSize; i++) d[i] = Math.random() * 2 - 1;
+        const src = ctx.createBufferSource(); src.buffer = buf;
+        const g2 = ctx.createGain(); g2.gain.setValueAtTime(0.08, now + 0.08); g2.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+        src.connect(g2); g2.connect(ctx.destination); src.start(now + 0.08); src.stop(now + 0.12);
+        break;
+      }
+      case 'moneyeyes': {
+        [1400, 1800, 2200].forEach((f, i) => {
+          const t = now + i * 0.04;
+          const o = ctx.createOscillator(); const g = ctx.createGain();
+          o.type = 'sine'; o.frequency.setValueAtTime(f, t);
+          g.gain.setValueAtTime(0.1, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+          o.connect(g); g.connect(ctx.destination); o.start(t); o.stop(t + 0.08);
+        });
+        break;
+      }
+      case 'fire': {
+        const o = ctx.createOscillator(); const g = ctx.createGain();
+        o.type = 'sawtooth'; o.frequency.setValueAtTime(200, now);
+        o.frequency.exponentialRampToValueAtTime(800, now + 0.1);
+        g.gain.setValueAtTime(0.1, now); g.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+        o.connect(g); g.connect(ctx.destination); o.start(now); o.stop(now + 0.15);
+        const bufSize = Math.floor(ctx.sampleRate * 0.1);
+        const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+        const d = buf.getChannelData(0);
+        for (let i = 0; i < bufSize; i++) d[i] = Math.random() * 2 - 1;
+        const src = ctx.createBufferSource(); src.buffer = buf;
+        const flt = ctx.createBiquadFilter(); flt.type = 'bandpass'; flt.frequency.setValueAtTime(400, now);
+        const g2 = ctx.createGain(); g2.gain.setValueAtTime(0.06, now); g2.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+        src.connect(flt); flt.connect(g2); g2.connect(ctx.destination); src.start(now); src.stop(now + 0.1);
+        break;
+      }
+      case 'cool': {
+        [329.63, 392.00, 493.88].forEach((f, i) => {
+          const o = ctx.createOscillator(); const g = ctx.createGain();
+          o.type = 'sine'; o.frequency.setValueAtTime(f, now);
+          g.gain.setValueAtTime(0.08, now); g.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+          o.connect(g); g.connect(ctx.destination); o.start(now); o.stop(now + 0.2);
+        });
+        break;
+      }
+      case 'sleepy': {
+        const o = ctx.createOscillator(); const g = ctx.createGain();
+        o.type = 'sine'; o.frequency.setValueAtTime(400, now);
+        o.frequency.exponentialRampToValueAtTime(150, now + 0.4);
+        g.gain.setValueAtTime(0.08, now); g.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+        o.connect(g); g.connect(ctx.destination); o.start(now); o.stop(now + 0.4);
+        break;
+      }
+      case 'gg': {
+        [1200, 1600].forEach((f, i) => {
+          const t = now + i * 0.08;
+          const o = ctx.createOscillator(); const g = ctx.createGain();
+          o.type = 'sine'; o.frequency.setValueAtTime(f, t);
+          g.gain.setValueAtTime(0.12, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+          o.connect(g); g.connect(ctx.destination); o.start(t); o.stop(t + 0.15);
+        });
+        break;
+      }
+    }
+  } catch (e) {
+    console.error('SFX error:', e);
+  }
+}

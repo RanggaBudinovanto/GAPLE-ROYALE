@@ -87,6 +87,6 @@ export function getAvailablePowerups() {
     id,
     stock: user.powerups[id] || 0,
     name: { shuffle: 'Shuffle', peek: 'Peek', block: 'Block', double_coin: '2× Coin' }[id],
-    icon: { shuffle: '🔀', peek: '👁️', block: '🚫', double_coin: '💰' }[id]
+    iconId: { shuffle: 'icon_shuffle', peek: 'icon_eye', block: 'icon_block', double_coin: 'icon_coins' }[id]
   }));
 }

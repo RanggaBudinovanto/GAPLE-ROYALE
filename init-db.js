@@ -20,12 +20,13 @@ async function init() {
     port: parseInt(process.env.DB_PORT || '3306'),
     user: process.env.DB_USER || 'root',
     password: process.env.DB_PASS ?? '',
+    database: process.env.DB_NAME || 'gaple_royale',
     multipleStatements: true
   });
 
   console.log('Terhubung! Membuat database dan tabel...');
 
-  const schemaPath = path.join(__dirname, 'schema.sql');
+  const schemaPath = path.join(__dirname, 'docker', 'mysql', 'init.sql');
   let schema = fs.readFileSync(schemaPath, 'utf8');
 
   // Untuk Railway, database sudah dibuat. Skip CREATE DATABASE.

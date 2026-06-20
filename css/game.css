@@ -964,4 +964,73 @@ body:has(.game-container), body:has(.matchmaking-container) {
   }
 }
 
+/* ===== EMOTE BAR (replaces chat-emoji-bar) ===== */
+.emote-bar {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 4px;
+  padding: 8px 6px;
+  border-bottom: 1px solid var(--border-default);
+  background: rgba(0,0,0,0.15);
+}
+
+.emote-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: transform 0.15s var(--ease-spring), background 0.15s ease;
+  border: none;
+  background: transparent;
+  user-select: none;
+}
+.emote-btn:hover {
+  transform: scale(1.2);
+  background: rgba(255,255,255,0.08);
+}
+.emote-btn:active {
+  transform: scale(0.9);
+}
+.emote-btn.emote-btn--cooldown {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+/* ===== EMOTE POPUP (floating reaction above avatar) ===== */
+.emote-popup {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  z-index: 50;
+  pointer-events: none;
+  animation: emoteFloatUp 2.5s ease-out forwards;
+}
+.emote-popup-inner {
+  background: rgba(8, 10, 6, 0.75);
+  border: 1px solid rgba(212, 160, 23, 0.3);
+  border-radius: var(--radius-lg);
+  padding: 6px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+/* Emote inside chat message */
+.chat-emote-inline {
+  display: inline-flex;
+  vertical-align: middle;
+  animation: emoteBounceIn 0.35s var(--ease-spring);
+}
+
+/* Icon inline helper */
+.icon-inline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  line-height: 1;
+}
+
 

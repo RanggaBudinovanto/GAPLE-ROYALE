@@ -1,18 +1,20 @@
 import state from '../state.js';
 import { dealCards, getValidMoves, calculatePipTotal } from '../game/domino.js';
 import { createBoard, playCard, canPlayOnSide } from '../game/board.js';
-import { botMove, getBotChatMessage } from '../game/bot.js';
+import { botMove, getBotChatMessage, getBotEmoteReply } from '../game/bot.js';
 import { usePowerup, getAvailablePowerups } from '../game/powerups.js';
 import { calculateGameResult, calculateCoinReward, determineWinner } from '../game/scoring.js';
 import { renderDomino } from '../components/domino-card.js';
 import { renderCharacter, getCharacterName } from '../components/character.js';
+import { renderEmote, renderIcon, EMOTE_LIST } from '../components/emotes.js';
+import { showEmotePopup } from '../components/emote-popup.js';
 import { showToast } from '../components/toast.js';
 import { showConfirm } from '../components/modal.js';
 import { generateBotPlayers, updateMissionProgress, checkAchievements } from '../api.js';
 import { formatNumber } from '../utils/format.js';
 import { addGameHistory } from '../utils/storage.js';
 import { staggerFadeIn } from '../utils/animation.js';
-import { playCardPlace, playWin, playLose, playPass, playClick } from '../utils/sfx.js';
+import { playCardPlace, playWin, playLose, playPass, playClick, playCoinCount, playTurnNotification, playTimerWarning, playAchievementUnlock, playEmoteSound } from '../utils/sfx.js';
 import { SOCKET_URL, apiCall } from '../config.js';
 import { getRankTier } from './matchmaking.js';
 
@@ -101,7 +103,7 @@ export function render(container) {
       
       const vState = gs.playerVoiceStates[p.id] || { isMuted: true, isSpeaking: false };
       const voiceBadgeClass = `opponent-voice-badge ${vState.isMuted ? 'opponent-voice-badge--muted' : ''} ${vState.isSpeaking ? 'opponent-voice-badge--speaking' : ''}`;
-      const voiceBadgeContent = vState.isMuted ? '🎤❌' : '🎤';
+      const voiceBadgeContent = vState.isMuted ? renderIcon('icon_mic_off', 14) : renderIcon('icon_mic', 14);
       const voiceBadgeTitle = vState.isMuted ? 'Mic Nonaktif' : 'Mic Aktif';
       
       return `
@@ -130,7 +132,7 @@ export function render(container) {
           <span class="text-xs text-secondary">
             ${mode === 'duel' ? 'Duel 1v1' : '4 Pemain'}
             ${gameConfig.betAmount > 0 
-              ? `· <strong style="color:var(--gold-bright);">Taruhan: 💰 ${formatNumber(gameConfig.betAmount)} (Pool: 💰 ${formatNumber(gameConfig.betAmount * numPlayers)})</strong>` 
+              ? `· <strong style="color:var(--gold-bright);">Taruhan: <span class="icon-inline">${renderIcon('icon_coins', 14)}</span> ${formatNumber(gameConfig.betAmount)} (Pool: <span class="icon-inline">${renderIcon('icon_coins', 14)}</span> ${formatNumber(gameConfig.betAmount * numPlayers)})</strong>`
               : `· ${botLevel === 'easy' ? 'Mudah' : 'Sulit'}`
             }
           </span>
@@ -149,7 +151,7 @@ export function render(container) {
                       id="btn-toggle-mic" 
                       title="${!gs.voiceInitialized ? 'Voice chat menghubungkan...' : gs.voiceMuted ? 'Mikrofon Mati' : 'Mikrofon Aktif'}" 
                       ${!gs.voiceInitialized ? 'disabled' : ''}>
-                ${gs.voiceMuted ? '🎤❌' : '🎤 ON'}
+                ${gs.voiceMuted ? renderIcon('icon_mic_off', 16) : `${renderIcon('icon_mic', 16)} ON`}
               </button>
             </div>
           ` : ''}
@@ -212,7 +214,7 @@ export function render(container) {
           ${powerups.map(pu => `
             <div class="powerup-slot ${pu.stock <= 0 || gs.currentPlayerIndex !== myIdx || gs.gameOver || gs.usedPowerups.includes(pu.id) ? 'powerup-slot--disabled' : ''}"
                  data-powerup="${pu.id}" title="${pu.name}">
-               <span class="powerup-icon">${pu.icon}</span>
+               <span class="powerup-icon">${renderIcon(pu.iconId, 20)}</span>
                <span class="powerup-name">${pu.name}</span>
                <span class="powerup-count">${pu.stock}</span>
             </div>
@@ -272,19 +274,24 @@ export function render(container) {
           <button class="btn btn-ghost" id="chat-close" style="font-size:18px;">&times;</button>
         </div>
         <div class="chat-messages" id="chat-messages">
-          ${gs.chatMessages.map(msg => `
+          ${gs.chatMessages.map(msg => {
+            const emoteMatch = msg.content.match(/^\[emote:(\w+)\]$/);
+            const contentHtml = emoteMatch
+              ? `<span class="chat-emote-inline">${renderEmote(emoteMatch[1], 'medium')}</span>`
+              : escapeHtml(msg.content);
+            return `
             <div class="chat-msg">
               <div class="chat-msg-avatar">${msg.username[0]}</div>
               <div class="chat-msg-content">
                 <span class="chat-msg-user">${msg.username}</span>
-                <div class="chat-msg-text">${escapeHtml(msg.content)}</div>
+                <div class="chat-msg-text">${contentHtml}</div>
               </div>
-            </div>
-          `).join('')}
+            </div>`;
+          }).join('')}
         </div>
-        <div class="chat-emoji-bar">
-          ${['🎰','🃏','🎲','💰','🔥','👑','🤑','✨'].map(e =>
-            `<span class="chat-emoji" data-emoji="${e}">${e}</span>`
+        <div class="emote-bar">
+          ${EMOTE_LIST.map(e =>
+            `<button class="emote-btn" data-emote="${e.id}" title="${e.name}">${renderEmote(e.id, 'small')}</button>`
           ).join('')}
         </div>
         <div class="chat-input-area">
@@ -426,13 +433,33 @@ export function render(container) {
       chatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendMessage(); });
     }
 
-    gameEl.querySelectorAll('.chat-emoji').forEach(emoji => {
-      emoji.addEventListener('click', () => {
-        const input = gameEl.querySelector('#chat-input');
-        if (input) {
-          input.value += emoji.dataset.emoji;
-          input.focus();
+    gameEl.querySelectorAll('.emote-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (btn.classList.contains('emote-btn--cooldown')) return;
+        const emoteId = btn.dataset.emote;
+
+        addChatMessage(user.username, `[emote:${emoteId}]`);
+        showEmotePopup(user.id, emoteId, gameEl);
+        playEmoteSound(emoteId);
+
+        if (isRealPvP && gs.pvpSocket) {
+          gs.pvpSocket.emit('emote', { emoteId });
+        } else {
+          setTimeout(() => {
+            const botPlayer = gs.players.find(p => p.isBot);
+            if (botPlayer) {
+              const replyId = getBotEmoteReply();
+              addChatMessage(botPlayer.username, `[emote:${replyId}]`);
+              showEmotePopup(botPlayer.id, replyId, gameEl);
+              playEmoteSound(replyId);
+            }
+          }, 800 + Math.random() * 1200);
         }
+
+        gameEl.querySelectorAll('.emote-btn').forEach(b => b.classList.add('emote-btn--cooldown'));
+        setTimeout(() => {
+          gameEl.querySelectorAll('.emote-btn').forEach(b => b.classList.remove('emote-btn--cooldown'));
+        }, 2000);
       });
     });
 
@@ -526,6 +553,7 @@ export function render(container) {
     gs.consecutivePasses++;
     gs.selectedCard = null;
     playPass();
+    autoTriggerEmote(user.id, 'pass');
 
     if (gs.consecutivePasses >= gs.players.length) {
       const winnerIdx = determineWinner(gs.hands);
@@ -637,6 +665,10 @@ export function render(container) {
   function resetTimer() {
     gs.turnTimer = 30;
     clearInterval(gs.timerInterval);
+    const myIdx = isRealPvP ? gs.myPlayerIndex : 0;
+    if (gs.currentPlayerIndex === myIdx && !gs.gameOver) {
+      playTurnNotification();
+    }
     gs.timerInterval = setInterval(() => {
       gs.turnTimer--;
       const timerFill = gameEl.querySelector('.game-timer-fill');
@@ -646,6 +678,9 @@ export function render(container) {
         timerFill.className = `game-timer-fill ${gs.turnTimer <= 10 ? 'game-timer-fill--warning' : ''} ${gs.turnTimer <= 5 ? 'game-timer-fill--danger' : ''}`;
       }
       if (timerText) timerText.textContent = `${gs.turnTimer}s`;
+      if (gs.turnTimer <= 5 && gs.turnTimer > 0 && gs.currentPlayerIndex === myIdx) {
+        playTimerWarning();
+      }
 
       if (gs.turnTimer <= 0) {
         clearInterval(gs.timerInterval);
@@ -770,12 +805,15 @@ export function render(container) {
     const bannerText = reason === 'gaple' ? (isWinner ? 'KEMENANGAN GAPLE SEMPURNA!' : 'TERBLOKIR (GAPLE)') : (isWinner ? 'KARTU HABIS!' : 'GAME SELESAI');
 
     const starDecoration = isWinner ? `
-      <div style="display:flex;gap:8px;margin:var(--sp-2) 0;">
-        <span style="font-size:24px;color:var(--gold-bright);animation:starSpin 0.5s 0.2s ease-out forwards;opacity:0;">★</span>
-        <span style="font-size:32px;color:var(--gold-bright);animation:starSpin 0.5s 0.4s ease-out forwards;opacity:0;transform:translateY(-6px);">★</span>
-        <span style="font-size:24px;color:var(--gold-bright);animation:starSpin 0.5s 0.6s ease-out forwards;opacity:0;">★</span>
+      <div style="display:flex;gap:8px;margin:var(--sp-2) 0;align-items:center;">
+        <span style="animation:starSpin 0.5s 0.2s ease-out forwards;opacity:0;">${renderIcon('icon_star', 24)}</span>
+        <span style="animation:starSpin 0.5s 0.4s ease-out forwards;opacity:0;transform:translateY(-6px);">${renderIcon('icon_star', 32)}</span>
+        <span style="animation:starSpin 0.5s 0.6s ease-out forwards;opacity:0;">${renderIcon('icon_star', 24)}</span>
       </div>
     ` : '';
+
+    const coinSoundInterval = playCoinCount();
+    setTimeout(() => { if (coinSoundInterval) clearInterval(coinSoundInterval); }, 1500);
 
     overlay.innerHTML = `
       <div class="game-over-modal-card">
@@ -903,6 +941,11 @@ export function render(container) {
     if (isWinner) updateMissionProgress('win_1_game', 1);
 
     const newAchievements = checkAchievements();
+    if (newAchievements.length > 0) playAchievementUnlock();
+
+    autoTriggerEmote(gs.players[winnerIdx].id, isWinner ? 'win' : 'lose');
+    if (!isWinner) autoTriggerEmote(user.id, 'lose');
+
     if (reason === 'gaple' && isWinner) {
       if (!user.achievements.find(a => a.id === 'gaple_king')) {
         user.achievements.push({ id: 'gaple_king', unlockedAt: new Date().toISOString() });
@@ -936,6 +979,22 @@ export function render(container) {
 
     renderGame();
     showGameOverPopup(isWinner, coinResult.total, user.activeCharacter, reason);
+  }
+
+  function autoTriggerEmote(playerId, eventType) {
+    const map = {
+      win: ['laugh', 'cool', 'gg'],
+      lose: ['cry', 'angry'],
+      pass: ['sleepy'],
+      powerup: ['fire', 'shock']
+    };
+    const pool = map[eventType];
+    if (!pool) return;
+    const emoteId = pool[Math.floor(Math.random() * pool.length)];
+    setTimeout(() => {
+      showEmotePopup(playerId, emoteId, gameEl);
+      playEmoteSound(emoteId);
+    }, 400);
   }
 
   // ════════════════════════════════════════════════════════════════
@@ -1078,6 +1137,14 @@ export function render(container) {
       gs.chatMessages.push({ username: data.username, content: data.message, timestamp: data.timestamp });
       if (gs.chatMessages.length > 50) gs.chatMessages.shift();
       renderGame();
+    });
+
+    // ── Emote from server ──────────────────────────────────────────────────
+    socket.on('emote', (data) => {
+      if (data.userId === user.id) return;
+      showEmotePopup(data.userId, data.emoteId, gameEl);
+      playEmoteSound(data.emoteId);
+      addChatMessage(data.username || 'Player', `[emote:${data.emoteId}]`);
     });
 
     // ── Game over from server ──────────────────────────────────────────────

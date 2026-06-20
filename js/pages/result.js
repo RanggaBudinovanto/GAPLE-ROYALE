@@ -3,6 +3,8 @@ import { renderCharacter, getCharacterName } from '../components/character.js';
 import { formatNumber } from '../utils/format.js';
 import { countUp, coinRain, staggerFadeIn } from '../utils/animation.js';
 import { getRankTier } from './matchmaking.js';
+import { renderIcon } from '../components/emotes.js';
+import { playCoinCount } from '../utils/sfx.js';
 
 export function render(container) {
   const user = state.user;
@@ -65,7 +67,7 @@ export function render(container) {
                     <td style="padding:var(--sp-3);text-align:center;font-family:var(--font-mono);">${s.cardsLeft}</td>
                     <td style="padding:var(--sp-3);text-align:center;font-family:var(--font-mono);">${s.totalPip}</td>
                     <td style="padding:var(--sp-3);text-align:center;">
-                      ${s.rank === 1 ? '<span class="badge badge--gold">🥇 1st</span>' : `<span class="text-secondary">#${s.rank}</span>`}
+                      ${s.rank === 1 ? `<span class="badge badge--gold">${renderIcon('icon_gold',14)} 1st</span>` : `<span class="text-secondary">#${s.rank}</span>`}
                     </td>
                   </tr>
                 `;
@@ -181,7 +183,7 @@ export function render(container) {
         <div style="max-width:980px;width:100%;margin-bottom:var(--sp-6);position:relative;z-index:1;">
           ${newAchievements.map(ach => `
             <div class="card card--premium" style="display:flex;align-items:center;gap:var(--sp-3);margin-bottom:var(--sp-2);">
-              <span style="font-size:28px;">🏆</span>
+              <span>${renderIcon('icon_trophy', 28)}</span>
               <div>
                 <div style="font-weight:600;color:var(--text-gold);">${ach.name}</div>
                 <div class="text-sm text-secondary">${ach.desc} · +${ach.reward} coin</div>
@@ -200,8 +202,10 @@ export function render(container) {
     </div>
   `;
 
-  // Coin count-up
+  // Coin count-up with sound
   const coinEl = container.querySelector('#coin-earned');
+  const coinSnd = playCoinCount();
+  setTimeout(() => { if (coinSnd) clearInterval(coinSnd); }, 1200);
   countUp(coinEl, coinResult.total, { prefix: '+' });
 
   // Coin rain for winner

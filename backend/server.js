@@ -31,46 +31,9 @@ app.use('/api/v1/auth',        require('./routes/auth.routes'));
 app.use('/api/v1/users',       require('./routes/user.routes'));
 app.use('/api/v1/matchmaking', require('./routes/matchmaking.routes'));
 app.use('/api/v1/ranking',     require('./routes/ranking.routes'));
-app.use('/api/v1',             require('./routes/game.routes'));
+app.use('/api/v1/game',        require('./routes/game.routes'));
 
 app.get('/health', (req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
-
-app.get('/debug-db', async (req, res) => {
-  try {
-    const db = require('./models/db');
-    const [rows] = await db.query('SELECT 1 + 1 AS solution');
-    const [tables] = await db.query('SHOW TABLES');
-    res.json({
-      success: true,
-      env: {
-        DB_HOST: process.env.DB_HOST,
-        DB_PORT: process.env.DB_PORT,
-        DB_USER: process.env.DB_USER,
-        DB_NAME: process.env.DB_NAME,
-        NODE_ENV: process.env.NODE_ENV,
-        PORT: process.env.PORT
-      },
-      solution: rows[0].solution,
-      tables: tables
-    });
-  } catch (err) {
-    res.status(500).json({
-      success: false,
-      error: err.name || 'Error',
-      message: err.message,
-      stack: err.stack,
-      env: {
-        DB_HOST: process.env.DB_HOST,
-        DB_PORT: process.env.DB_PORT,
-        DB_USER: process.env.DB_USER,
-        DB_NAME: process.env.DB_NAME,
-        NODE_ENV: process.env.NODE_ENV,
-        PORT: process.env.PORT
-      }
-    });
-  }
-});
-
 
 // Serve static frontend files from parent directory
 const path = require('path');
@@ -96,48 +59,18 @@ async function autoInitDatabase() {
   try {
     console.log('Checking if database tables exist...');
 
-    // Check and add Ranked column modifications dynamically if missing
-    try {
-      const [userCols] = await db.query("SHOW COLUMNS FROM users LIKE 'rank_points'");
-      if (userCols.length === 0) {
-        console.log('Adding column "rank_points" to "users" table...');
-        await db.query("ALTER TABLE users ADD COLUMN rank_points INT DEFAULT 0");
-      }
-    } catch (colErr) {
-      console.warn('Failed to check/add users.rank_points:', colErr.message);
-    }
-
-    try {
-      const [sessionCols] = await db.query("SHOW COLUMNS FROM game_sessions LIKE 'is_ranked'");
-      if (sessionCols.length === 0) {
-        console.log('Adding column "is_ranked" to "game_sessions" table...');
-        await db.query("ALTER TABLE game_sessions ADD COLUMN is_ranked BOOLEAN DEFAULT FALSE");
-      }
-    } catch (colErr) {
-      console.warn('Failed to check/add game_sessions.is_ranked:', colErr.message);
-    }
-
-    try {
-      const [betCols] = await db.query("SHOW COLUMNS FROM game_sessions LIKE 'bet_amount'");
-      if (betCols.length === 0) {
-        console.log('Adding column "bet_amount" to "game_sessions" table...');
-        await db.query("ALTER TABLE game_sessions ADD COLUMN bet_amount INT DEFAULT 0");
-      }
-    } catch (colErr) {
-      console.warn('Failed to check/add game_sessions.bet_amount:', colErr.message);
-    }
     // Check if "users" table exists
     const [tables] = await db.query("SHOW TABLES LIKE 'users'");
     if (tables.length === 0) {
       console.log('Table "users" not found. Initializing database schema...');
-      
+
       const sqlPath = path.join(__dirname, '..', 'docker', 'mysql', 'init.sql');
       if (fs.existsSync(sqlPath)) {
         let schema = fs.readFileSync(sqlPath, 'utf8');
-        
+
         // Remove CREATE DATABASE and USE statements because Railway already manages the database
         schema = schema.replace(/CREATE DATABASE[\s\S]*?USE[\s\S]*?;/i, '');
-        
+
         const statements = schema
           .split(';')
           .map(s => s.trim())
@@ -156,6 +89,37 @@ async function autoInitDatabase() {
       }
     } else {
       console.log('Database tables already exist.');
+
+      // Check and add columns that may be missing on older schemas
+      try {
+        const [userCols] = await db.query("SHOW COLUMNS FROM users LIKE 'rank_points'");
+        if (userCols.length === 0) {
+          console.log('Adding column "rank_points" to "users" table...');
+          await db.query("ALTER TABLE users ADD COLUMN rank_points INT DEFAULT 0");
+        }
+      } catch (colErr) {
+        console.warn('Failed to check/add users.rank_points:', colErr.message);
+      }
+
+      try {
+        const [sessionCols] = await db.query("SHOW COLUMNS FROM game_sessions LIKE 'is_ranked'");
+        if (sessionCols.length === 0) {
+          console.log('Adding column "is_ranked" to "game_sessions" table...');
+          await db.query("ALTER TABLE game_sessions ADD COLUMN is_ranked BOOLEAN DEFAULT FALSE");
+        }
+      } catch (colErr) {
+        console.warn('Failed to check/add game_sessions.is_ranked:', colErr.message);
+      }
+
+      try {
+        const [betCols] = await db.query("SHOW COLUMNS FROM game_sessions LIKE 'bet_amount'");
+        if (betCols.length === 0) {
+          console.log('Adding column "bet_amount" to "game_sessions" table...');
+          await db.query("ALTER TABLE game_sessions ADD COLUMN bet_amount INT DEFAULT 0");
+        }
+      } catch (colErr) {
+        console.warn('Failed to check/add game_sessions.bet_amount:', colErr.message);
+      }
     }
   } catch (err) {
     console.error('Failed to auto-initialize database:', err.message);

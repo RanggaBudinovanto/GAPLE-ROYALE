@@ -5,6 +5,7 @@ import { renderDomino } from '../components/domino-card.js';
 import { showToast } from '../components/toast.js';
 import { getCatalog, activateCharacter, activateSkin } from '../api.js';
 import { staggerFadeIn } from '../utils/animation.js';
+import { renderIcon } from '../components/emotes.js';
 
 export function render(container) {
   const user = state.user;
@@ -132,7 +133,7 @@ export function render(container) {
 
     grid.innerHTML = catalog_pu.filter(p => (user.powerups[p.id] || 0) > 0).map(pu => `
       <div class="powerup-card">
-        <div class="powerup-card-icon">${pu.icon}</div>
+        <div class="powerup-card-icon">${renderIcon(pu.iconId, 24)}</div>
         <div class="powerup-card-info">
           <div class="powerup-card-name">${pu.name}</div>
           <div class="powerup-card-desc">${pu.desc}</div>
