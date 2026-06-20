@@ -77,47 +77,6 @@ function createMusicToggle() {
   toggleBtn.className = 'music-toggle-btn';
   toggleBtn.title = 'Nyalakan/Matikan Musik';
 
-  // Floating styling with CSS variables from our design system
-  toggleBtn.style.cssText = `
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: rgba(20, 26, 16, 0.85);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1.5px solid var(--border-gold);
-    color: var(--text-gold);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.5);
-    z-index: 999;
-    cursor: pointer;
-    transition: transform var(--dur-fast) var(--ease-spring), border-color var(--dur-fast) ease, box-shadow var(--dur-fast) ease;
-  `;
-
-  // Hover and active effects via JS events (since it is dynamically styled)
-  toggleBtn.addEventListener('mouseenter', () => {
-    toggleBtn.style.transform = 'scale(1.1)';
-    toggleBtn.style.borderColor = 'var(--gold-bright)';
-    toggleBtn.style.boxShadow = '0 0 12px rgba(245,200,66,0.3)';
-  });
-  toggleBtn.addEventListener('mouseleave', () => {
-    toggleBtn.style.transform = 'none';
-    toggleBtn.style.borderColor = 'var(--border-gold)';
-    toggleBtn.style.boxShadow = '0 4px 16px rgba(0,0,0,0.5)';
-  });
-  toggleBtn.addEventListener('mousedown', () => {
-    toggleBtn.style.transform = 'scale(0.95)';
-  });
-  toggleBtn.addEventListener('mouseup', () => {
-    toggleBtn.style.transform = 'scale(1.1)';
-  });
-
   toggleBtn.addEventListener('click', toggleMusic);
 
   document.body.appendChild(toggleBtn);
@@ -157,45 +116,6 @@ export function initSfxToggle() {
   sfxToggleBtn.id = 'sfx-toggle';
   sfxToggleBtn.className = 'sfx-toggle-btn';
   sfxToggleBtn.title = 'Nyalakan/Matikan Efek Suara';
-
-  sfxToggleBtn.style.cssText = `
-    position: fixed;
-    top: 20px;
-    right: 80px;
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: rgba(20, 26, 16, 0.85);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1.5px solid var(--border-gold);
-    color: var(--text-gold);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.5);
-    z-index: 999;
-    cursor: pointer;
-    transition: transform var(--dur-fast) var(--ease-spring), border-color var(--dur-fast) ease, box-shadow var(--dur-fast) ease;
-  `;
-
-  sfxToggleBtn.addEventListener('mouseenter', () => {
-    sfxToggleBtn.style.transform = 'scale(1.1)';
-    sfxToggleBtn.style.borderColor = 'var(--gold-bright)';
-    sfxToggleBtn.style.boxShadow = '0 0 12px rgba(245,200,66,0.3)';
-  });
-  sfxToggleBtn.addEventListener('mouseleave', () => {
-    sfxToggleBtn.style.transform = 'none';
-    sfxToggleBtn.style.borderColor = 'var(--border-gold)';
-    sfxToggleBtn.style.boxShadow = '0 4px 16px rgba(0,0,0,0.5)';
-  });
-  sfxToggleBtn.addEventListener('mousedown', () => {
-    sfxToggleBtn.style.transform = 'scale(0.95)';
-  });
-  sfxToggleBtn.addEventListener('mouseup', () => {
-    sfxToggleBtn.style.transform = 'scale(1.1)';
-  });
 
   sfxToggleBtn.addEventListener('click', toggleSfx);
 

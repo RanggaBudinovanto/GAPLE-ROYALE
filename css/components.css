@@ -600,11 +600,10 @@
   opacity: 0.3;
 }
 
-/* ===== MUSIC TOGGLE BUTTON ===== */
-.music-toggle-btn {
+/* ===== MUSIC & SFX FLOATING TOGGLE BUTTONS ===== */
+.music-toggle-btn, .sfx-toggle-btn {
   position: fixed;
-  bottom: 84px;
-  right: 20px;
+  bottom: 20px;
   width: 48px;
   height: 48px;
   border-radius: 50%;
@@ -623,23 +622,36 @@
   transition: transform var(--dur-fast) var(--ease-spring), border-color var(--dur-fast) ease, box-shadow var(--dur-fast) ease;
 }
 
-.music-toggle-btn:hover {
+.music-toggle-btn {
+  right: 20px;
+}
+
+.sfx-toggle-btn {
+  right: 80px;
+}
+
+.music-toggle-btn:hover, .sfx-toggle-btn:hover {
   transform: scale(1.1);
   border-color: var(--gold-bright);
   box-shadow: 0 0 12px rgba(245,200,66,0.3);
 }
 
-.music-toggle-btn:active {
+.music-toggle-btn:active, .sfx-toggle-btn:active {
   transform: scale(0.95);
 }
 
 @media (max-width: 767px) {
-  .music-toggle-btn {
+  .music-toggle-btn, .sfx-toggle-btn {
     bottom: 80px;
-    right: 16px;
     width: 40px;
     height: 40px;
     font-size: 16px;
+  }
+  .music-toggle-btn {
+    right: 16px;
+  }
+  .sfx-toggle-btn {
+    right: 68px;
   }
 }
 
