@@ -80,7 +80,7 @@ function createMusicToggle() {
   // Floating styling with CSS variables from our design system
   toggleBtn.style.cssText = `
     position: fixed;
-    bottom: 20px;
+    top: 20px;
     right: 20px;
     width: 48px;
     height: 48px;
@@ -160,8 +160,8 @@ export function initSfxToggle() {
 
   sfxToggleBtn.style.cssText = `
     position: fixed;
-    bottom: 80px;
-    right: 20px;
+    top: 20px;
+    right: 80px;
     width: 48px;
     height: 48px;
     border-radius: 50%;
