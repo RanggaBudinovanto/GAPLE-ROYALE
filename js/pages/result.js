@@ -129,7 +129,7 @@ export function render(container) {
                 <div style="font-family:var(--font-display);font-size:11px;color:var(--text-secondary);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:var(--sp-2);">PERKEMBANGAN RANK</div>
                 
                 <div class="flex items-center justify-center gap-4" style="margin:var(--sp-3) 0;">
-                  <span style="font-size:42px;filter:drop-shadow(0 0 10px ${newTier.color});">${newTier.icon}</span>
+                  <img src="${newTier.icon}" style="width:48px;height:48px;object-fit:contain;filter:drop-shadow(0 0 8px ${newTier.color});" />
                   <div style="text-align:left;">
                     <div style="font-family:var(--font-heading);font-size:20px;font-weight:800;color:${newTier.color};letter-spacing:0.04em;">${newTier.name.toUpperCase()}</div>
                     <div style="font-family:var(--font-mono);font-size:13px;color:var(--text-secondary);display:flex;align-items:center;gap:6px;">

@@ -791,7 +791,7 @@ export function render(container) {
               <!-- Rank progression -->
               <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(212,160,23,0.25);padding:10px 16px;border-radius:var(--radius-lg);box-shadow:inset 0 0 10px rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:space-between;">
                 <div style="display:flex;align-items:center;gap:8px;">
-                  <span style="font-size:24px;">${tier.icon}</span>
+                  <img src="${tier.icon}" style="width:24px;height:24px;object-fit:contain;" />
                   <div style="text-align:left;">
                     <div style="font-family:var(--font-heading);font-weight:700;font-size:11px;color:${tier.color};">${tier.name.toUpperCase()}</div>
                     <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-secondary);">${rankedInfo.newRp} RP</div>
