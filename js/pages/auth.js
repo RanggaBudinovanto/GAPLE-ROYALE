@@ -403,6 +403,12 @@ export function render(container) {
 
     sessionStorage.setItem('backend_token', backendToken);
 
+    // Fetch user inventory from backend
+    const invRes = await apiCall('GET', `/users/${backendUser.id}/inventory`);
+    const backendInventory = (!invRes.error && invRes.data && invRes.data.inventory)
+      ? invRes.data.inventory.map(item => item.itemId)
+      : [backendUser.activeCharacter || 'bocah_pemula', backendUser.activeSkin || 'classic'];
+
     // Sync to local storage
     const users = getAllUsers();
     let localUser = users.find(u => u.username.toLowerCase() === username.toLowerCase() || u.id === backendUser.id);
@@ -416,20 +422,36 @@ export function render(container) {
         coin: backendUser.coin || 1000,
         activeCharacter: backendUser.activeCharacter || 'bocah_pemula',
         activeSkin: backendUser.activeSkin || 'classic',
-        inventory: [backendUser.activeCharacter || 'bocah_pemula', backendUser.activeSkin || 'classic'],
+        inventory: backendInventory,
         stats: {
           wins: 0, losses: 0, totalGames: 0, totalCoinEarned: backendUser.coin || 1000,
           longestStreak: 0, currentStreak: 0, powerupsUsed: 0, chatMessagesSent: 0
         },
         achievements: [], lastLogin: null, loginStreak: 0, dailyMissions: {}, powerups: {}
       };
+      if (!invRes.error && invRes.data && invRes.data.inventory) {
+        invRes.data.inventory.forEach(item => {
+          if (item.itemType === 'powerup') {
+            localUser.powerups[item.itemId] = item.quantity;
+          }
+        });
+      }
       users.push(localUser);
     } else {
       localUser.id = backendUser.id;
       localUser.coin = backendUser.coin;
       localUser.activeCharacter = backendUser.activeCharacter;
       localUser.activeSkin = backendUser.activeSkin;
+      localUser.inventory = backendInventory;
       localUser.passwordHash = btoa(password);
+      localUser.powerups = {};
+      if (!invRes.error && invRes.data && invRes.data.inventory) {
+        invRes.data.inventory.forEach(item => {
+          if (item.itemType === 'powerup') {
+            localUser.powerups[item.itemId] = item.quantity;
+          }
+        });
+      }
     }
     setItem('users', users);
 

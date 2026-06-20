@@ -1,6 +1,9 @@
 import state from '../state.js';
 
 export function render(container) {
+  if (state.user) {
+    state.syncWithBackend();
+  }
   container.innerHTML = `
     <div class="splash-screen" style="
       position:fixed;inset:0;

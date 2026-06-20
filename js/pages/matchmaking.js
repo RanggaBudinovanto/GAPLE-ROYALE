@@ -891,7 +891,30 @@ export function render(container) {
             startSearch();
           } else {
             // Lobby is fully pre-filled with bots -> Start game directly
-            startGame(botLevel);
+            const backendToken = sessionStorage.getItem('backend_token') || sessionStorage.getItem('gaple_token');
+            if (backendToken) {
+              startBtn.disabled = true;
+              startBtn.textContent = 'MEMPROSES...';
+              apiCall('POST', '/matchmaking/create', {
+                mode: selectedMode,
+                opponentType: 'bot',
+                botLevel
+              }).then(res => {
+                startBtn.disabled = false;
+                startBtn.textContent = 'MULAI PERMAINAN';
+                if (!res.error && res.data) {
+                  startGame(botLevel, { roomId: res.data.roomId, sessionId: res.data.sessionId });
+                } else {
+                  startGame(botLevel);
+                }
+              }).catch(() => {
+                startBtn.disabled = false;
+                startBtn.textContent = 'MULAI PERMAINAN';
+                startGame(botLevel);
+              });
+            } else {
+              startGame(botLevel);
+            }
           }
         });
       }

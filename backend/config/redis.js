@@ -35,4 +35,17 @@ async function cacheDel(key) {
   try { await getRedisClient().del(key); } catch {}
 }
 
-module.exports = { getRedisClient, cacheGet, cacheSet, cacheDel, TTL };
+async function clearLeaderboardCache() {
+  try {
+    const redis = getRedisClient();
+    const keys = await redis.keys('leaderboard:*');
+    if (keys.length > 0) {
+      await redis.del(keys);
+    }
+  } catch (err) {
+    console.warn('Failed to clear leaderboard cache:', err.message);
+  }
+}
+
+module.exports = { getRedisClient, cacheGet, cacheSet, cacheDel, clearLeaderboardCache, TTL };
+

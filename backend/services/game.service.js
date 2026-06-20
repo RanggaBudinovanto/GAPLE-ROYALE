@@ -1,6 +1,7 @@
 const db = require('../models/db');
 const { verifyToken } = require('../middleware/auth');
 const { getBotReply } = require('./chat.service');
+const { clearLeaderboardCache } = require('../config/redis');
 
 function generateDominoSet() {
   const set = [];
@@ -394,6 +395,7 @@ async function endGame(nsp, roomId, game, winnerIdx, reason) {
     } else {
       await db.query('UPDATE game_sessions SET status = "finished", finished_at = NOW() WHERE room_id = ?', [roomId]);
     }
+    await clearLeaderboardCache();
   } catch (err) {
     console.error('Error saving game result:', err);
   }
@@ -409,3 +411,59 @@ function emitGameState(nsp, roomId, game) {
     timerSeconds: 30
   });
 }
+
+async function endLocalGame(userId, sessionId, winnerId, earnedCoins) {
+  const [sessions] = await db.query('SELECT * FROM game_sessions WHERE id = ?', [sessionId]);
+  if (sessions.length === 0) {
+    return { status: 404, error: 'SESSION_NOT_FOUND', message: 'Sesi game tidak ditemukan' };
+  }
+  const session = sessions[0];
+  if (session.status === 'finished') {
+    return { status: 400, error: 'SESSION_ALREADY_FINISHED', message: 'Sesi game sudah selesai' };
+  }
+
+  const [players] = await db.query('SELECT * FROM game_players WHERE session_id = ? AND user_id = ?', [sessionId, userId]);
+  if (players.length === 0) {
+    return { status: 403, error: 'FORBIDDEN', message: 'Anda bukan pemain di sesi ini' };
+  }
+
+  const conn = await db.primary.getConnection();
+  try {
+    await conn.beginTransaction();
+
+    const isWinner = winnerId === userId;
+    const updateWinnerId = isWinner ? userId : null;
+
+    await conn.execute(
+      'UPDATE game_sessions SET status = "finished", winner_id = ?, finished_at = NOW() WHERE id = ?',
+      [updateWinnerId, sessionId]
+    );
+
+    const [userRows] = await conn.execute('SELECT coin FROM users WHERE id = ? FOR UPDATE', [userId]);
+    const currentCoin = userRows[0]?.coin || 0;
+    const finalCoin = currentCoin + earnedCoins;
+
+    await conn.execute('UPDATE users SET coin = ? WHERE id = ?', [finalCoin, userId]);
+
+    if (earnedCoins > 0) {
+      const reason = isWinner ? 'Menang game VS A.I.' : 'Selesai game VS A.I. (Reward)';
+      await conn.execute(
+        'INSERT INTO transactions (user_id, type, amount, reason, balance_after) VALUES (?, "earn", ?, ?, ?)',
+        [userId, earnedCoins, reason, finalCoin]
+      );
+    }
+
+    await conn.commit();
+    await clearLeaderboardCache();
+
+    return { status: 200, data: { success: true, newBalance: finalCoin } };
+  } catch (err) {
+    await conn.rollback();
+    throw err;
+  } finally {
+    conn.release();
+  }
+}
+
+module.exports.endLocalGame = endLocalGame;
+

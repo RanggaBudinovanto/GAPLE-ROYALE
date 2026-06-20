@@ -13,7 +13,7 @@ import { formatNumber } from '../utils/format.js';
 import { addGameHistory } from '../utils/storage.js';
 import { staggerFadeIn } from '../utils/animation.js';
 import { playCardPlace, playWin, playLose, playPass, playClick } from '../utils/sfx.js';
-import { SOCKET_URL } from '../config.js';
+import { SOCKET_URL, apiCall } from '../config.js';
 
 export function render(container) {
   const user = state.user;
@@ -804,8 +804,27 @@ export function render(container) {
     }
     user.coin += coinResult.total;
     user.stats.totalCoinEarned += coinResult.total;
-    state.set('coin', user.coin);
     state.persistUser();
+
+    // Call backend endpoint to end the local session in DB
+    if (!isRealPvP && gameConfig.sessionId) {
+      const winnerId = gs.players[winnerIdx].id;
+      apiCall('POST', '/game/local-end', {
+        sessionId: gameConfig.sessionId,
+        winnerId,
+        coinEarned: coinResult.total
+      }).then(res => {
+        if (res.error) {
+          console.warn('Failed to sync local game over results to backend:', res.message);
+        } else if (res.data && res.data.newBalance !== undefined) {
+          user.coin = res.data.newBalance;
+          state.set('coin', user.coin);
+          state.persistUser();
+        }
+      }).catch(err => {
+        console.warn('Error during local game end API call:', err);
+      });
+    }
 
     updateMissionProgress('play_3_rounds', 1);
     if (isWinner) updateMissionProgress('win_1_game', 1);

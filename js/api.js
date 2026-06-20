@@ -1,6 +1,7 @@
 import { getItem, setItem, findUserById, getAllUsers } from './utils/storage.js';
 import { getToday } from './utils/format.js';
 import state from './state.js';
+import { apiCall } from './config.js';
 
 const ITEMS_CATALOG = {
   characters: [
@@ -126,6 +127,20 @@ export function purchaseItem(itemId, itemType, quantity = 1) {
 
   checkAchievements();
 
+  // Call backend API if logged in
+  const backendToken = sessionStorage.getItem('backend_token') || sessionStorage.getItem('gaple_token');
+  if (backendToken) {
+    apiCall('POST', `/users/${user.id}/inventory/purchase`, { itemId, itemType, quantity }).then(res => {
+      if (res.error) {
+        console.warn('Backend purchase sync failed:', res.message);
+      } else if (res.data && res.data.newBalance !== undefined) {
+        user.coin = res.data.newBalance;
+        state.set('coin', user.coin);
+        state.persistUser();
+      }
+    });
+  }
+
   return { success: true, newBalance: user.coin };
 }
 
@@ -135,6 +150,15 @@ export function activateCharacter(characterId) {
   if (!user.inventory.includes(characterId)) return { error: 'ITEM_NOT_OWNED' };
   user.activeCharacter = characterId;
   state.persistUser();
+
+  // Call backend API if logged in
+  const backendToken = sessionStorage.getItem('backend_token') || sessionStorage.getItem('gaple_token');
+  if (backendToken) {
+    apiCall('PUT', `/users/${user.id}/character`, { characterId }).then(res => {
+      if (res.error) console.warn('Backend character activation sync failed:', res.message);
+    });
+  }
+
   return { success: true };
 }
 
@@ -144,6 +168,15 @@ export function activateSkin(skinId) {
   if (!user.inventory.includes(skinId)) return { error: 'ITEM_NOT_OWNED' };
   user.activeSkin = skinId;
   state.persistUser();
+
+  // Call backend API if logged in
+  const backendToken = sessionStorage.getItem('backend_token') || sessionStorage.getItem('gaple_token');
+  if (backendToken) {
+    apiCall('PUT', `/users/${user.id}/skin`, { skinId }).then(res => {
+      if (res.error) console.warn('Backend skin activation sync failed:', res.message);
+    });
+  }
+
   return { success: true };
 }
 

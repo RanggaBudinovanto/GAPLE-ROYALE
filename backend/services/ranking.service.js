@@ -23,8 +23,8 @@ async function getLeaderboard(type = 'global', page = 1, limit = 20) {
   const [rows] = await db.readQuery(
     `SELECT u.id as userId, u.username, u.active_character as activeCharacter,
       COUNT(CASE WHEN gs.winner_id = u.id THEN 1 END) as wins,
-      COUNT(gp.id) as totalGames,
-      ROUND(COALESCE(COUNT(CASE WHEN gs.winner_id = u.id THEN 1 END) / NULLIF(COUNT(gp.id), 0) * 100, 0), 1) as winRate
+      COUNT(gs.id) as totalGames,
+      ROUND(COALESCE(COUNT(CASE WHEN gs.winner_id = u.id THEN 1 END) / NULLIF(COUNT(gs.id), 0) * 100, 0), 1) as winRate
      FROM users u
      LEFT JOIN game_players gp ON u.id = gp.user_id
      LEFT JOIN game_sessions gs ON gp.session_id = gs.id AND gs.status = 'finished' ${dateFilter}
@@ -51,8 +51,8 @@ async function getMyRank(userId) {
     `SELECT ranked.rank, ranked.wins, ranked.totalGames, ranked.winRate FROM (
       SELECT u.id,
         COUNT(CASE WHEN gs.winner_id = u.id THEN 1 END) as wins,
-        COUNT(gp.id) as totalGames,
-        ROUND(COALESCE(COUNT(CASE WHEN gs.winner_id = u.id THEN 1 END) / NULLIF(COUNT(gp.id), 0) * 100, 0), 1) as winRate,
+        COUNT(gs.id) as totalGames,
+        ROUND(COALESCE(COUNT(CASE WHEN gs.winner_id = u.id THEN 1 END) / NULLIF(COUNT(gs.id), 0) * 100, 0), 1) as winRate,
         RANK() OVER (ORDER BY COUNT(CASE WHEN gs.winner_id = u.id THEN 1 END) DESC) as \`rank\`
       FROM users u
       LEFT JOIN game_players gp ON u.id = gp.user_id
