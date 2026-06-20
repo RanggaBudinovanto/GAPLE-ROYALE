@@ -38,7 +38,7 @@ export function saveUser(user) {
 }
 
 export function findUserByUsername(username) {
-  return getAllUsers().find(u => u.username === username) || null;
+  return getAllUsers().find(u => u.username.toLowerCase() === username.toLowerCase()) || null;
 }
 
 export function findUserById(id) {

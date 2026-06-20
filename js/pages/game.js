@@ -238,10 +238,14 @@ export function render(container) {
         <div class="player-actions">
           ${gs.currentPlayerIndex === myIdx && !gs.gameOver ? `
             ${gs.pendingSide
-              ? `<span class="text-sm text-secondary" style="margin-right:var(--sp-2);">Taruh di sisi:</span>
-                 <button class="btn btn-primary btn-sm" id="btn-side-left">← KIRI (${gs.board.left})</button>
-                 <button class="btn btn-primary btn-sm" id="btn-side-right">KANAN (${gs.board.right}) →</button>
-                 <button class="btn btn-ghost btn-sm" id="btn-side-cancel">Batal</button>`
+              ? `<div class="side-select-panel" style="display:flex;flex-direction:column;align-items:center;gap:var(--sp-3);width:100%;">
+                   <span class="text-sm text-secondary">Pilih sisi untuk menaruh kartu:</span>
+                   <div style="display:flex;gap:var(--sp-3);width:100%;justify-content:center;flex-wrap:wrap;">
+                     <button class="btn btn-primary" id="btn-side-left" style="flex:1;min-width:120px;max-width:200px;padding:14px 16px;font-size:14px;">← KIRI (${gs.board.left})</button>
+                     <button class="btn btn-primary" id="btn-side-right" style="flex:1;min-width:120px;max-width:200px;padding:14px 16px;font-size:14px;">KANAN (${gs.board.right}) →</button>
+                   </div>
+                   <button class="btn btn-ghost btn-sm" id="btn-side-cancel">Batal</button>
+                 </div>`
               : validMoves.length === 0
                 ? '<button class="btn btn-secondary" id="btn-pass">PASS</button>'
                 : gs.selectedCard !== null
@@ -449,9 +453,11 @@ export function render(container) {
             const botPlayer = gs.players.find(p => p.isBot);
             if (botPlayer) {
               const replyId = getBotEmoteReply();
-              addChatMessage(botPlayer.username, `[emote:${replyId}]`);
-              showEmotePopup(botPlayer.id, replyId, gameEl);
-              playEmoteSound(replyId);
+              if (replyId) {
+                addChatMessage(botPlayer.username, `[emote:${replyId}]`);
+                showEmotePopup(botPlayer.id, replyId, gameEl);
+                playEmoteSound(replyId);
+              }
             }
           }, 800 + Math.random() * 1200);
         }
@@ -1516,12 +1522,12 @@ function setupVoiceChat(socket, gs, user, renderGame) {
       const pc = getOrCreatePeer(from);
 
       if (signal.type === 'offer') {
-        await pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
+        await pc.setRemoteDescription(signal.sdp);
         pc.remoteDescriptionSet = true;
         
         while (pc.iceQueue.length > 0) {
           const cand = pc.iceQueue.shift();
-          await pc.addIceCandidate(new RTCIceCandidate(cand));
+          await pc.addIceCandidate(cand);
         }
 
         const answer = await pc.createAnswer();
@@ -1532,16 +1538,16 @@ function setupVoiceChat(socket, gs, user, renderGame) {
           signal: { type: 'answer', sdp: pc.localDescription }
         });
       } else if (signal.type === 'answer') {
-        await pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
+        await pc.setRemoteDescription(signal.sdp);
         pc.remoteDescriptionSet = true;
 
         while (pc.iceQueue.length > 0) {
           const cand = pc.iceQueue.shift();
-          await pc.addIceCandidate(new RTCIceCandidate(cand));
+          await pc.addIceCandidate(cand);
         }
       } else if (signal.type === 'candidate') {
         if (pc.remoteDescriptionSet) {
-          await pc.addIceCandidate(new RTCIceCandidate(signal.candidate));
+          await pc.addIceCandidate(signal.candidate);
         } else {
           pc.iceQueue.push(signal.candidate);
         }
