@@ -7,7 +7,7 @@ import { showConfirm } from '../components/modal.js';
 import { getCatalog, purchaseItem, activateCharacter, activateSkin } from '../api.js';
 import { formatNumber } from '../utils/format.js';
 import { staggerFadeIn } from '../utils/animation.js';
-import { playPurchase } from '../utils/sfx.js';
+import { playPurchase, playCardPlace } from '../utils/sfx.js';
 
 export function render(container) {
   const user = state.user;
@@ -89,7 +89,11 @@ export function render(container) {
       return `
         <div class="skin-card ${active ? 'skin-card--active' : ''}">
           ${active ? '<div class="character-card-badge"><span class="badge badge--green">AKTIF</span></div>' : ''}
-          <div class="skin-preview">
+          <div class="skin-preview" data-skin-id="${skin.id}">
+            <div class="skin-preview-overlay">
+              <span class="preview-icon">🔊</span>
+              <span class="preview-text">Cek Suara</span>
+            </div>
             ${renderDomino(3, 5, { skin: skin.id })}
             ${renderDomino(6, 6, { skin: skin.id })}
           </div>
@@ -106,6 +110,30 @@ export function render(container) {
         </div>
       `;
     }).join('');
+
+    // Attach sound preview handlers
+    grid.querySelectorAll('.skin-preview').forEach(previewEl => {
+      previewEl.addEventListener('click', () => {
+        const skinId = previewEl.dataset.skinId;
+        playCardPlace(skinId);
+
+        // GSAP premium pop animation
+        if (window.gsap) {
+          window.gsap.fromTo(previewEl, 
+            { scale: 1, rotation: 0 }, 
+            { 
+              scale: 1.08, 
+              rotation: (Math.random() - 0.5) * 4,
+              duration: 0.12, 
+              yoyo: true, 
+              repeat: 1,
+              ease: 'back.out(2)',
+              clearProps: 'transform'
+            }
+          );
+        }
+      });
+    });
 
     attachBuyHandlers(grid);
     grid.querySelectorAll('.activate-skin-btn').forEach(btn => {

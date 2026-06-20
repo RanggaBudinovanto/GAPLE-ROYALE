@@ -1037,15 +1037,15 @@ export function render(container) {
       // Place current user in slot 0
       const myInfo = roomData.players.find(p => p.userId === user.id);
       if (myInfo) {
-        lobbyPlayers[0] = { id: myInfo.userId, username: myInfo.username, activeCharacter: myInfo.activeCharacter, isBot: false };
+        lobbyPlayers[0] = { id: myInfo.userId, username: myInfo.username, activeCharacter: myInfo.activeCharacter, skin: myInfo.skin || 'classic', isBot: false };
       } else {
-        lobbyPlayers[0] = { id: user.id, username: user.username, activeCharacter: user.activeCharacter, isBot: false };
+        lobbyPlayers[0] = { id: user.id, username: user.username, activeCharacter: user.activeCharacter, skin: user.activeSkin || 'classic', isBot: false };
       }
       // Place other players in next slots
       let slotIdx = 1;
       roomData.players.forEach(p => {
         if (p.userId !== user.id && slotIdx < neededCount) {
-          lobbyPlayers[slotIdx] = { id: p.userId, username: p.username, activeCharacter: p.activeCharacter, isBot: false };
+          lobbyPlayers[slotIdx] = { id: p.userId, username: p.username, activeCharacter: p.activeCharacter, skin: p.skin || 'classic', isBot: false };
           slotIdx++;
         }
       });
@@ -1098,7 +1098,8 @@ export function render(container) {
         pvpAcceptSocket.emit('join_matchmaking_accept', {
           token: backendToken,
           username: user.username,
-          character: user.activeCharacter
+          character: user.activeCharacter,
+          skin: user.activeSkin || 'classic'
         });
       });
 
@@ -1114,6 +1115,7 @@ export function render(container) {
         if (idx >= 0) {
           lobbyPlayers[idx].username = data.username;
           lobbyPlayers[idx].activeCharacter = data.character;
+          lobbyPlayers[idx].skin = data.skin || 'classic';
           renderStep();
         }
       });
@@ -1261,6 +1263,7 @@ export function render(container) {
           id: lobbyPlayers[i].id,
           username: lobbyPlayers[i].username,
           activeCharacter: lobbyPlayers[i].activeCharacter,
+          skin: lobbyPlayers[i].skin || 'classic',
           isBot: lobbyPlayers[i].isBot
         });
       } else {
@@ -1270,6 +1273,7 @@ export function render(container) {
           id: `bot_fallback_${i}`,
           username: bot.name,
           activeCharacter: bot.id,
+          skin: 'classic',
           isBot: true
         });
       }

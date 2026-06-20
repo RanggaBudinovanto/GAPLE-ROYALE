@@ -111,6 +111,52 @@
   background: var(--bg-elevated);
   border-radius: var(--radius-md);
   width: 100%;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform var(--dur-fast) ease, border-color var(--dur-fast) ease;
+  border: 1px solid transparent;
+}
+.skin-preview:hover {
+  transform: scale(1.03);
+  border-color: var(--border-gold);
+}
+.skin-preview-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(2.5px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity var(--dur-fast) ease;
+  z-index: 5;
+  gap: 6px;
+}
+.skin-preview:hover .skin-preview-overlay {
+  opacity: 1;
+}
+.skin-preview-overlay .preview-icon {
+  font-size: 24px;
+  animation: pulseIcon 1.5s infinite ease-in-out;
+}
+.skin-preview-overlay .preview-text {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+  color: var(--text-gold);
+}
+@keyframes pulseIcon {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); filter: drop-shadow(0 0 8px var(--gold-bright)); }
+  100% { transform: scale(1); }
 }
 .skin-card-name {
   font-family: var(--font-heading);

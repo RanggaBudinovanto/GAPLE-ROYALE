@@ -91,14 +91,15 @@ async function createSession(userId, mode, opponentType, botLevel) {
 
         // Fetch players info
         const [playerRows] = await db.query(
-          'SELECT gp.user_id, gp.position, u.username, u.active_character FROM game_players gp LEFT JOIN users u ON u.id = gp.user_id WHERE gp.session_id = ? ORDER BY gp.position ASC',
+          'SELECT gp.user_id, gp.position, u.username, u.active_character, u.active_skin FROM game_players gp LEFT JOIN users u ON u.id = gp.user_id WHERE gp.session_id = ? ORDER BY gp.position ASC',
           [room.sessionId]
         );
         const players = playerRows.map(p => ({
           userId: p.user_id,
           position: p.position,
           username: p.username || 'Player',
-          activeCharacter: p.active_character || 'bocah_pemula'
+          activeCharacter: p.active_character || 'bocah_pemula',
+          skin: p.active_skin || 'classic'
         }));
 
         // Broadcast "match_ready" to the room so all polling clients know to proceed
@@ -127,7 +128,7 @@ async function createSession(userId, mode, opponentType, botLevel) {
 
       // Fetch names of current players in the queue
       const [userRows] = await db.query(
-        'SELECT id, username, active_character FROM users WHERE id IN (?)',
+        'SELECT id, username, active_character, active_skin FROM users WHERE id IN (?)',
         [room.players]
       );
       const players = room.players.map(id => {
@@ -135,7 +136,8 @@ async function createSession(userId, mode, opponentType, botLevel) {
         return {
           userId: id,
           username: u ? u.username : 'Mencari...',
-          activeCharacter: u ? u.active_character : 'bocah_pemula'
+          activeCharacter: u ? u.active_character : 'bocah_pemula',
+          skin: u ? (u.active_skin || 'classic') : 'classic'
         };
       });
 
@@ -178,14 +180,15 @@ async function createSession(userId, mode, opponentType, botLevel) {
 
   // Fetch creator info
   const [creatorRows] = await db.query(
-    'SELECT username, active_character FROM users WHERE id = ?',
+    'SELECT username, active_character, active_skin FROM users WHERE id = ?',
     [userId]
   );
   const creator = creatorRows[0];
   const players = [{
     userId,
     username: creator ? creator.username : 'Mencari...',
-    activeCharacter: creator ? creator.active_character : 'bocah_pemula'
+    activeCharacter: creator ? creator.active_character : 'bocah_pemula',
+    skin: creator ? (creator.active_skin || 'classic') : 'classic'
   }];
 
   return {
@@ -210,7 +213,7 @@ async function getStatus(roomId) {
   const waiting = waitingRooms.get(roomId);
   if (waiting) {
     const [userRows] = await db.readQuery(
-      'SELECT id, username, active_character FROM users WHERE id IN (?)',
+      'SELECT id, username, active_character, active_skin FROM users WHERE id IN (?)',
       [waiting.players]
     );
     const players = waiting.players.map(id => {
@@ -218,7 +221,8 @@ async function getStatus(roomId) {
       return {
         userId: id,
         username: u ? u.username : 'Mencari...',
-        activeCharacter: u ? u.active_character : 'bocah_pemula'
+        activeCharacter: u ? u.active_character : 'bocah_pemula',
+        skin: u ? (u.active_skin || 'classic') : 'classic'
       };
     });
 
@@ -243,7 +247,7 @@ async function getStatus(roomId) {
   const session = sessions[0];
 
   const [playerRows] = await db.readQuery(
-    'SELECT gp.user_id, gp.position, u.username, u.active_character FROM game_players gp LEFT JOIN users u ON u.id = gp.user_id WHERE gp.session_id = ? ORDER BY gp.position ASC',
+    'SELECT gp.user_id, gp.position, u.username, u.active_character, u.active_skin FROM game_players gp LEFT JOIN users u ON u.id = gp.user_id WHERE gp.session_id = ? ORDER BY gp.position ASC',
     [session.id]
   );
 
@@ -251,7 +255,8 @@ async function getStatus(roomId) {
     userId: p.user_id,
     position: p.position,
     username: p.username || 'Player',
-    activeCharacter: p.active_character || 'bocah_pemula'
+    activeCharacter: p.active_character || 'bocah_pemula',
+    skin: p.active_skin || 'classic'
   }));
 
   return {

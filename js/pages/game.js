@@ -31,7 +31,7 @@ export function render(container) {
   const backendToken = sessionStorage.getItem('backend_token') || sessionStorage.getItem('gaple_token');
 
   const players = gameConfig.players || [
-    { id: user.id, username: user.username, activeCharacter: user.activeCharacter, isBot: false },
+    { id: user.id, username: user.username, activeCharacter: user.activeCharacter, skin: user.activeSkin || 'classic', isBot: false },
     ...generateBotPlayers(numPlayers - 1, mode)
   ];
 
@@ -438,7 +438,7 @@ export function render(container) {
       gs.hands[playerIdx].splice(cardIndex, 1);
       if (gs.board.chain.length === 0) side = 'first';
       playCard(gs.board, card, side);
-      playCardPlace();
+      playCardPlace(user.activeSkin || 'classic');
       gs.selectedCard = null;
       gs.pendingSide = null;
       // Emit to server
@@ -461,7 +461,10 @@ export function render(container) {
 
     if (gs.board.chain.length === 0) side = 'first';
     playCard(gs.board, card, side);
-    playCardPlace();
+    
+    // Play sound based on bot/player active skin
+    const skin = gs.players[playerIdx]?.skin || 'classic';
+    playCardPlace(skin);
 
     gs.selectedCard = null;
     gs.pendingSide = null;
@@ -867,7 +870,8 @@ export function render(container) {
       socket.emit('join', {
         token: backendToken,
         username: user.username,
-        character: user.activeCharacter
+        character: user.activeCharacter,
+        skin: user.activeSkin || 'classic'
       });
     });
 
@@ -887,6 +891,7 @@ export function render(container) {
           id: p.userId,
           username: p.username,
           activeCharacter: p.character,
+          skin: p.skin || 'classic',
           isBot: p.isBot || false
         }));
         // Resize hands array to match player count (non-self hands = empty for now)
@@ -922,7 +927,8 @@ export function render(container) {
         gs.board.chain = data.newBoard.chain || gs.board.chain;
         gs.board.centerIndex = Math.floor((gs.board.chain.length - 1) / 2);
       }
-      playCardPlace();
+      const playedSkin = (oppIdx >= 0 && gs.players[oppIdx]) ? (gs.players[oppIdx].skin || 'classic') : 'classic';
+      playCardPlace(playedSkin);
       renderGame();
     });
 

@@ -41,12 +41,14 @@ module.exports = function (io) {
       socket.userId = payload.userId;
       socket.username = data.username || 'Player';
       socket.character = data.character || 'bocah_pemula';
+      socket.skin = data.skin || 'classic';
 
       // Notify others in the room
       gameNsp.to(roomId).emit('player_joined_accept', {
         userId: socket.userId,
         username: socket.username,
-        character: socket.character
+        character: socket.character,
+        skin: socket.skin
       });
     });
 
@@ -65,6 +67,7 @@ module.exports = function (io) {
       socket.roomId = roomId;
       socket.username = data.username || 'Player';
       socket.character = data.character || 'bocah_pemula';
+      socket.skin = data.skin || 'classic';
 
       // ── Track connected sockets per room ──────────────────────────────
       if (!roomConnections.has(roomId)) roomConnections.set(roomId, new Map());
@@ -97,7 +100,12 @@ module.exports = function (io) {
         playerIndex: playerIdx >= 0 ? playerIdx : 0,
         firstTurn: game.players[game.currentTurn].id,
         players: game.players.map((p, i) => ({
-          userId: p.id, username: p.username, character: p.character, handSize: game.hands[i].length, isBot: p.isBot
+          userId: p.id,
+          username: p.username,
+          character: p.character,
+          skin: p.skin || 'classic',
+          handSize: game.hands[i].length,
+          isBot: p.isBot
         }))
       });
 
@@ -198,26 +206,40 @@ async function initGame(roomId, io) {
 
   // Fetch actual players from DB
   const [dbPlayers] = await db.query(
-    'SELECT gp.user_id, gp.position, u.username, u.active_character FROM game_players gp LEFT JOIN users u ON u.id = gp.user_id WHERE gp.session_id = ? ORDER BY gp.position ASC',
+    'SELECT gp.user_id, gp.position, u.username, u.active_character, u.active_skin FROM game_players gp LEFT JOIN users u ON u.id = gp.user_id WHERE gp.session_id = ? ORDER BY gp.position ASC',
     [session.id]
   );
 
   const botNames = ['Bot Surya', 'Bot Dewi', 'Bot Andi', 'Bot Rini'];
   const botChars = ['raja_domino', 'si_hoki', 'juragan_meja', 'sang_bluffer'];
+  const botSkins = ['classic', 'candy_pop', 'ocean_blue', 'sakura_blossom', 'ruby_red', 'volcano', 'cyberpunk', 'marble_white', 'midnight', 'carbon_fiber', 'emerald', 'rainbow_unicorn', 'royal_gold', 'golden_luxury'];
 
   const players = [];
   for (let i = 0; i < numPlayers; i++) {
     const dbP = dbPlayers[i];
     if (!dbP) {
       // Slot empty — shouldn't happen, but fallback
-      players.push({ id: `bot_fallback_${i}`, username: botNames[i], character: botChars[i % botChars.length], isBot: true });
+      players.push({
+        id: `bot_fallback_${i}`,
+        username: botNames[i],
+        character: botChars[i % botChars.length],
+        skin: botSkins[i % botSkins.length],
+        isBot: true
+      });
     } else if (dbP.user_id.startsWith('bot_')) {
-      players.push({ id: dbP.user_id, username: botNames[i] || 'Bot', character: botChars[i % botChars.length], isBot: true });
+      players.push({
+        id: dbP.user_id,
+        username: botNames[i] || 'Bot',
+        character: botChars[i % botChars.length],
+        skin: botSkins[i % botSkins.length],
+        isBot: true
+      });
     } else {
       players.push({
         id: dbP.user_id,
         username: dbP.username || 'Player',
         character: dbP.active_character || 'bocah_pemula',
+        skin: dbP.active_skin || 'classic',
         isBot: false
       });
     }

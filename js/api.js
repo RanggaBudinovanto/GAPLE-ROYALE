@@ -293,12 +293,14 @@ export function checkAchievements() {
 export function generateBotPlayers(count, mode) {
   const botNames = ['Bot Surya', 'Bot Dewi', 'Bot Andi', 'Bot Rini', 'Bot Joko', 'Bot Sari'];
   const botChars = ['raja_domino', 'si_hoki', 'juragan_meja', 'sang_bluffer'];
+  const botSkins = ['classic', 'candy_pop', 'ocean_blue', 'sakura_blossom', 'ruby_red', 'volcano', 'cyberpunk', 'marble_white', 'midnight', 'carbon_fiber', 'emerald', 'rainbow_unicorn', 'royal_gold', 'golden_luxury'];
   const bots = [];
   for (let i = 0; i < count; i++) {
     bots.push({
       id: `bot_${i}`,
       username: botNames[i % botNames.length],
       activeCharacter: botChars[i % botChars.length],
+      skin: botSkins[i % botSkins.length],
       isBot: true
     });
   }
