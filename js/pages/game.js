@@ -12,7 +12,7 @@ import { generateBotPlayers, updateMissionProgress, checkAchievements } from '..
 import { formatNumber } from '../utils/format.js';
 import { addGameHistory } from '../utils/storage.js';
 import { staggerFadeIn } from '../utils/animation.js';
-import { playCardPlace, playWin, playLose, playPass, playClick } from '../utils/sfx.js';
+import { playCardPlace, playWin, playLose, playPass, playClick, playDealerWelcome } from '../utils/sfx.js';
 import { SOCKET_URL } from '../config.js';
 
 export function render(container) {
@@ -898,6 +898,7 @@ export function render(container) {
 
       renderGame();
       resetTimer();
+      showDealerWelcome();
       showToast(`Pertandingan dimulai! Giliran: ${gs.players[gs.currentPlayerIndex].username}`, 'success');
     });
 
@@ -1045,7 +1046,6 @@ export function render(container) {
 
   function _startLocalGame() {
     renderGame();
-    resetTimer();
 
     // Deal animation: stagger cards appearing
     const handCards = document.querySelectorAll('.player-hand .domino-wrapper');
@@ -1059,6 +1059,13 @@ export function render(container) {
       }, 100 + i * 80);
     });
 
+    // Show dealer welcome, then start the game timer when dismissed
+    setTimeout(() => {
+      showDealerWelcome(() => {
+        resetTimer();
+      });
+    }, 850);
+
     // Si Hoki passive: auto-peek 1 opponent card at game start
     if (user.activeCharacter === 'si_hoki' && !gs.passiveUsed.si_hoki) {
       gs.passiveUsed.si_hoki = true;
@@ -1070,7 +1077,7 @@ export function render(container) {
           const randomCard = gs.hands[opponentIdx][Math.floor(Math.random() * gs.hands[opponentIdx].length)];
           showToast(`Si Hoki: Mengintip kartu ${gs.players[opponentIdx].username} → [${randomCard[0]}|${randomCard[1]}]`, 'info', 4000);
         }
-      }, 2000);
+      }, 7500); // Delayed to account for the welcome overlay
     }
   }
 
@@ -1165,6 +1172,123 @@ function layoutHalf(tiles, startX, startY, startDir, maxW, items, HW, HH, VW, VH
     }
   }
 }
+
+function showDealerWelcome(onClose) {
+  playDealerWelcome();
+
+  const overlay = document.createElement('div');
+  overlay.className = 'dealer-welcome-overlay';
+  overlay.id = 'dealer-welcome-overlay';
+
+  const msg = "Halo sayang! 💖 Selamat datang di meja keberuntunganmu. Aku Eshabela, bandar cantikmu hari ini. Semoga kartu-kartumu hoki ya! Yuk, kita mulai pertandingannya! Semangat! 😘";
+
+  overlay.innerHTML = `
+    <!-- Sparkle particles -->
+    <div class="dealer-particles" aria-hidden="true">
+      ${Array.from({length: 18}, (_, i) => `<span class="dealer-particle" style="--i:${i}"></span>`).join('')}
+    </div>
+
+    <div class="dealer-welcome-card" id="dealer-welcome-card">
+
+      <!-- Decorative top bar -->
+      <div class="dealer-top-bar">
+        <span class="dealer-top-bar-line"></span>
+        <span class="dealer-top-bar-diamond">♦</span>
+        <span class="dealer-top-bar-line"></span>
+      </div>
+
+      <!-- Avatar stage (spotlight circle) -->
+      <div class="dealer-stage">
+        <div class="dealer-stage-glow" aria-hidden="true"></div>
+        <div class="dealer-stage-ring" aria-hidden="true"></div>
+        <div class="dealer-avatar-svg" aria-label="Eshabela, bandar cantik">
+          ${renderCharacter('ratu_casino', 'large')}
+        </div>
+      </div>
+
+      <!-- Name + badge -->
+      <div class="dealer-identity">
+        <div class="dealer-badge">✦ Bandar Cantik ✦</div>
+        <h2 class="dealer-welcome-title">Eshabela</h2>
+        <p class="dealer-welcome-subtitle">Velvet Noir Casino Club</p>
+      </div>
+
+      <!-- Divider -->
+      <div class="dealer-divider" aria-hidden="true">
+        <span></span><span class="dealer-divider-icon">♠</span><span></span>
+      </div>
+
+      <!-- Speech bubble -->
+      <div class="dealer-speech-bubble" id="dealer-speech-text" role="status" aria-live="polite"></div>
+
+      <!-- CTA button + skip timer -->
+      <button class="btn btn-primary dealer-welcome-btn" id="dealer-start-btn">
+        <span class="dealer-btn-icon">🎴</span>
+        Mulai Pertandingan
+      </button>
+      <div class="dealer-skip-row">
+        <div class="dealer-timer-bar" id="dealer-timer-bar"></div>
+        <span class="dealer-skip-hint">Otomatis mulai dalam <span id="dealer-countdown">7</span>s</span>
+      </div>
+
+    </div>
+  `;
+
+  const gameContainer = document.querySelector('.game-container') || document.body;
+  gameContainer.appendChild(overlay);
+
+  // Trigger open animation next frame
+  requestAnimationFrame(() => {
+    overlay.classList.add('dealer-welcome-overlay--open');
+  });
+
+  // Typing animation for speech bubble
+  const textEl = overlay.querySelector('#dealer-speech-text');
+  let charIdx = 0;
+  const typeInterval = setInterval(() => {
+    if (charIdx <= msg.length) {
+      textEl.textContent = msg.slice(0, charIdx);
+      charIdx++;
+    } else {
+      clearInterval(typeInterval);
+    }
+  }, 28);
+
+  // Countdown
+  let timeLeft = 7;
+  const countdownEl = overlay.querySelector('#dealer-countdown');
+  const timerBar = overlay.querySelector('#dealer-timer-bar');
+  const countInterval = setInterval(() => {
+    timeLeft--;
+    if (countdownEl) countdownEl.textContent = timeLeft;
+    if (timerBar) timerBar.style.setProperty('--progress', `${((7 - timeLeft) / 7) * 100}%`);
+    if (timeLeft <= 0) clearInterval(countInterval);
+  }, 1000);
+
+  let closed = false;
+  const closeOverlay = () => {
+    if (closed) return;
+    closed = true;
+    clearInterval(typeInterval);
+    clearInterval(countInterval);
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    overlay.classList.remove('dealer-welcome-overlay--open');
+    overlay.classList.add('dealer-welcome-overlay--exit');
+    setTimeout(() => {
+      overlay.remove();
+      if (onClose) onClose();
+    }, 500);
+  };
+
+  overlay.querySelector('#dealer-start-btn').addEventListener('click', () => {
+    playClick();
+    closeOverlay();
+  });
+
+  // Auto-close after 7s
+  setTimeout(closeOverlay, 7000);
+}
+
 
 function escapeHtml(text) {
   const div = document.createElement('div');
