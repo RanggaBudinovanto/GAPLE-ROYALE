@@ -129,19 +129,17 @@ export function render(container) {
           const opp0 = oppIndices[0] ?? -1;
           const opp1 = oppIndices[1] ?? -1;
           const opp2 = oppIndices[2] ?? -1;
+          const isFourPlayer = gs.players.length === 4;
           return `
         <!-- Top Area: main opponent -->
         <div class="game-area-top">
-          ${gs.players.length === 4 ? renderOpponent(opp1) : renderOpponent(opp0)}
+          ${isFourPlayer ? renderOpponent(opp1) : renderOpponent(opp0)}
         </div>
 
         <!-- Middle Area (Left Opponent + Board + Right Opponent) -->
         <div class="game-area-middle">
           <!-- Left Opponent (4p only) -->
-          <div class="game-area-left">
-            ${gs.players.length === 4 ? renderOpponent(opp0) : ''}
-          </div>`;
-        })()}
+          ${isFourPlayer ? `<div class="game-area-left">${renderOpponent(opp0)}</div>` : ''}
 
           <!-- Center Board -->
           <div class="game-board-container">
@@ -162,13 +160,9 @@ export function render(container) {
           </div>
 
           <!-- Right Opponent (4p only) -->
-          <div class="game-area-right">
-            ${(() => {
-              const oppIndices = gs.players.map((_, i) => i).filter(i => i !== myIdx);
-              return gs.players.length === 4 ? renderOpponent(oppIndices[2] ?? -1) : '';
-            })()}
-          </div>
-        </div>
+          ${isFourPlayer ? `<div class="game-area-right">${renderOpponent(opp2)}</div>` : ''}
+        </div>`;
+        })()}
 
       </div>
 
@@ -1091,8 +1085,9 @@ export function render(container) {
 
 function renderBoardSnake(chain, skin, centerIndex) {
   const isMobile = window.innerWidth < 768;
-  const HW = isMobile ? 62 : 80;
-  const HH = isMobile ? 34 : 44;
+  const isUltraMobile = window.innerWidth < 375;
+  const HW = isUltraMobile ? 44 : isMobile ? 52 : 80;
+  const HH = isUltraMobile ? 24 : isMobile ? 28 : 44;
   const VW = HH, VH = HW, G = 2;
 
   const boardEl = document.getElementById('game-board');

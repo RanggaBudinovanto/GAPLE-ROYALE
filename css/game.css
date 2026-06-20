@@ -756,39 +756,82 @@
 }
 .chat-emoji:hover { background: rgba(255,255,255,0.08); }
 
+body:has(.game-container), body:has(.matchmaking-container) {
+  overflow: hidden;
+  height: 100vh;
+  height: 100dvh;
+  position: fixed;
+  width: 100%;
+}
+
 @media (max-width: 767px) {
   .chat-panel { width: 100%; }
   .game-timer-bar { width: 100px; }
   .game-header { padding: var(--sp-2) var(--sp-3); font-size: 12px; }
   .game-header-left { gap: var(--sp-2); }
   .game-room-id { font-size: 11px; padding: 2px 6px; }
-  .domino { width: 34px; height: 62px; }
-  .domino--horizontal { width: 62px; height: 34px; }
-  .domino-pip { width: 4px; height: 4px; }
-  .domino-half { padding: 3px; }
-  .player-hand { gap: 3px; padding: var(--sp-1) 0; }
-  .player-hand .domino:hover:not(.domino--disabled) { transform: translateY(-4px) scale(1.03); }
-  .player-hand .domino--selected { transform: translateY(-6px) scale(1.05); }
+  .domino { width: 28px; height: 52px; }
+  .domino--horizontal { width: 52px; height: 28px; }
+  .domino-pip { width: 3px !important; height: 3px !important; }
+  .domino-half { padding: 2px; }
+  
+  /* Overlapping player hand on mobile */
+  .player-hand {
+    display: flex;
+    justify-content: center;
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    overflow-y: visible !important;
+    padding: var(--sp-4) var(--sp-3) var(--sp-2) !important;
+    width: 100%;
+    scrollbar-width: none;
+  }
+  .player-hand::-webkit-scrollbar {
+    display: none;
+  }
+  .player-hand .domino-wrapper {
+    margin-left: -15px;
+    transition: margin var(--dur-fast) ease, z-index var(--dur-fast) ease;
+    position: relative;
+    z-index: 2;
+    flex-shrink: 0;
+  }
+  .player-hand .domino-wrapper:first-child {
+    margin-left: 0;
+  }
+  .player-hand .domino-wrapper:hover {
+    z-index: 15;
+    margin-left: -8px;
+    margin-right: 8px;
+  }
+  .player-hand .domino-wrapper:has(.domino--selected) {
+    z-index: 12;
+  }
+  
+  .player-hand .domino:hover:not(.domino--disabled) { transform: translateY(-8px) scale(1.06); }
+  .player-hand .domino--selected { transform: translateY(-12px) scale(1.1); }
+  
   .game-area-left, .game-area-right { width: 75px; }
   .game-area-top { height: 75px; }
   .opponent { width: 70px; padding: 4px 6px; }
   .opponent-avatar { width: 34px; height: 34px; }
   .opponent-card-back { width: 12px; height: 20px; }
   .opponent-name { font-size: 9px; max-width: 60px; }
-  .powerup-bar { gap: var(--sp-1); flex-wrap: wrap; }
-  .powerup-slot { padding: 4px 8px; font-size: 11px; }
+  .powerup-bar { gap: var(--sp-1); flex-wrap: nowrap; overflow-x: auto; width: 100%; justify-content: center; }
+  .powerup-slot { padding: 4px 8px; font-size: 11px; flex-shrink: 0; }
   .powerup-name { display: none; }
-  .game-player-area { padding: var(--sp-2) var(--sp-3); gap: var(--sp-2); }
-  .player-actions { gap: var(--sp-2); flex-wrap: wrap; justify-content: center; }
-  .player-actions .btn { padding: 8px 14px; font-size: 11px; }
-  .game-board { margin: var(--sp-2); }
+  .game-player-area { padding: var(--sp-1) var(--sp-3); gap: var(--sp-1); }
+  .player-actions { gap: var(--sp-2); flex-wrap: nowrap; justify-content: center; padding-bottom: var(--sp-1); }
+  .player-actions .btn { padding: 6px 12px; font-size: 10px; }
+  .game-board { margin: var(--sp-1); border-width: 6px; border-radius: 18px; }
   .chat-toggle { width: 40px; height: 40px; font-size: 18px; bottom: var(--sp-3); right: var(--sp-3); }
 }
 
 @media (max-width: 374px) {
-  .domino { width: 28px; height: 52px; }
-  .domino--horizontal { width: 52px; height: 28px; }
-  .domino-pip { width: 3px; height: 3px; }
+  .domino { width: 24px; height: 44px; }
+  .domino--horizontal { width: 44px; height: 24px; }
+  .domino-pip { width: 2px !important; height: 2px !important; }
+  .domino-half { padding: 1.5px; }
 }
 
 /* Animations for premium cards */
