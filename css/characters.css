@@ -18,7 +18,7 @@
 
 /* ===== CHARACTER CARD (Shop/Inventory) ===== */
 .character-card {
-  background: var(--bg-surface);
+  background: linear-gradient(135deg, rgba(20,26,16,0.7), rgba(13,17,10,0.85));
   border: 1px solid var(--border-default);
   border-radius: var(--radius-lg);
   padding: var(--sp-5);
@@ -28,11 +28,18 @@
   gap: var(--sp-4);
   transition: all var(--dur-normal) ease;
   position: relative;
+  overflow: hidden;
+}
+.character-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212,160,23,0.15), transparent);
 }
 .character-card:hover {
   border-color: var(--border-gold);
   transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.4), 0 0 12px rgba(245,200,66,0.05);
 }
 .character-card--owned {
   border-color: var(--border-gold);
@@ -41,15 +48,19 @@
   border-color: var(--status-win);
   box-shadow: 0 0 20px rgba(46,204,113,0.15);
 }
+.character-card--active::before {
+  background: linear-gradient(90deg, transparent, rgba(46,204,113,0.4), transparent);
+}
 .character-card-preview {
   width: 160px;
   height: 240px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg-elevated);
+  background: radial-gradient(ellipse at center, rgba(255,255,255,0.03), rgba(0,0,0,0.2));
   border-radius: var(--radius-md);
   overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.04);
 }
 .character-card-name {
   font-family: var(--font-heading);
@@ -86,7 +97,7 @@
 
 /* ===== SKIN CARD ===== */
 .skin-card {
-  background: var(--bg-surface);
+  background: linear-gradient(135deg, rgba(20,26,16,0.7), rgba(13,17,10,0.85));
   border: 1px solid var(--border-default);
   border-radius: var(--radius-lg);
   padding: var(--sp-5);
@@ -96,13 +107,24 @@
   gap: var(--sp-4);
   transition: all var(--dur-normal) ease;
   position: relative;
+  overflow: hidden;
+}
+.skin-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212,160,23,0.15), transparent);
 }
 .skin-card:hover {
   border-color: var(--border-gold);
   transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.4), 0 0 12px rgba(245,200,66,0.05);
 }
 .skin-card--active {
   border-color: var(--status-win);
+}
+.skin-card--active::before {
+  background: linear-gradient(90deg, transparent, rgba(46,204,113,0.4), transparent);
 }
 .skin-preview {
   display: flex;
@@ -167,7 +189,7 @@
 
 /* ===== POWERUP CARD (Shop) ===== */
 .powerup-card {
-  background: var(--bg-surface);
+  background: linear-gradient(135deg, rgba(20,26,16,0.6), rgba(13,17,10,0.8));
   border: 1px solid var(--border-default);
   border-radius: var(--radius-lg);
   padding: var(--sp-5);
@@ -175,18 +197,27 @@
   align-items: center;
   gap: var(--sp-4);
   transition: all var(--dur-normal) ease;
+  position: relative;
+  overflow: hidden;
+}
+.powerup-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212,160,23,0.12), transparent);
 }
 .powerup-card:hover {
   border-color: var(--border-gold);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
 }
 .powerup-card-icon {
-  font-size: 36px;
   width: 60px;
   height: 60px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg-elevated);
+  background: radial-gradient(ellipse at center, rgba(212,160,23,0.08), rgba(0,0,0,0.2));
+  border: 1px solid rgba(212,160,23,0.15);
   border-radius: var(--radius-md);
   flex-shrink: 0;
 }

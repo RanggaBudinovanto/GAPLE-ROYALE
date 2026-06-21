@@ -72,26 +72,43 @@
 
 /* ===== CARDS ===== */
 .card {
-  background: var(--bg-surface);
+  background: linear-gradient(135deg, rgba(20,26,16,0.7), rgba(13,17,10,0.85));
   border: 1px solid var(--border-default);
   border-radius: var(--radius-lg);
   padding: var(--sp-5);
   transition: border-color var(--dur-normal) ease, transform var(--dur-normal) ease, box-shadow var(--dur-normal) ease;
+  position: relative;
 }
 .card:hover {
   border-color: var(--border-gold);
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3), 0 0 8px rgba(245,200,66,0.03);
 }
 .card--premium {
   border-color: var(--border-gold);
   box-shadow: 0 0 20px rgba(212,160,23,0.1);
+  overflow: hidden;
+}
+.card--premium::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-bright), transparent);
+  opacity: 0.5;
 }
 .card--glass {
-  background: rgba(20,26,16,0.92);
+  background: linear-gradient(135deg, rgba(20,26,16,0.92), rgba(9,24,14,0.95));
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-color: var(--border-gold);
+  overflow: hidden;
+}
+.card--glass::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-bright), transparent);
+  opacity: 0.4;
 }
 .card--interactive {
   cursor: pointer;
@@ -248,23 +265,35 @@
   top: 0;
   bottom: 0;
   width: 220px;
-  background: var(--bg-primary);
+  background: linear-gradient(180deg, rgba(14, 18, 12, 0.98) 0%, rgba(8, 10, 6, 0.99) 100%);
   border-right: 1px solid var(--border-default);
   display: flex;
   flex-direction: column;
   z-index: 100;
   padding: var(--sp-5) 0;
   overflow-y: auto;
+  box-shadow: 4px 0 24px rgba(0,0,0,0.4);
+}
+.sidebar::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0; width: 1px; height: 100%;
+  background: linear-gradient(180deg, transparent, rgba(212,160,23,0.15), transparent);
+  pointer-events: none;
 }
 .sidebar-logo {
   padding: 0 var(--sp-5);
   margin-bottom: var(--sp-6);
   font-family: var(--font-display);
   font-size: 18px;
-  font-weight: 700;
-  color: var(--text-gold);
+  font-weight: 900;
   letter-spacing: var(--ls-label);
   cursor: pointer;
+  background: linear-gradient(90deg, #ffe875, #f5c842, #d4a017);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 2px 4px rgba(245,200,66,0.2));
 }
 .sidebar-profile {
   padding: 0 var(--sp-5);
@@ -330,12 +359,14 @@
 }
 .sidebar-item:hover {
   color: var(--text-primary);
-  background: rgba(255,255,255,0.03);
+  background: rgba(255,255,255,0.04);
+  border-left-color: rgba(212,160,23,0.3);
 }
 .sidebar-item--active {
   color: var(--text-gold);
   border-left-color: var(--gold-bright);
-  background: rgba(212,160,23,0.06);
+  background: linear-gradient(90deg, rgba(212,160,23,0.1), transparent);
+  box-shadow: inset 3px 0 12px rgba(245,200,66,0.08);
 }
 .sidebar-item svg {
   width: 18px;
@@ -360,13 +391,22 @@
   left: 0;
   right: 0;
   height: 60px;
-  background: var(--bg-primary);
+  background: linear-gradient(180deg, rgba(14,18,12,0.95), rgba(8,10,6,0.99));
   border-top: 1px solid var(--border-default);
   display: none;
   align-items: center;
   justify-content: space-around;
   z-index: 99;
   padding-bottom: env(safe-area-inset-bottom, 0);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.4);
+}
+.bottom-nav::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212,160,23,0.2), transparent);
 }
 .bottom-nav-item {
   display: flex;
@@ -402,21 +442,24 @@
 .tabs {
   display: flex;
   gap: 0;
-  border-bottom: 1px solid var(--border-default);
+  border-bottom: 2px solid var(--border-default);
   margin-bottom: var(--sp-5);
+  position: relative;
 }
 .tab {
   padding: var(--sp-3) var(--sp-5);
-  font-family: var(--font-heading);
+  font-family: var(--font-display);
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: var(--ls-label);
   text-transform: uppercase;
-  color: var(--text-secondary);
+  color: var(--text-muted);
   border-bottom: 2px solid transparent;
-  transition: all var(--dur-fast) ease;
+  transition: all 0.3s var(--ease-spring);
   cursor: pointer;
   background: none;
+  position: relative;
+  margin-bottom: -2px;
 }
 .tab:hover { color: var(--text-primary); }
 .tab--active {
@@ -475,17 +518,22 @@
 .progress {
   width: 100%;
   height: 6px;
-  background: rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.06);
   border-radius: var(--radius-full);
   overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.04);
 }
 .progress-bar {
   height: 100%;
   background: var(--gold-gradient);
   border-radius: var(--radius-full);
   transition: width var(--dur-slow) var(--ease-out);
+  box-shadow: 0 0 8px rgba(245,200,66,0.3);
 }
-.progress-bar--green { background: var(--status-win); }
+.progress-bar--green {
+  background: linear-gradient(90deg, #27ae60, #2ecc71);
+  box-shadow: 0 0 8px rgba(46,204,113,0.3);
+}
 
 /* ===== SKELETON ===== */
 .skeleton {
@@ -497,13 +545,26 @@
 
 /* ===== STAT CARD ===== */
 .stat-card {
-  background: var(--bg-surface);
+  background: linear-gradient(135deg, rgba(20,26,16,0.6), rgba(13,17,10,0.8));
   border: 1px solid var(--border-default);
   border-radius: var(--radius-lg);
   padding: var(--sp-5);
   display: flex;
   flex-direction: column;
   gap: var(--sp-2);
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212,160,23,0.2), transparent);
+}
+.stat-card:hover {
+  border-color: var(--border-gold);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3), 0 0 8px rgba(245,200,66,0.05);
 }
 .stat-card-value {
   font-family: var(--font-display);
@@ -514,6 +575,10 @@
 .stat-card-label {
   font-size: var(--text-sm);
   color: var(--text-secondary);
+  font-family: var(--font-display);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 10px;
 }
 
 /* ===== TOOLTIP ===== */

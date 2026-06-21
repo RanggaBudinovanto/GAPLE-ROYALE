@@ -26,8 +26,16 @@ export function render(container) {
 
   content.innerHTML = `
     <div style="margin-bottom:var(--sp-7);">
+      <div style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted);letter-spacing:0.3em;text-transform:uppercase;margin-bottom:var(--sp-2);">&#9830; &#9830; &#9830; VELVET NOIR CASINO CLUB &#9830; &#9830; &#9830;</div>
       <h1 class="text-heading" style="color:var(--text-secondary);font-weight:400;">Selamat Datang,</h1>
-      <h2 class="text-display text-gold" style="margin-top:var(--sp-1);">${user.username}</h2>
+      <h2 style="margin-top:var(--sp-1);font-family:var(--font-display);font-size:32px;font-weight:900;letter-spacing:0.06em;
+        background:linear-gradient(90deg, #ffe875, #f5c842, #d4a017, #f5c842, #ffe875);background-size:200% auto;
+        -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:goldShimmer 4s linear infinite;">${user.username}</h2>
+      <div style="margin-top:var(--sp-2);display:flex;align-items:center;gap:var(--sp-3);">
+        <div style="flex:0 0 auto;height:1px;width:40px;background:linear-gradient(90deg, var(--border-gold), transparent);"></div>
+        <span style="font-size:8px;color:var(--gold-bright);">&#9830;</span>
+        <div style="flex:0 0 auto;height:1px;width:40px;background:linear-gradient(90deg, transparent, var(--border-gold));"></div>
+      </div>
     </div>
 
     <!-- Coin & CTA -->
