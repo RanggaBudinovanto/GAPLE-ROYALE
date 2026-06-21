@@ -236,6 +236,10 @@
   margin-bottom: var(--sp-4);
   color: var(--text-gold);
 }
+.modal-body {
+  max-height: calc(90vh - 160px);
+  overflow-y: auto;
+}
 
 /* ===== SIDEBAR ===== */
 .sidebar {
@@ -361,7 +365,7 @@
   display: none;
   align-items: center;
   justify-content: space-around;
-  z-index: 100;
+  z-index: 99;
   padding-bottom: env(safe-area-inset-bottom, 0);
 }
 .bottom-nav-item {

@@ -131,6 +131,6 @@ ul, ol { list-style: none; }
   .page-content {
     margin-left: 0;
     padding: var(--sp-4);
-    padding-bottom: 80px;
+    padding-bottom: 68px;
   }
 }
