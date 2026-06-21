@@ -45,7 +45,8 @@ export function render(container) {
         ${renderCharacter(user.activeCharacter, 'large')}
       </div>
       <div style="flex:1;min-width:200px;">
-        <h1 class="text-display" style="margin-bottom:var(--sp-2);">${user.username}</h1>
+        <div style="font-family:var(--font-mono);font-size:8px;color:var(--text-muted);letter-spacing:0.25em;text-transform:uppercase;margin-bottom:var(--sp-1);">PROFIL PEMAIN</div>
+        <h1 class="text-display text-gold" style="margin-bottom:var(--sp-2);font-size:28px;">${user.username}</h1>
         <div class="flex gap-2 items-center" style="margin-bottom:var(--sp-3);flex-wrap:wrap;">
           <span class="badge badge--gold">${getCharacterName(user.activeCharacter)}</span>
           <span class="badge badge--muted">${user.activeSkin}</span>
@@ -59,7 +60,11 @@ export function render(container) {
     </div>
 
     <!-- Stats Grid -->
-    <h3 class="text-label text-secondary" style="margin-bottom:var(--sp-4);">STATISTIK LENGKAP</h3>
+    <div style="display:flex;align-items:center;gap:var(--sp-3);margin-bottom:var(--sp-4);">
+      <div style="height:1px;width:20px;background:linear-gradient(90deg,transparent,var(--border-gold));"></div>
+      <h3 class="text-label text-secondary" style="margin:0;">STATISTIK LENGKAP</h3>
+      <div style="flex:1;height:1px;background:linear-gradient(90deg,var(--border-gold),transparent);"></div>
+    </div>
     <div class="grid grid-3" style="margin-bottom:var(--sp-7);" id="profile-stats">
       <div class="stat-card">
         <div class="stat-card-label">Total Game</div>
@@ -88,7 +93,11 @@ export function render(container) {
     </div>
 
     <!-- Achievements -->
-    <h3 class="text-label text-secondary" style="margin-bottom:var(--sp-4);">ACHIEVEMENT</h3>
+    <div style="display:flex;align-items:center;gap:var(--sp-3);margin-bottom:var(--sp-4);">
+      <div style="height:1px;width:20px;background:linear-gradient(90deg,transparent,var(--border-gold));"></div>
+      <h3 class="text-label text-secondary" style="margin:0;">ACHIEVEMENT</h3>
+      <div style="flex:1;height:1px;background:linear-gradient(90deg,var(--border-gold),transparent);"></div>
+    </div>
     <div class="grid grid-4" style="margin-bottom:var(--sp-7);" id="ach-grid">
       ${allAchievements.map(ach => {
         const unlocked = user.achievements.find(a => a.id === ach.id);
@@ -107,7 +116,11 @@ export function render(container) {
     </div>
 
     <!-- Game History -->
-    <h3 class="text-label text-secondary" style="margin-bottom:var(--sp-4);">RIWAYAT GAME</h3>
+    <div style="display:flex;align-items:center;gap:var(--sp-3);margin-bottom:var(--sp-4);">
+      <div style="height:1px;width:20px;background:linear-gradient(90deg,transparent,var(--border-gold));"></div>
+      <h3 class="text-label text-secondary" style="margin:0;">RIWAYAT GAME</h3>
+      <div style="flex:1;height:1px;background:linear-gradient(90deg,var(--border-gold),transparent);"></div>
+    </div>
     ${history.length > 0 ? `
       <div class="flex flex-col gap-2">
         ${history.map(g => `

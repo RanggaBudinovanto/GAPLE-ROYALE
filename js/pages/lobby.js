@@ -51,7 +51,11 @@ export function render(container) {
     <div class="grid grid-2" style="margin-bottom:var(--sp-7);gap:var(--sp-5);">
       <!-- Quick Stats -->
       <div>
-        <h3 class="text-label text-secondary" style="margin-bottom:var(--sp-4);">STATISTIK</h3>
+        <div style="display:flex;align-items:center;gap:var(--sp-3);margin-bottom:var(--sp-4);">
+          <div style="height:1px;width:16px;background:linear-gradient(90deg,transparent,var(--border-gold));"></div>
+          <h3 class="text-label text-secondary" style="margin:0;">STATISTIK</h3>
+          <div style="flex:1;height:1px;background:linear-gradient(90deg,var(--border-gold),transparent);"></div>
+        </div>
         <div class="grid grid-2" style="gap:var(--sp-3);" id="stats-grid">
           <div class="stat-card anim-item">
             <div class="stat-card-label">Total Game</div>
@@ -74,7 +78,11 @@ export function render(container) {
 
       <!-- Daily Missions -->
       <div>
-        <h3 class="text-label text-secondary" style="margin-bottom:var(--sp-4);">MISI HARIAN</h3>
+        <div style="display:flex;align-items:center;gap:var(--sp-3);margin-bottom:var(--sp-4);">
+          <div style="height:1px;width:16px;background:linear-gradient(90deg,transparent,var(--border-gold));"></div>
+          <h3 class="text-label text-secondary" style="margin:0;">MISI HARIAN</h3>
+          <div style="flex:1;height:1px;background:linear-gradient(90deg,var(--border-gold),transparent);"></div>
+        </div>
         <div class="flex flex-col gap-3" id="missions-list">
           ${missions.map(m => `
             <div class="card card--flat" style="padding:var(--sp-4);">
@@ -116,7 +124,11 @@ export function render(container) {
 
       <!-- Recent Achievements -->
       <div>
-        <h3 class="text-label text-secondary" style="margin-bottom:var(--sp-4);">ACHIEVEMENT TERBARU</h3>
+        <div style="display:flex;align-items:center;gap:var(--sp-3);margin-bottom:var(--sp-4);">
+          <div style="height:1px;width:16px;background:linear-gradient(90deg,transparent,var(--border-gold));"></div>
+          <h3 class="text-label text-secondary" style="margin:0;">ACHIEVEMENT TERBARU</h3>
+          <div style="flex:1;height:1px;background:linear-gradient(90deg,var(--border-gold),transparent);"></div>
+        </div>
         ${recentAchievements.length > 0
           ? `<div class="flex flex-col gap-3">
               ${recentAchievements.map(ua => {

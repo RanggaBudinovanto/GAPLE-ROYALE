@@ -27,7 +27,7 @@ export function render(container) {
           <div class="character-container character-win" style="margin-bottom:var(--sp-3);">
             ${renderCharacter(user.activeCharacter, 'large')}
           </div>
-          <h1 class="text-display text-gold" style="text-shadow:0 0 40px rgba(245,200,66,0.3);font-size:36px;margin:0;">KAMU MENANG!</h1>
+          <h1 class="text-display text-gold" style="font-size:36px;margin:0;">KAMU MENANG!</h1>
           ${reason === 'gaple' ? '<p class="text-lg text-secondary" style="margin-top:var(--sp-2);margin-bottom:0;">Gaple! Semua pemain pass.</p>' : ''}
         ` : `
           <div class="character-container character-lose" style="margin-bottom:var(--sp-3);">
