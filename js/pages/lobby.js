@@ -4,7 +4,7 @@ import { renderCharacter, getCharacterName } from '../components/character.js';
 import { showModal } from '../components/modal.js';
 import { showToast } from '../components/toast.js';
 import { countUp, coinRain, staggerFadeIn } from '../utils/animation.js';
-import { formatNumber, getToday, formatDate } from '../utils/format.js';
+import { formatNumber, getToday, formatDate, winRate } from '../utils/format.js';
 import { claimDailyLogin, getDailyMissions, claimMissionReward, getAchievementsList, getCatalog } from '../api.js';
 import { renderIcon } from '../components/emotes.js';
 
