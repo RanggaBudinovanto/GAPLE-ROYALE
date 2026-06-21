@@ -24,127 +24,120 @@ export function render(container) {
   const recentAchievements = userAchievements.slice(-3).reverse();
   const charInfo = getCatalog().characters.find(c => c.id === user.activeCharacter);
 
+  const wr = winRate(user.stats.wins, user.stats.totalGames);
+
   content.innerHTML = `
-    <div style="margin-bottom:var(--sp-7);">
-      <div style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted);letter-spacing:0.3em;text-transform:uppercase;margin-bottom:var(--sp-2);">&#9830; &#9830; &#9830; VELVET NOIR CASINO CLUB &#9830; &#9830; &#9830;</div>
-      <h1 class="text-heading" style="color:var(--text-secondary);font-weight:400;">Selamat Datang,</h1>
-      <h2 style="margin-top:var(--sp-1);font-family:var(--font-display);font-size:32px;font-weight:900;letter-spacing:0.06em;
-        background:linear-gradient(90deg, #ffe875, #f5c842, #d4a017, #f5c842, #ffe875);background-size:200% auto;
-        -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:goldShimmer 4s linear infinite;">${user.username}</h2>
-      <div style="margin-top:var(--sp-2);display:flex;align-items:center;gap:var(--sp-3);">
-        <div style="flex:0 0 auto;height:1px;width:40px;background:linear-gradient(90deg, var(--border-gold), transparent);"></div>
-        <span style="font-size:8px;color:var(--gold-bright);">&#9830;</span>
-        <div style="flex:0 0 auto;height:1px;width:40px;background:linear-gradient(90deg, transparent, var(--border-gold));"></div>
+    <!-- ═══ HERO BANNER ═══ -->
+    <div class="card card--premium" style="display:flex;align-items:center;gap:var(--sp-6);margin-bottom:var(--sp-6);padding:var(--sp-6);flex-wrap:wrap;">
+      <div class="character-container character-idle" style="flex-shrink:0;width:100px;height:150px;display:inline-flex;align-items:center;justify-content:center;">
+        ${renderCharacter(user.activeCharacter, 'medium')}
+      </div>
+      <div style="flex:1;min-width:200px;">
+        <div style="font-family:var(--font-mono);font-size:8px;color:var(--text-muted);letter-spacing:0.25em;text-transform:uppercase;margin-bottom:4px;">VELVET NOIR CASINO CLUB</div>
+        <h1 class="text-display text-gold" style="font-size:28px;margin-bottom:var(--sp-1);">${user.username}</h1>
+        <div style="font-family:var(--font-heading);font-size:13px;color:var(--text-secondary);margin-bottom:var(--sp-3);">${getCharacterName(user.activeCharacter)} · <span style="color:var(--text-muted);">${charInfo ? charInfo.skill : ''}</span></div>
+        <div style="display:flex;align-items:center;gap:var(--sp-5);flex-wrap:wrap;">
+          <div class="coin-display" style="font-size:24px;"><div class="coin-icon coin-icon--lg"></div><span id="coin-count">0</span></div>
+          <button class="btn btn-primary btn-lg" onclick="location.hash='#/matchmaking'" style="letter-spacing:0.08em;">MAIN SEKARANG</button>
+        </div>
       </div>
     </div>
 
-    <!-- Coin & CTA -->
-    <div class="flex items-center gap-5" style="margin-bottom:var(--sp-7);flex-wrap:wrap;">
-      <div class="coin-display" style="font-size:28px;">
-        <div class="coin-icon coin-icon--lg"></div>
-        <span id="coin-count">0</span>
+    <!-- ═══ QUICK STATS ROW ═══ -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:var(--sp-3);margin-bottom:var(--sp-6);" id="stats-grid">
+      <div class="stat-card anim-item">
+        <div class="stat-card-label">Total Game</div>
+        <div class="stat-card-value">${user.stats.totalGames}</div>
       </div>
-      <button class="btn btn-primary btn-lg" onclick="location.hash='#/matchmaking'">MAIN SEKARANG</button>
+      <div class="stat-card anim-item">
+        <div class="stat-card-label">Menang</div>
+        <div class="stat-card-value" style="color:var(--status-win);">${user.stats.wins}</div>
+      </div>
+      <div class="stat-card anim-item">
+        <div class="stat-card-label">Kalah</div>
+        <div class="stat-card-value" style="color:var(--status-lose);">${user.stats.losses}</div>
+      </div>
+      <div class="stat-card anim-item">
+        <div class="stat-card-label">Win Rate</div>
+        <div class="stat-card-value">${wr}%</div>
+      </div>
     </div>
 
-    <!-- Stats + Mission Row -->
-    <div class="grid grid-2" style="margin-bottom:var(--sp-7);gap:var(--sp-5);">
-      <!-- Quick Stats -->
-      <div>
-        <div style="display:flex;align-items:center;gap:var(--sp-3);margin-bottom:var(--sp-4);">
-          <div style="height:1px;width:16px;background:linear-gradient(90deg,transparent,var(--border-gold));"></div>
-          <h3 class="text-label text-secondary" style="margin:0;">STATISTIK</h3>
-          <div style="flex:1;height:1px;background:linear-gradient(90deg,var(--border-gold),transparent);"></div>
-        </div>
-        <div class="grid grid-2" style="gap:var(--sp-3);" id="stats-grid">
-          <div class="stat-card anim-item">
-            <div class="stat-card-label">Total Game</div>
-            <div class="stat-card-value">${user.stats.totalGames}</div>
-          </div>
-          <div class="stat-card anim-item">
-            <div class="stat-card-label">Menang</div>
-            <div class="stat-card-value" style="color:var(--status-win);">${user.stats.wins}</div>
-          </div>
-          <div class="stat-card anim-item">
-            <div class="stat-card-label">Kalah</div>
-            <div class="stat-card-value" style="color:var(--status-lose);">${user.stats.losses}</div>
-          </div>
-          <div class="stat-card anim-item">
-            <div class="stat-card-label">Win Rate</div>
-            <div class="stat-card-value">${user.stats.totalGames > 0 ? Math.round(user.stats.wins / user.stats.totalGames * 100) : 0}%</div>
-          </div>
-        </div>
-      </div>
+    <!-- ═══ MAIN GRID: Missions | Character | Achievements ═══ -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--sp-5);align-items:start;">
 
-      <!-- Daily Missions -->
-      <div>
-        <div style="display:flex;align-items:center;gap:var(--sp-3);margin-bottom:var(--sp-4);">
-          <div style="height:1px;width:16px;background:linear-gradient(90deg,transparent,var(--border-gold));"></div>
+      <!-- Column 1: Daily Missions -->
+      <div class="card" style="padding:var(--sp-5);">
+        <div style="display:flex;align-items:center;gap:var(--sp-2);margin-bottom:var(--sp-4);">
+          <div style="width:4px;height:16px;background:var(--gold-gradient);border-radius:2px;"></div>
           <h3 class="text-label text-secondary" style="margin:0;">MISI HARIAN</h3>
-          <div style="flex:1;height:1px;background:linear-gradient(90deg,var(--border-gold),transparent);"></div>
         </div>
         <div class="flex flex-col gap-3" id="missions-list">
           ${missions.map(m => `
-            <div class="card card--flat" style="padding:var(--sp-4);">
-              <div class="flex justify-between items-center" style="margin-bottom:var(--sp-2);">
-                <span style="font-weight:600;">${m.name}</span>
-                <span class="coin-display" style="font-size:13px;"><div class="coin-icon coin-icon--sm"></div>${m.reward}</span>
+            <div style="padding-bottom:var(--sp-3);border-bottom:1px solid var(--border-default);">
+              <div class="flex justify-between items-center" style="margin-bottom:6px;">
+                <span style="font-weight:600;font-size:13px;">${m.name}</span>
+                <span class="coin-display" style="font-size:12px;"><div class="coin-icon coin-icon--sm"></div>${m.reward}</span>
               </div>
-              <div class="progress" style="margin-bottom:var(--sp-2);">
+              <div class="progress" style="margin-bottom:6px;height:4px;">
                 <div class="progress-bar progress-bar--green" style="width:${Math.min(m.progress / m.target * 100, 100)}%"></div>
               </div>
               <div class="flex justify-between items-center">
                 <span class="text-xs text-secondary">${m.progress}/${m.target}</span>
                 ${m.completed && !m.claimed
-                  ? `<button class="btn btn-primary btn-sm claim-mission-btn" data-mission="${m.id}">Klaim</button>`
+                  ? `<button class="btn btn-primary btn-sm claim-mission-btn" data-mission="${m.id}" style="padding:4px 12px;font-size:10px;">Klaim</button>`
                   : m.claimed
-                    ? '<span class="badge badge--green">Diklaim</span>'
+                    ? '<span class="badge badge--green" style="font-size:9px;">Diklaim</span>'
                     : ''}
               </div>
             </div>
           `).join('')}
         </div>
       </div>
-    </div>
 
-    <!-- Character + Achievements Row -->
-    <div class="grid grid-2" style="gap:var(--sp-5);">
-      <!-- Active Character -->
-      <div class="card" style="display:flex;align-items:center;gap:var(--sp-5);">
-        <div class="character-container character-idle">
-          ${renderCharacter(user.activeCharacter, 'medium')}
+      <!-- Column 2: Active Character -->
+      <div class="card card--premium" style="padding:var(--sp-5);text-align:center;">
+        <div style="display:flex;align-items:center;gap:var(--sp-2);margin-bottom:var(--sp-4);justify-content:center;">
+          <div style="width:4px;height:16px;background:var(--gold-gradient);border-radius:2px;"></div>
+          <h3 class="text-label text-secondary" style="margin:0;">KARAKTER AKTIF</h3>
         </div>
-        <div>
-          <div class="text-label text-secondary" style="margin-bottom:var(--sp-2);">KARAKTER AKTIF</div>
-          <div style="font-family:var(--font-heading);font-size:20px;font-weight:600;margin-bottom:var(--sp-2);">${getCharacterName(user.activeCharacter)}</div>
-          <div class="text-sm text-secondary" style="margin-bottom:var(--sp-3);">${charInfo ? charInfo.skill : ''}</div>
-          <button class="btn btn-secondary btn-sm" onclick="location.hash='#/inventory'">Ganti Karakter</button>
+        <div class="character-container character-idle" style="width:120px;height:180px;margin:0 auto var(--sp-4);display:inline-flex;align-items:center;justify-content:center;">
+          ${renderCharacter(user.activeCharacter, 'large')}
+        </div>
+        <div style="font-family:var(--font-heading);font-size:18px;font-weight:700;color:var(--text-gold);margin-bottom:4px;">${getCharacterName(user.activeCharacter)}</div>
+        <div class="text-xs text-secondary" style="margin-bottom:var(--sp-4);">${charInfo ? charInfo.skill : ''}</div>
+        <div style="display:flex;gap:var(--sp-2);justify-content:center;">
+          <button class="btn btn-secondary btn-sm" onclick="location.hash='#/inventory'">Inventory</button>
+          <button class="btn btn-ghost btn-sm" onclick="location.hash='#/shop'">Shop</button>
         </div>
       </div>
 
-      <!-- Recent Achievements -->
-      <div>
-        <div style="display:flex;align-items:center;gap:var(--sp-3);margin-bottom:var(--sp-4);">
-          <div style="height:1px;width:16px;background:linear-gradient(90deg,transparent,var(--border-gold));"></div>
-          <h3 class="text-label text-secondary" style="margin:0;">ACHIEVEMENT TERBARU</h3>
-          <div style="flex:1;height:1px;background:linear-gradient(90deg,var(--border-gold),transparent);"></div>
+      <!-- Column 3: Achievements -->
+      <div class="card" style="padding:var(--sp-5);">
+        <div style="display:flex;align-items:center;gap:var(--sp-2);margin-bottom:var(--sp-4);">
+          <div style="width:4px;height:16px;background:var(--gold-gradient);border-radius:2px;"></div>
+          <h3 class="text-label text-secondary" style="margin:0;">ACHIEVEMENT</h3>
         </div>
         ${recentAchievements.length > 0
           ? `<div class="flex flex-col gap-3">
               ${recentAchievements.map(ua => {
                 const ach = achievements.find(a => a.id === ua.id);
                 return ach ? `
-                  <div class="card card--flat" style="padding:var(--sp-3);display:flex;align-items:center;gap:var(--sp-3);">
-                    <div style="width:36px;height:36px;background:rgba(212,160,23,0.15);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;">${renderIcon('icon_trophy', 22)}</div>
-                    <div style="flex:1;">
-                      <div style="font-weight:600;font-size:14px;">${ach.name}</div>
+                  <div style="display:flex;align-items:center;gap:var(--sp-3);padding-bottom:var(--sp-3);border-bottom:1px solid var(--border-default);">
+                    <div style="width:36px;height:36px;background:rgba(212,160,23,0.1);border:1px solid var(--border-gold);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;flex-shrink:0;">${renderIcon('icon_trophy', 18)}</div>
+                    <div style="flex:1;min-width:0;">
+                      <div style="font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${ach.name}</div>
                       <div class="text-xs text-secondary">${formatDate(ua.unlockedAt)}</div>
                     </div>
                   </div>
                 ` : '';
               }).join('')}
             </div>`
-          : '<div class="empty-state" style="padding:var(--sp-5);"><p class="text-muted">Belum ada achievement</p></div>'
+          : `<div style="text-align:center;padding:var(--sp-6) 0;color:var(--text-muted);">
+              <div style="margin-bottom:var(--sp-2);">${renderIcon('icon_lock', 32)}</div>
+              <p style="font-size:13px;">Belum ada achievement</p>
+              <p style="font-size:11px;margin-top:4px;">Mainkan game untuk membuka!</p>
+            </div>`
         }
       </div>
     </div>

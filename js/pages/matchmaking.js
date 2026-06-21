@@ -562,22 +562,27 @@ export function render(container) {
 
       <!-- Step Header -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--sp-5);flex-shrink:0;">
-        <div>
+        <div style="flex:1;">
           ${step !== 'mode' ? `
-            <button class="btn btn-ghost btn-sm" id="btn-back-step" style="display:inline-flex;align-items:center;gap:6px;padding:8px 0;margin-bottom:var(--sp-2);color:var(--text-secondary);cursor:pointer;font-family:var(--font-mono);text-transform:none;">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:2px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            <button class="btn btn-ghost btn-sm" id="btn-back-step" style="display:inline-flex;align-items:center;gap:6px;padding:6px 0;margin-bottom:var(--sp-2);color:var(--text-secondary);cursor:pointer;font-family:var(--font-mono);text-transform:none;font-size:11px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
               KEMBALI
             </button>
           ` : ''}
-          <h1 class="text-display text-gold" style="margin:0;font-size:36px;letter-spacing:-0.02em;font-family:var(--font-display);">MATCHMAKING</h1>
-          <p class="text-secondary" style="font-size:14px;margin-top:4px;">
-            ${step === 'mode' ? 'Pilih mode permainan bertema casino Gaple Royale' : step === 'format' ? 'Pilih jumlah pemain untuk meja permainan Anda' : step === 'bet_selection' ? 'Tentukan taruhan koin emas sebelum masuk meja' : 'Kelola lobi Anda, undang Bot latihan, atau mulai bertanding'}
-          </p>
+          <div style="display:flex;align-items:center;gap:var(--sp-3);">
+            <div style="width:4px;height:28px;background:var(--gold-gradient);border-radius:2px;flex-shrink:0;"></div>
+            <div>
+              <h1 class="text-display text-gold" style="margin:0;font-size:32px;">MATCHMAKING</h1>
+              <p class="text-secondary" style="font-size:12px;margin-top:2px;font-family:var(--font-body);">
+                ${step === 'mode' ? 'Pilih mode permainan' : step === 'format' ? 'Pilih jumlah pemain' : step === 'bet_selection' ? 'Tentukan taruhan koin' : 'Kelola lobi pertandingan'}
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 
       <!-- Main Layout Wrapper (2 Columns) -->
-      <div class="matchmaking-layout" style="display:flex;gap:var(--sp-6);width:100%;flex-wrap:wrap;align-items:flex-start;position:relative;z-index:1;">
+      <div class="matchmaking-layout" style="display:flex;gap:var(--sp-5);width:100%;flex-wrap:wrap;align-items:flex-start;position:relative;z-index:1;">
         
         <!-- Column 1: Game Modes Dashboard or Lobby Slots (Left) -->
         <div style="flex:1.4;min-width:320px;display:flex;flex-direction:column;gap:var(--sp-5);" class="anim-fade-in">
@@ -782,46 +787,69 @@ export function render(container) {
         </div>
 
         <!-- Column 2: Player Stats & Quick Info (Right) -->
-        <div class="mm-sidebar" style="flex:0.8;min-width:300px;display:flex;flex-direction:column;gap:var(--sp-5);">
-          <!-- Player Info Card -->
-          <div class="card card--premium" style="display:flex;flex-direction:column;align-items:center;padding:var(--sp-5);text-align:center;background:rgba(20,26,16,0.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);">
-            <div class="character-container character-idle" style="width:90px;height:90px;margin-bottom:var(--sp-3);display:inline-flex;align-items:center;justify-content:center;">
-              ${renderCharacter(user.activeCharacter, 'large')}
+        <div class="mm-sidebar" style="flex:0.7;min-width:280px;max-width:320px;display:flex;flex-direction:column;gap:var(--sp-4);">
+          <!-- Player Card -->
+          <div class="card card--premium" style="padding:var(--sp-5);">
+            <div style="display:flex;align-items:center;gap:var(--sp-4);margin-bottom:var(--sp-4);">
+              <div class="character-container character-idle" style="width:56px;height:84px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;">
+                ${renderCharacter(user.activeCharacter, 'small')}
+              </div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-family:var(--font-heading);font-size:18px;font-weight:700;color:var(--text-gold);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${user.username}</div>
+                <div class="coin-display" style="font-size:14px;margin-top:4px;">
+                  <div class="coin-icon coin-icon--sm"></div>
+                  <span class="text-mono" style="font-weight:bold;color:var(--gold-bright);">${formatNumber(user.coin)}</span>
+                </div>
+              </div>
             </div>
-            <div style="font-family:var(--font-heading);font-size:22px;font-weight:700;color:var(--text-gold);margin-bottom:var(--sp-1);">${user.username}</div>
-            <div class="coin-display" style="font-size:16px;margin-bottom:var(--sp-2);display:inline-flex;align-items:center;gap:6px;">
-              <div class="coin-icon coin-icon--sm"></div>
-              <span class="text-mono" style="font-weight:bold;color:var(--gold-bright);">${formatNumber(user.coin)}</span>
-            </div>
-            
             ${(() => {
               const tier = getRankTier(user.rankPoints || 0);
               return `
-                <div style="margin-bottom:var(--sp-4);display:flex;align-items:center;gap:6px;padding:4px 12px;background:rgba(255,255,255,0.03);border:1px solid rgba(212,160,23,0.15);border-radius:var(--radius-full);">
-                  <span class="icon-inline">${renderRankBadge(tier.badge, tier.level, 18)}</span>
-                  <span style="font-family:var(--font-heading);font-weight:700;font-size:11px;letter-spacing:0.04em;color:${tier.color};">${tier.name.toUpperCase()}</span>
-                  <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);margin-left:4px;">(${user.rankPoints || 0} RP)</span>
+                <div style="display:flex;align-items:center;gap:6px;padding:6px 12px;background:rgba(255,255,255,0.03);border:1px solid rgba(212,160,23,0.12);border-radius:var(--radius-md);margin-bottom:var(--sp-3);">
+                  <span class="icon-inline">${renderRankBadge(tier.badge, tier.level, 20)}</span>
+                  <div style="flex:1;">
+                    <div style="font-family:var(--font-heading);font-weight:700;font-size:11px;color:${tier.color};letter-spacing:0.04em;">${tier.name.toUpperCase()}</div>
+                    <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-secondary);">${user.rankPoints || 0} RP</div>
+                  </div>
                 </div>
               `;
             })()}
-
-            <div style="display:grid;grid-template-columns:1fr 1fr;width:100%;gap:var(--sp-2);text-align:left;border-top:1px solid var(--border-default);padding-top:var(--sp-3);font-size:13px;">
-              <span class="text-secondary">Total Main:</span>
-              <span class="text-mono" style="text-align:right;font-weight:600;">${user.stats.totalGames}</span>
-              <span class="text-secondary">Win Rate:</span>
-              <span class="text-mono" style="text-align:right;color:var(--status-win);font-weight:600;">${winRate(user.stats.wins, user.stats.totalGames)}%</span>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-2);">
+              <div class="stat-card" style="padding:var(--sp-3);">
+                <div class="stat-card-label" style="font-size:9px;">Total Main</div>
+                <div class="stat-card-value" style="font-size:20px;">${user.stats.totalGames}</div>
+              </div>
+              <div class="stat-card" style="padding:var(--sp-3);">
+                <div class="stat-card-label" style="font-size:9px;">Win Rate</div>
+                <div class="stat-card-value" style="font-size:20px;color:var(--status-win);">${winRate(user.stats.wins, user.stats.totalGames)}%</div>
+              </div>
             </div>
           </div>
 
-          <!-- Quick Guide Card -->
-          <div class="card card--flat" style="padding:var(--sp-5);background:rgba(255,255,255,0.02);border:1px solid var(--border-default);">
-            <h4 style="font-family:var(--font-heading);font-size:14px;color:var(--text-gold);margin:0 0 var(--sp-3) 0;letter-spacing:0.08em;text-transform:uppercase;font-weight:700;">Panduan Bermain</h4>
-            <ul style="padding-left:16px;margin:0;font-size:13px;color:var(--text-secondary);display:flex;flex-direction:column;gap:10px;line-height:1.45;">
-              <li>Cocokkan ujung kartu domino dengan nilai yang sama di atas meja.</li>
-              <li>Pemenang adalah pemain pertama yang berhasil menghabiskan semua kartu di tangan.</li>
-              <li>Jika semua pemain terblokir (*Gaple*), pemain dengan jumlah titik (*pip*) terkecil yang menang.</li>
-              <li>Gunakan tombol **Power-Up** seperti *Block* atau *Shuffle* untuk membalikkan keadaan!</li>
-            </ul>
+          <!-- Quick Guide -->
+          <div class="card" style="padding:var(--sp-4);">
+            <div style="display:flex;align-items:center;gap:var(--sp-2);margin-bottom:var(--sp-3);">
+              <div style="width:3px;height:14px;background:var(--gold-gradient);border-radius:2px;"></div>
+              <h4 style="font-family:var(--font-display);font-size:11px;color:var(--text-gold);margin:0;letter-spacing:0.1em;text-transform:uppercase;">Panduan</h4>
+            </div>
+            <div style="font-size:12px;color:var(--text-secondary);display:flex;flex-direction:column;gap:8px;line-height:1.5;">
+              <div style="display:flex;gap:8px;align-items:flex-start;">
+                <span style="color:var(--text-gold);font-weight:bold;flex-shrink:0;">1.</span>
+                <span>Cocokkan ujung kartu domino dengan nilai sama di meja.</span>
+              </div>
+              <div style="display:flex;gap:8px;align-items:flex-start;">
+                <span style="color:var(--text-gold);font-weight:bold;flex-shrink:0;">2.</span>
+                <span>Habiskan semua kartu di tangan untuk menang.</span>
+              </div>
+              <div style="display:flex;gap:8px;align-items:flex-start;">
+                <span style="color:var(--text-gold);font-weight:bold;flex-shrink:0;">3.</span>
+                <span>Gaple = semua terblokir, pip terkecil menang.</span>
+              </div>
+              <div style="display:flex;gap:8px;align-items:flex-start;">
+                <span style="color:var(--text-gold);font-weight:bold;flex-shrink:0;">4.</span>
+                <span>Gunakan Power-Up untuk keuntungan!</span>
+              </div>
+            </div>
           </div>
         </div>
 
