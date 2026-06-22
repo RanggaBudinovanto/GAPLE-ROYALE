@@ -331,6 +331,163 @@ export function playCardPlace(skin = 'classic') {
         osc.stop(t + 0.18);
       });
     }
+    else if (skin === 'neon_glow') {
+      clickFreq = 2000;
+      clickGain = 0.2;
+      clickDur = 0.02;
+      thumpFreq = 100;
+      thumpGain = 0.3;
+      thumpDur = 0.1;
+
+      const zap1 = ctx.createOscillator();
+      const zap1G = ctx.createGain();
+      zap1.type = 'sawtooth';
+      zap1.frequency.setValueAtTime(800, now);
+      zap1.frequency.exponentialRampToValueAtTime(4000, now + 0.03);
+      zap1.frequency.exponentialRampToValueAtTime(1500, now + 0.08);
+      zap1G.gain.setValueAtTime(0.12, now);
+      zap1G.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+      zap1.connect(zap1G); zap1G.connect(ctx.destination);
+      zap1.start(now); zap1.stop(now + 0.1);
+
+      const buzz = ctx.createOscillator();
+      const buzzG = ctx.createGain();
+      buzz.type = 'square';
+      buzz.frequency.setValueAtTime(60, now + 0.02);
+      buzzG.gain.setValueAtTime(0.06, now + 0.02);
+      buzzG.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+      buzz.connect(buzzG); buzzG.connect(ctx.destination);
+      buzz.start(now + 0.02); buzz.stop(now + 0.15);
+    }
+    else if (skin === 'fire_blaze') {
+      clickFreq = 600;
+      clickGain = 0.22;
+      clickDur = 0.025;
+      thumpFreq = 80;
+      thumpGain = 0.5;
+      thumpDur = 0.2;
+
+      try {
+        const bufSize = Math.floor(ctx.sampleRate * 0.25);
+        const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+        const d = buf.getChannelData(0);
+        for (let i = 0; i < bufSize; i++) d[i] = Math.random() * 2 - 1;
+        const noise = ctx.createBufferSource(); noise.buffer = buf;
+        const flt = ctx.createBiquadFilter(); flt.type = 'bandpass';
+        flt.frequency.setValueAtTime(200, now);
+        flt.frequency.exponentialRampToValueAtTime(800, now + 0.1);
+        flt.frequency.exponentialRampToValueAtTime(200, now + 0.25);
+        const nG = ctx.createGain();
+        nG.gain.setValueAtTime(0.15, now);
+        nG.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+        noise.connect(flt); flt.connect(nG); nG.connect(ctx.destination);
+        noise.start(now); noise.stop(now + 0.25);
+      } catch {}
+
+      const whoosh = ctx.createOscillator();
+      const whooshG = ctx.createGain();
+      whoosh.type = 'sawtooth';
+      whoosh.frequency.setValueAtTime(150, now);
+      whoosh.frequency.exponentialRampToValueAtTime(600, now + 0.08);
+      whoosh.frequency.exponentialRampToValueAtTime(100, now + 0.2);
+      whooshG.gain.setValueAtTime(0.1, now);
+      whooshG.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+      whoosh.connect(whooshG); whooshG.connect(ctx.destination);
+      whoosh.start(now); whoosh.stop(now + 0.2);
+    }
+    else if (skin === 'ice_frost') {
+      clickFreq = 2500;
+      clickGain = 0.18;
+      clickDur = 0.01;
+      thumpFreq = 300;
+      thumpGain = 0.2;
+      thumpDur = 0.08;
+
+      const crackles = [3200, 4000, 3600, 4800];
+      crackles.forEach((f, i) => {
+        const t = now + i * 0.015;
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = 'sine';
+        o.frequency.setValueAtTime(f, t);
+        o.frequency.exponentialRampToValueAtTime(f * 0.5, t + 0.04);
+        g.gain.setValueAtTime(0.06, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
+        o.connect(g); g.connect(ctx.destination);
+        o.start(t); o.stop(t + 0.06);
+      });
+
+      const shimmer = ctx.createOscillator();
+      const shimG = ctx.createGain();
+      shimmer.type = 'sine';
+      shimmer.frequency.setValueAtTime(5000, now + 0.04);
+      shimG.gain.setValueAtTime(0.04, now + 0.04);
+      shimG.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+      shimmer.connect(shimG); shimG.connect(ctx.destination);
+      shimmer.start(now + 0.04); shimmer.stop(now + 0.3);
+    }
+    else if (skin === 'galaxy_star') {
+      clickFreq = 800;
+      clickGain = 0.15;
+      clickDur = 0.03;
+      thumpFreq = 60;
+      thumpGain = 0.4;
+      thumpDur = 0.3;
+
+      const sweep = ctx.createOscillator();
+      const sweepG = ctx.createGain();
+      sweep.type = 'sine';
+      sweep.frequency.setValueAtTime(200, now);
+      sweep.frequency.exponentialRampToValueAtTime(2000, now + 0.15);
+      sweep.frequency.exponentialRampToValueAtTime(400, now + 0.4);
+      sweepG.gain.setValueAtTime(0.08, now);
+      sweepG.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+      sweep.connect(sweepG); sweepG.connect(ctx.destination);
+      sweep.start(now); sweep.stop(now + 0.4);
+
+      const stars = [1567.98, 2093.00, 2637.02];
+      stars.forEach((f, i) => {
+        const t = now + 0.05 + i * 0.06;
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = 'sine';
+        o.frequency.setValueAtTime(f, t);
+        g.gain.setValueAtTime(0.06, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+        o.connect(g); g.connect(ctx.destination);
+        o.start(t); o.stop(t + 0.25);
+      });
+    }
+    else if (skin === 'rainbow_shift') {
+      clickFreq = 1000;
+      clickGain = 0.15;
+      thumpFreq = 200;
+      thumpGain = 0.2;
+      thumpDur = 0.1;
+
+      const rainbow = [523.25, 659.25, 783.99, 987.77, 1174.66, 1318.51, 1567.98];
+      rainbow.forEach((f, i) => {
+        const t = now + i * 0.02;
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = 'sine';
+        o.frequency.setValueAtTime(f, t);
+        g.gain.setValueAtTime(0.07, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+        o.connect(g); g.connect(ctx.destination);
+        o.start(t); o.stop(t + 0.15);
+      });
+
+      const sparkle = ctx.createOscillator();
+      const sparkleG = ctx.createGain();
+      sparkle.type = 'sine';
+      sparkle.frequency.setValueAtTime(3000, now + 0.1);
+      sparkle.frequency.exponentialRampToValueAtTime(5000, now + 0.2);
+      sparkleG.gain.setValueAtTime(0.05, now + 0.1);
+      sparkleG.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+      sparkle.connect(sparkleG); sparkleG.connect(ctx.destination);
+      sparkle.start(now + 0.1); sparkle.stop(now + 0.3);
+    }
     else if (skin === 'golden_luxury') {
       // Golden Luxury: metallic coin + grand luxurious chord chime + heavy premium thud
       clickFreq = 1300;
