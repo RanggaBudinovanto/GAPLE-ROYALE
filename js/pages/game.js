@@ -28,6 +28,7 @@ export function render(container) {
   const mode = gameConfig.mode || 'duel';
   const botLevel = gameConfig.botLevel || 'easy';
   const numPlayers = mode === 'duel' ? 2 : 4;
+  const roomTier = gameConfig.roomTier || 'default';
   const isRealPvP = gameConfig.isRealPvP === true;
 
   // Deduct upfront coins for offline/local betting games (where backend was offline/skipped)
@@ -82,7 +83,7 @@ export function render(container) {
 
   container.innerHTML = '';
   const gameEl = document.createElement('div');
-  gameEl.className = 'game-container';
+  gameEl.className = `game-container tier-${roomTier}`;
 
   container.appendChild(gameEl);
 
@@ -184,7 +185,7 @@ export function render(container) {
 
           <!-- Center Board -->
           <div class="game-board-container">
-            <div class="game-board" id="game-board">
+            <div class="game-board table-${roomTier}" id="game-board">
               <!-- Casino Table Markings -->
               <div class="casino-markings">
                 <div class="casino-insignia">

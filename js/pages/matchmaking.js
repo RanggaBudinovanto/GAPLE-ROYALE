@@ -670,26 +670,38 @@ export function render(container) {
           <!-- STEP 1.8: STAKE SELECTION (BETTING MODE ONLY) -->
           ${step === 'bet_selection' ? `
             <div id="step-bet-selection">
-              <h3 class="text-label text-secondary" style="margin-bottom:var(--sp-4);font-size:11px;letter-spacing:0.15em;">TENTUKAN NOMINAL TARUHAN</h3>
-              <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(130px, 1fr));gap:var(--sp-4);width:100%;">
-                ${[100, 500, 1000, 2000, 5000].map(amt => {
-                  const isDisabled = user.coin < amt;
-                  const totalPool = amt * (selectedMode === 'duel' ? 2 : 4);
+              <h3 class="text-label text-secondary" style="margin-bottom:var(--sp-4);font-size:11px;letter-spacing:0.15em;">PILIH MEJA TARUHAN</h3>
+              <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(150px, 1fr));gap:var(--sp-4);width:100%;">
+                ${[
+                  { amt: 100,  name: 'Warung Kopi',     icon: 'icon_coin',    color: '#8B7355', border: 'rgba(139,115,85,0.5)', desc: 'Meja kayu sederhana' },
+                  { amt: 500,  name: 'Balai Desa',      icon: 'icon_coins',   color: '#27ae60', border: 'rgba(39,174,96,0.5)',  desc: 'Felt hijau klasik' },
+                  { amt: 1000, name: 'Casino Melati',    icon: 'icon_diamond', color: '#3498db', border: 'rgba(52,152,219,0.5)', desc: 'Meja biru premium' },
+                  { amt: 2000, name: 'VIP Platinum',     icon: 'icon_crown',   color: '#9b59b6', border: 'rgba(155,89,182,0.5)', desc: 'Meja ungu eksklusif' },
+                  { amt: 5000, name: 'Royal High Roller', icon: 'icon_fire',   color: '#f5c842', border: 'rgba(245,200,66,0.6)', desc: 'Meja emas legendaris' }
+                ].map(room => {
+                  const isDisabled = user.coin < room.amt;
+                  const totalPool = room.amt * (selectedMode === 'duel' ? 2 : 4);
                   return `
-                    <div class="chip-card ${isDisabled ? 'chip-disabled' : ''}" data-bet="${amt}">
-                      <div style="font-size:32px;margin-bottom:8px;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3));">
-                        ${amt === 100 ? renderIcon('icon_coin', 32) : amt === 500 ? renderIcon('icon_coins', 32) : amt === 1000 ? renderIcon('icon_diamond', 32) : amt === 2000 ? renderIcon('icon_crown', 32) : renderIcon('icon_fire', 32)}
+                    <div class="chip-card ${isDisabled ? 'chip-disabled' : ''}" data-bet="${room.amt}" style="border-color:${isDisabled ? 'var(--border-default)' : room.border};${!isDisabled ? `background:linear-gradient(135deg, rgba(0,0,0,0.3), rgba(0,0,0,0.1));box-shadow:0 0 15px ${room.border};` : ''}">
+                      <div style="font-size:32px;margin-bottom:6px;filter:drop-shadow(0 2px 6px ${room.border});">
+                        ${renderIcon(room.icon, 32)}
                       </div>
-                      <div style="font-family:var(--font-heading);font-size:18px;font-weight:900;color:${isDisabled ? 'var(--text-muted)' : 'var(--text-gold)'};">
-                        ${formatNumber(amt)}
+                      <div style="font-family:var(--font-heading);font-size:13px;font-weight:700;color:${isDisabled ? 'var(--text-muted)' : room.color};letter-spacing:0.04em;margin-bottom:4px;">
+                        ${room.name}
                       </div>
-                      <div style="font-size:9px;font-family:var(--font-mono);color:var(--text-secondary);margin-top:2px;">
+                      <div style="font-family:var(--font-mono);font-size:20px;font-weight:900;color:${isDisabled ? 'var(--text-muted)' : 'var(--text-gold)'};">
+                        ${formatNumber(room.amt)}
+                      </div>
+                      <div style="font-size:9px;color:var(--text-muted);margin-top:2px;font-style:italic;">
+                        ${room.desc}
+                      </div>
+                      <div style="font-size:9px;font-family:var(--font-mono);color:var(--text-secondary);margin-top:4px;">
                         Pool: <span class="icon-inline">${renderIcon('icon_coins', 10)}</span> ${formatNumber(totalPool)}
                       </div>
                       ${isDisabled ? `
                         <div class="chip-lock"><span class="icon-inline">${renderIcon('icon_x', 10)}</span> Koin Kurang</div>
                       ` : `
-                        <div style="font-size:9px;color:var(--status-win);font-weight:bold;margin-top:4px;text-transform:uppercase;font-family:var(--font-mono);">SIAP MASUK</div>
+                        <div style="font-size:9px;color:var(--status-win);font-weight:bold;margin-top:6px;text-transform:uppercase;font-family:var(--font-mono);">SIAP MASUK</div>
                       `}
                     </div>
                   `;
@@ -1507,15 +1519,18 @@ export function render(container) {
       }
     }
 
+    const roomTier = betAmount >= 5000 ? 'royal' : betAmount >= 2000 ? 'vip' : betAmount >= 1000 ? 'casino' : betAmount >= 500 ? 'balai' : betAmount >= 100 ? 'warung' : 'default';
+
     state.set('currentGame', {
       roomId,
       sessionId,
       mode: selectedMode,
       botLevel: level,
       opponentType: isRealPvP ? 'pvp' : selectedOpponent,
-      isRealPvP,          // ← game.js uses this to decide socket vs local
-      isRanked,           // ← store ranked state!
-      betAmount,          // ← store bet amount!
+      isRealPvP,
+      isRanked,
+      betAmount,
+      roomTier,
       players: finalPlayers
     });
     location.hash = `#/game/${roomId}`;

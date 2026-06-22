@@ -622,6 +622,109 @@
 .domino--rainbow_unicorn .domino-pip { background: #333333; }
 .domino--rainbow_unicorn .domino-divider { background: #ffffff; }
 
+/* ===== TABLE TIER THEMES ===== */
+
+/* Default: non-betting modes inherit base .game-board styles */
+
+/* Tier: Warung Kopi (100) — meja kayu sederhana */
+.table-warung {
+  background: #3e2723 !important;
+  border-color: #5d4037 !important;
+  background-image:
+    repeating-linear-gradient(90deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 2px, transparent 2px, transparent 20px),
+    repeating-linear-gradient(0deg, rgba(0,0,0,0.05) 0px, rgba(0,0,0,0.05) 1px, transparent 1px, transparent 15px) !important;
+  box-shadow: inset 0 0 40px rgba(0,0,0,0.5), 0 4px 20px rgba(0,0,0,0.4) !important;
+}
+.tier-warung .game-header { background: #4e342e !important; border-color: #5d4037 !important; }
+.tier-warung .game-player-area { background: #3e2723 !important; border-color: #5d4037 !important; }
+.tier-warung .game-opponents { background: #3e2723 !important; border-color: #5d4037 !important; }
+
+/* Tier: Balai Desa (500) — felt hijau klasik */
+.table-balai {
+  background: var(--bg-felt) !important;
+  border-color: #1b5e20 !important;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px) !important;
+  background-size: 30px 30px !important;
+  box-shadow: inset 0 0 50px rgba(0,0,0,0.4), 0 4px 20px rgba(0,0,0,0.3) !important;
+}
+.tier-balai .game-header { background: #0a2e14 !important; border-color: #1b5e20 !important; }
+.tier-balai .game-player-area { background: #0a2e14 !important; border-color: #1b5e20 !important; }
+.tier-balai .game-opponents { background: #0a2e14 !important; border-color: #1b5e20 !important; }
+
+/* Tier: Casino Melati (1000) — meja biru premium + glow */
+.table-casino {
+  background: linear-gradient(135deg, #0a1628 0%, #0f2744 50%, #0a1628 100%) !important;
+  border-color: #1976d2 !important;
+  border-width: 3px !important;
+  background-image:
+    radial-gradient(circle at 30% 40%, rgba(25,118,210,0.08) 0%, transparent 50%),
+    radial-gradient(circle at 70% 60%, rgba(25,118,210,0.06) 0%, transparent 50%) !important;
+  box-shadow: inset 0 0 60px rgba(25,118,210,0.1), 0 0 20px rgba(25,118,210,0.15), 0 8px 30px rgba(0,0,0,0.5) !important;
+}
+.tier-casino .game-header { background: linear-gradient(90deg, #0a1628, #0f2744) !important; border-color: #1976d2 !important; }
+.tier-casino .game-player-area { background: #0a1628 !important; border-color: rgba(25,118,210,0.3) !important; }
+.tier-casino .game-opponents { background: #0a1628 !important; }
+.tier-casino .opponent-avatar { border-color: #1976d2 !important; }
+
+/* Tier: VIP Platinum (2000) — meja ungu eksklusif + partikel */
+.table-vip {
+  background: linear-gradient(135deg, #1a0a2e 0%, #2d1b4e 40%, #1a0a2e 100%) !important;
+  border-color: #9b59b6 !important;
+  border-width: 3px !important;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(155,89,182,0.12) 0%, transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(155,89,182,0.08) 0%, transparent 40%),
+    radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,0.15) 0%, transparent 100%),
+    radial-gradient(1px 1px at 30% 60%, rgba(255,255,255,0.1) 0%, transparent 100%),
+    radial-gradient(1px 1px at 50% 40%, rgba(255,255,255,0.12) 0%, transparent 100%),
+    radial-gradient(1px 1px at 70% 80%, rgba(255,255,255,0.08) 0%, transparent 100%),
+    radial-gradient(1px 1px at 90% 30%, rgba(255,255,255,0.1) 0%, transparent 100%) !important;
+  box-shadow: inset 0 0 80px rgba(155,89,182,0.1), 0 0 25px rgba(155,89,182,0.2), 0 8px 40px rgba(0,0,0,0.6) !important;
+}
+.tier-vip .game-header { background: linear-gradient(90deg, #1a0a2e, #2d1b4e) !important; border-color: #9b59b6 !important; }
+.tier-vip .game-player-area { background: #1a0a2e !important; border-color: rgba(155,89,182,0.3) !important; }
+.tier-vip .game-opponents { background: #1a0a2e !important; }
+.tier-vip .opponent-avatar { border-color: #9b59b6 !important; box-shadow: 0 0 8px rgba(155,89,182,0.3) !important; }
+.tier-vip .game-timer-fill { background: linear-gradient(90deg, #9b59b6, #8e44ad) !important; }
+
+/* Tier: Royal High Roller (5000) — meja emas legendaris + efek mewah */
+.table-royal {
+  background: linear-gradient(135deg, #1a1000 0%, #2a1a00 30%, #1a1000 60%, #2a1a00 100%) !important;
+  border: 4px solid !important;
+  border-image: linear-gradient(135deg, #f5c842, #d4a017, #f5c842, #d4a017) 1 !important;
+  background-image:
+    radial-gradient(circle at 50% 50%, rgba(245,200,66,0.08) 0%, transparent 60%),
+    radial-gradient(2px 2px at 15% 25%, rgba(245,200,66,0.2) 0%, transparent 100%),
+    radial-gradient(2px 2px at 35% 55%, rgba(245,200,66,0.15) 0%, transparent 100%),
+    radial-gradient(2px 2px at 55% 35%, rgba(245,200,66,0.18) 0%, transparent 100%),
+    radial-gradient(2px 2px at 75% 65%, rgba(245,200,66,0.12) 0%, transparent 100%),
+    radial-gradient(2px 2px at 85% 20%, rgba(245,200,66,0.2) 0%, transparent 100%),
+    radial-gradient(2px 2px at 25% 80%, rgba(245,200,66,0.1) 0%, transparent 100%),
+    radial-gradient(2px 2px at 65% 15%, rgba(245,200,66,0.15) 0%, transparent 100%) !important;
+  box-shadow: inset 0 0 100px rgba(245,200,66,0.08), 0 0 40px rgba(245,200,66,0.2), 0 0 80px rgba(245,200,66,0.1), 0 12px 50px rgba(0,0,0,0.7) !important;
+  animation: royalTableGlow 4s ease-in-out infinite !important;
+}
+@keyframes royalTableGlow {
+  0%, 100% { box-shadow: inset 0 0 100px rgba(245,200,66,0.06), 0 0 30px rgba(245,200,66,0.15), 0 12px 50px rgba(0,0,0,0.7); }
+  50% { box-shadow: inset 0 0 120px rgba(245,200,66,0.12), 0 0 50px rgba(245,200,66,0.25), 0 0 100px rgba(245,200,66,0.1), 0 12px 50px rgba(0,0,0,0.7); }
+}
+.tier-royal .game-header {
+  background: linear-gradient(90deg, #1a1000, #2a1a00, #1a1000) !important;
+  border-color: var(--gold-warm) !important;
+  border-bottom-width: 2px !important;
+}
+.tier-royal .game-player-area {
+  background: linear-gradient(0deg, #1a1000, #201500) !important;
+  border-color: rgba(245,200,66,0.25) !important;
+}
+.tier-royal .game-opponents { background: #1a1000 !important; border-color: rgba(245,200,66,0.2) !important; }
+.tier-royal .opponent-avatar { border-color: var(--gold-bright) !important; box-shadow: 0 0 12px rgba(245,200,66,0.3) !important; }
+.tier-royal .game-timer-fill { background: var(--gold-gradient) !important; }
+.tier-royal .powerup-slot { border-color: rgba(245,200,66,0.3) !important; }
+.tier-royal .powerup-slot:hover:not(.powerup-slot--disabled) { box-shadow: 0 0 12px rgba(245,200,66,0.3) !important; }
+
 /* ===== ANIMATED PREMIUM SKINS ===== */
 .domino--neon_glow {
   background: #0a0a0a;
