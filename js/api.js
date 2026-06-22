@@ -21,7 +21,15 @@ const ITEMS_CATALOG = {
     { id: 'eyang_hoki', name: 'Eyang Hoki', price: 18000, skill: 'Bonus coin +22% tiap menang', type: 'character' },
     { id: 'master_zen', name: 'Master Zen', price: 22000, skill: 'Bonus coin +25% tiap menang', type: 'character' },
     { id: 'sang_bluffer', name: 'Sang Bluffer', price: 25000, skill: 'Skip tanpa penalty 1x per game', type: 'character' },
-    { id: 'legenda_royale', name: 'Legenda Royale', price: 30000, skill: 'Bonus coin +30% tiap menang', type: 'character' }
+    { id: 'legenda_royale', name: 'Legenda Royale', price: 30000, skill: 'Bonus coin +30% tiap menang', type: 'character' },
+    { id: 'rangga_b', name: 'Rangga B', price: 35000, skill: 'Bonus coin +35% tiap menang', type: 'character' },
+    { id: 'kucing_hoki', name: 'Kucing Hoki', price: 5000, skill: 'Keberuntungan kucing +7% coin', type: 'character' },
+    { id: 'anjing_royal', name: 'Anjing Royal', price: 5000, skill: 'Kesetiaan anjing +7% coin', type: 'character' },
+    { id: 'iron_gaple', name: 'Iron Gaple', price: 20000, skill: 'Armor: blokir 1 power-up lawan', type: 'character' },
+    { id: 'spider_domino', name: 'Spider Domino', price: 20000, skill: 'Sensor: lihat jumlah kartu valid lawan', type: 'character' },
+    { id: 'kapten_royale', name: 'Kapten Royale', price: 22000, skill: 'Pemimpin: +20% coin untuk semua mode', type: 'character' },
+    { id: 'thor_meja', name: 'Thor Meja', price: 25000, skill: 'Petir: double coin saat streak 3+', type: 'character' },
+    { id: 'hulk_smash', name: 'Hulk Smash', price: 28000, skill: 'Smash: paksa lawan buang 1 kartu acak', type: 'character' }
   ],
   skins: [
     { id: 'classic', name: 'Classic Ivory', price: 0, type: 'skin' },
@@ -37,7 +45,12 @@ const ITEMS_CATALOG = {
     { id: 'emerald', name: 'Emerald Felt', price: 9000, type: 'skin' },
     { id: 'rainbow_unicorn', name: 'Rainbow Unicorn', price: 10000, type: 'skin' },
     { id: 'royal_gold', name: 'Royal Gold', price: 12000, type: 'skin' },
-    { id: 'golden_luxury', name: 'Golden Luxury', price: 15000, type: 'skin' }
+    { id: 'golden_luxury', name: 'Golden Luxury', price: 15000, type: 'skin' },
+    { id: 'neon_glow', name: 'Neon Glow', price: 18000, type: 'skin' },
+    { id: 'fire_blaze', name: 'Fire Blaze', price: 20000, type: 'skin' },
+    { id: 'ice_frost', name: 'Ice Frost', price: 20000, type: 'skin' },
+    { id: 'galaxy_star', name: 'Galaxy Star', price: 25000, type: 'skin' },
+    { id: 'rainbow_shift', name: 'Rainbow Shift', price: 30000, type: 'skin' }
   ],
   powerups: [
     { id: 'shuffle', name: 'Shuffle', price: 50, iconId: 'icon_shuffle', desc: 'Acak ulang kartu di tangan (1x per game)', maxStock: 99, type: 'powerup' },
