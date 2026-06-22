@@ -248,10 +248,16 @@ export function render(container) {
                    <button class="btn btn-ghost btn-sm" id="btn-side-cancel">Batal</button>
                  </div>`
               : validMoves.length === 0
-                ? '<button class="btn btn-secondary" id="btn-pass">PASS</button>'
+                ? '<button class="btn btn-secondary" id="btn-pass" style="width:100%;max-width:250px;">PASS</button>'
                 : gs.selectedCard !== null
-                  ? '<button class="btn btn-primary" id="btn-play">TARUH KARTU</button>'
-                  : '<span class="text-sm text-secondary">Pilih kartu untuk dimainkan</span>'
+                  ? `<div style="display:flex;gap:12px;width:100%;justify-content:center;max-width:400px;">
+                       <button class="btn btn-secondary" id="btn-pass" style="flex:1;">SKIP</button>
+                       <button class="btn btn-primary" id="btn-play" style="flex:2;">TARUH KARTU</button>
+                     </div>`
+                  : `<div style="display:flex;flex-direction:column;align-items:center;gap:8px;width:100%;">
+                       <button class="btn btn-secondary" id="btn-pass" style="width:100%;max-width:200px;">SKIP</button>
+                       <span class="text-sm text-secondary">Pilih kartu untuk dimainkan</span>
+                     </div>`
             }
             ${!gs.passiveUsed.sang_bluffer && user.activeCharacter === 'sang_bluffer' && validMoves.length === 0
               ? '<button class="btn btn-secondary btn-sm" id="btn-bluffer-skip" style="margin-left:var(--sp-2);">Skip (Bluffer)</button>'
@@ -809,7 +815,13 @@ export function render(container) {
       </svg>
     `;
 
-    const bannerText = reason === 'gaple' ? (isWinner ? 'KEMENANGAN GAPLE SEMPURNA!' : 'TERBLOKIR (GAPLE)') : (isWinner ? 'KARTU HABIS!' : 'GAME SELESAI');
+    const bannerText = reason === 'gaple' 
+      ? (isWinner ? 'KEMENANGAN GAPLE SEMPURNA!' : 'TERBLOKIR (GAPLE)') 
+      : reason === 'timeout'
+        ? (isWinner ? 'LAWAN WAKTU HABIS (MENANG AUTO)!' : 'KAMU WAKTU HABIS (KALAH AUTO)!')
+        : reason === 'disconnect'
+          ? (isWinner ? 'LAWAN KELUAR GAME (MENANG AUTO)!' : 'KAMU KELUAR GAME (KALAH AUTO)!')
+          : (isWinner ? 'KARTU HABIS!' : 'GAME SELESAI');
 
     const starDecoration = isWinner ? `
       <div style="display:flex;gap:8px;margin:var(--sp-2) 0;align-items:center;">
@@ -985,12 +997,12 @@ export function render(container) {
     });
 
     renderGame();
-    showCardReveal(winnerIdx, () => {
+    showCardReveal(winnerIdx, reason, () => {
       showGameOverPopup(isWinner, coinResult.total, user.activeCharacter, reason);
     });
   }
 
-  function showCardReveal(winnerIdx, onDone) {
+  function showCardReveal(winnerIdx, reason, onDone) {
     const myIdx = isRealPvP ? gs.myPlayerIndex : 0;
     const overlay = document.createElement('div');
     overlay.style.cssText = `
@@ -1001,7 +1013,13 @@ export function render(container) {
       padding:var(--sp-5);opacity:0;transition:opacity 0.4s ease;
     `;
 
-    const title = gs.hands[winnerIdx]?.length === 0 ? 'KARTU HABIS!' : 'GAPLE! SEMUA TERBLOKIR';
+    const title = reason === 'timeout'
+      ? 'WAKTU HABIS!'
+      : reason === 'disconnect'
+        ? 'PEMAIN KELUAR!'
+        : gs.hands[winnerIdx]?.length === 0 
+          ? 'KARTU HABIS!' 
+          : 'GAPLE! SEMUA TERBLOKIR';
 
     let cardsHtml = '';
     gs.players.forEach((p, idx) => {
@@ -1277,7 +1295,7 @@ export function render(container) {
 
       renderGame();
       const pvpWinnerIdx = gs.players.findIndex(p => p.id === data.winner);
-      showCardReveal(pvpWinnerIdx >= 0 ? pvpWinnerIdx : 0, () => {
+      showCardReveal(pvpWinnerIdx >= 0 ? pvpWinnerIdx : 0, data.reason, () => {
         showGameOverPopup(isWinner, myCoins, user.activeCharacter, data.reason, myRankedInfo);
       });
     });

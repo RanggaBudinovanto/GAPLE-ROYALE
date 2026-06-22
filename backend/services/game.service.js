@@ -90,6 +90,16 @@ module.exports = function (io) {
           socket.emit('waiting', { message: 'Menunggu pemain lain bergabung...' });
           return;
         }
+      } else {
+        // Player reconnecting, clear forfeit timer if it exists
+        if (game.forfeitTimers && game.forfeitTimers.has(payload.userId)) {
+          clearTimeout(game.forfeitTimers.get(payload.userId));
+          game.forfeitTimers.delete(payload.userId);
+          console.log(`[reconnect] Player ${socket.username} reconnected. Forfeit timer cleared.`);
+          
+          // Resume turn timer
+          startTurnTimer(gameNsp, roomId, game);
+        }
       }
 
       // ── Send personalized game_start to this player ───────────────────
@@ -111,6 +121,13 @@ module.exports = function (io) {
       });
 
       emitGameState(gameNsp, roomId, game);
+
+      // Start turn timer if all human players are connected
+      const humanPlayers = game.players.filter(p => !p.isBot);
+      const connectedCount = humanPlayers.filter(p => roomConnections.get(roomId)?.has(p.id)).length;
+      if (connectedCount === humanPlayers.length) {
+        startTurnTimer(gameNsp, roomId, game);
+      }
 
       // If current turn is a bot, trigger bot play
       if (game.players[game.currentTurn].isBot) {
@@ -138,6 +155,9 @@ module.exports = function (io) {
       placeOnBoard(game, played, side);
       game.consecutivePasses = 0;
 
+      if (!game.consecutiveTimeouts) game.consecutiveTimeouts = {};
+      game.consecutiveTimeouts[socket.userId] = 0;
+
       gameNsp.to(roomId).emit('card_played', {
         playerId: socket.userId, card: played, side,
         newBoard: { left: game.boardLeft, right: game.boardRight, chain: game.boardChain }
@@ -156,6 +176,10 @@ module.exports = function (io) {
       if (game.players[game.currentTurn].id !== socket.userId) return;
 
       game.consecutivePasses++;
+
+      if (!game.consecutiveTimeouts) game.consecutiveTimeouts = {};
+      game.consecutiveTimeouts[socket.userId] = 0;
+
       gameNsp.to(roomId).emit('player_passed', { playerId: socket.userId, reason: 'no_valid_moves' });
 
       if (game.consecutivePasses >= game.players.length) {
@@ -222,8 +246,34 @@ module.exports = function (io) {
     });
 
     socket.on('disconnect', () => {
-      if (socket.roomId && roomConnections.has(socket.roomId)) {
-        roomConnections.get(socket.roomId).delete(socket.userId);
+      const roomId = socket.roomId;
+      const userId = socket.userId;
+      if (roomId && roomConnections.has(roomId)) {
+        const roomMap = roomConnections.get(roomId);
+        if (userId) roomMap.delete(userId);
+
+        const game = activeGames.get(roomId);
+        if (game && !game.gameOver) {
+          const player = game.players.find(p => p.id === userId);
+          if (player && !player.isBot) {
+            console.log(`[disconnect] Player ${player.username} disconnected. Starting 5s forfeit timer...`);
+            
+            // Clear turn timer if it was their turn
+            if (game.turnTimeout) {
+              clearTimeout(game.turnTimeout);
+              game.turnTimeout = null;
+            }
+
+            if (!game.forfeitTimers) game.forfeitTimers = new Map();
+            
+            const forfeitTimer = setTimeout(() => {
+              console.log(`[forfeit] Player ${player.username} did not reconnect in time. Forfeiting.`);
+              handleForfeit(gameNsp, roomId, game, userId, 'disconnect');
+            }, 5000);
+
+            game.forfeitTimers.set(userId, forfeitTimer);
+          }
+        }
       }
     });
   });
@@ -323,7 +373,122 @@ function placeOnBoard(game, card, side) {
   }
 }
 
+function startTurnTimer(nsp, roomId, game) {
+  if (game.turnTimeout) {
+    clearTimeout(game.turnTimeout);
+    game.turnTimeout = null;
+  }
+
+  const currentTurnPlayer = game.players[game.currentTurn];
+  if (!currentTurnPlayer || currentTurnPlayer.isBot) return;
+
+  // 30 seconds turn timer + 2 seconds lag buffer
+  game.turnTimeout = setTimeout(() => {
+    handleTurnTimeout(nsp, roomId, game);
+  }, 32000);
+}
+
+function handleTurnTimeout(nsp, roomId, game) {
+  const currentTurnPlayer = game.players[game.currentTurn];
+  if (!currentTurnPlayer) return;
+
+  console.log(`[timeout] Player ${currentTurnPlayer.username} turn timed out.`);
+
+  if (!game.consecutiveTimeouts) game.consecutiveTimeouts = {};
+  game.consecutiveTimeouts[currentTurnPlayer.id] = (game.consecutiveTimeouts[currentTurnPlayer.id] || 0) + 1;
+
+  // If player times out 2 consecutive times, they forfeit
+  if (game.consecutiveTimeouts[currentTurnPlayer.id] >= 2) {
+    console.log(`[forfeit] Player ${currentTurnPlayer.username} forfeited due to 2 consecutive timeouts.`);
+    handleForfeit(nsp, roomId, game, currentTurnPlayer.id, 'timeout');
+    return;
+  }
+
+  // Otherwise, auto-play a valid card or pass (skip)
+  const hand = game.hands[game.currentTurn];
+  const validMoves = getValidMoves(hand, game.boardLeft, game.boardRight);
+
+  if (validMoves.length === 0) {
+    game.consecutivePasses++;
+    nsp.to(roomId).emit('player_passed', { playerId: currentTurnPlayer.id, reason: 'no_valid_moves' });
+
+    if (game.consecutivePasses >= game.players.length) {
+      const winner = determineWinner(game.hands);
+      endGame(nsp, roomId, game, winner, 'gaple');
+      return;
+    }
+    nextTurn(nsp, roomId, game);
+  } else {
+    // Pick the first valid move
+    const move = validMoves[0];
+    const played = game.hands[game.currentTurn].splice(move.index, 1)[0];
+    const side = move.sides[0] === 'first' ? 'left' : move.sides[0];
+    placeOnBoard(game, played, side);
+    game.consecutivePasses = 0;
+
+    nsp.to(roomId).emit('card_played', {
+      playerId: currentTurnPlayer.id, card: played, side,
+      newBoard: { left: game.boardLeft, right: game.boardRight, chain: game.boardChain }
+    });
+
+    if (game.hands[game.currentTurn].length === 0) {
+      endGame(nsp, roomId, game, game.currentTurn, 'hand_empty');
+      return;
+    }
+
+    nextTurn(nsp, roomId, game);
+  }
+}
+
+async function handleForfeit(nsp, roomId, game, loserId, reason) {
+  if (game.gameOver) return;
+  game.gameOver = true;
+
+  // Clear timers
+  if (game.turnTimeout) {
+    clearTimeout(game.turnTimeout);
+    game.turnTimeout = null;
+  }
+  if (game.forfeitTimers) {
+    for (const t of game.forfeitTimers.values()) {
+      clearTimeout(t);
+    }
+    game.forfeitTimers.clear();
+  }
+
+  const loserIdx = game.players.findIndex(p => p.id === loserId);
+  if (loserIdx === -1) return;
+
+  // Determine the winner (non-forfeiting player)
+  let winnerIdx = -1;
+  if (game.players.length === 2) {
+    winnerIdx = loserIdx === 0 ? 1 : 0;
+  } else {
+    // 4 players: find player with minimum pips who did not forfeit
+    let minPips = Infinity;
+    let bestIdx = -1;
+    game.players.forEach((p, i) => {
+      if (p.id === loserId) return;
+      const hand = game.hands[i];
+      const pips = hand.reduce((s, [a, b]) => s + a + b, 0);
+      if (bestIdx === -1 || hand.length < game.hands[bestIdx].length || (hand.length === game.hands[bestIdx].length && pips < minPips)) {
+        bestIdx = i;
+        minPips = pips;
+      }
+    });
+    winnerIdx = bestIdx !== -1 ? bestIdx : (loserIdx === 0 ? 1 : 0);
+  }
+
+  console.log(`[forfeit] Declaring winner index: ${winnerIdx} (${game.players[winnerIdx].username})`);
+  await endGame(nsp, roomId, game, winnerIdx, reason);
+}
+
 function nextTurn(nsp, roomId, game) {
+  if (game.turnTimeout) {
+    clearTimeout(game.turnTimeout);
+    game.turnTimeout = null;
+  }
+
   game.currentTurn = (game.currentTurn + 1) % game.players.length;
 
   nsp.to(roomId).emit('turn_change', {
@@ -331,6 +496,9 @@ function nextTurn(nsp, roomId, game) {
   });
 
   emitGameState(nsp, roomId, game);
+
+  // Start turn timer for the next player
+  startTurnTimer(nsp, roomId, game);
 
   if (game.players[game.currentTurn].isBot) {
     setTimeout(() => botPlay(nsp, roomId, game), 800 + Math.random() * 1200);
@@ -405,6 +573,18 @@ function determineWinner(hands) {
 
 async function endGame(nsp, roomId, game, winnerIdx, reason) {
   game.gameOver = true;
+
+  // Clear any active game timers
+  if (game.turnTimeout) {
+    clearTimeout(game.turnTimeout);
+    game.turnTimeout = null;
+  }
+  if (game.forfeitTimers) {
+    for (const t of game.forfeitTimers.values()) {
+      clearTimeout(t);
+    }
+    game.forfeitTimers.clear();
+  }
 
   const scores = game.players.map((p, i) => ({
     userId: p.id, username: p.username,
