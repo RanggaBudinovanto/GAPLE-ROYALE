@@ -18,7 +18,15 @@ const ITEMS_CATALOG = {
     { id: 'eyang_hoki', name: 'Eyang Hoki', price: 18000, type: 'character' },
     { id: 'master_zen', name: 'Master Zen', price: 22000, type: 'character' },
     { id: 'sang_bluffer', name: 'Sang Bluffer', price: 25000, type: 'character' },
-    { id: 'legenda_royale', name: 'Legenda Royale', price: 30000, type: 'character' }
+    { id: 'legenda_royale', name: 'Legenda Royale', price: 30000, type: 'character' },
+    { id: 'rangga_b', name: 'Rangga B', price: 35000, type: 'character' },
+    { id: 'kucing_hoki', name: 'Kucing Hoki', price: 5000, type: 'character' },
+    { id: 'anjing_royal', name: 'Anjing Royal', price: 5000, type: 'character' },
+    { id: 'iron_gaple', name: 'Iron Gaple', price: 20000, type: 'character' },
+    { id: 'spider_domino', name: 'Spider Domino', price: 20000, type: 'character' },
+    { id: 'kapten_royale', name: 'Kapten Royale', price: 22000, type: 'character' },
+    { id: 'thor_meja', name: 'Thor Meja', price: 25000, type: 'character' },
+    { id: 'hulk_smash', name: 'Hulk Smash', price: 28000, type: 'character' }
   ],
   skins: [
     { id: 'classic', name: 'Classic Ivory', price: 0, type: 'skin' },
@@ -34,7 +42,12 @@ const ITEMS_CATALOG = {
     { id: 'emerald', name: 'Emerald Felt', price: 9000, type: 'skin' },
     { id: 'rainbow_unicorn', name: 'Rainbow Unicorn', price: 10000, type: 'skin' },
     { id: 'royal_gold', name: 'Royal Gold', price: 12000, type: 'skin' },
-    { id: 'golden_luxury', name: 'Golden Luxury', price: 15000, type: 'skin' }
+    { id: 'golden_luxury', name: 'Golden Luxury', price: 15000, type: 'skin' },
+    { id: 'neon_glow', name: 'Neon Glow', price: 18000, type: 'skin' },
+    { id: 'fire_blaze', name: 'Fire Blaze', price: 20000, type: 'skin' },
+    { id: 'ice_frost', name: 'Ice Frost', price: 20000, type: 'skin' },
+    { id: 'galaxy_star', name: 'Galaxy Star', price: 25000, type: 'skin' },
+    { id: 'rainbow_shift', name: 'Rainbow Shift', price: 30000, type: 'skin' }
   ],
   powerups: [
     { id: 'shuffle', name: 'Shuffle', price: 50, maxStock: 99, type: 'powerup' },
@@ -143,6 +156,24 @@ async function purchaseItem(userId, itemId, itemType, quantity = 1) {
   } finally {
     conn.release();
   }
+}
+
+async function updateProfile(userId, username, password) {
+  if (username) {
+    if (username.length < 3 || username.length > 20) return { status: 400, error: 'VALIDATION_ERROR', message: 'Username harus 3-20 karakter' };
+    if (!/^[a-zA-Z0-9_]+$/.test(username)) return { status: 400, error: 'VALIDATION_ERROR', message: 'Username hanya boleh huruf, angka, dan underscore' };
+    const [existing] = await db.query('SELECT id FROM users WHERE username = ? AND id != ?', [username, userId]);
+    if (existing.length > 0) return { status: 400, error: 'USERNAME_TAKEN', message: 'Username sudah digunakan' };
+    await db.query('UPDATE users SET username = ? WHERE id = ?', [username, userId]);
+  }
+  if (password) {
+    if (password.length < 6) return { status: 400, error: 'VALIDATION_ERROR', message: 'Password minimal 6 karakter' };
+    const bcrypt = require('bcryptjs');
+    const hash = await bcrypt.hash(password, 10);
+    await db.query('UPDATE users SET password_hash = ? WHERE id = ?', [hash, userId]);
+  }
+  const [rows] = await db.query('SELECT id, username, email, coin, active_character, active_skin FROM users WHERE id = ?', [userId]);
+  return { status: 200, data: { success: true, user: rows[0] } };
 }
 
 async function setActiveCharacter(userId, characterId) {
@@ -273,5 +304,5 @@ async function updateMissionProgress(userId, missionId, amount = 1) {
 module.exports = {
   getUser, getInventory, purchaseItem, setActiveCharacter, setActiveSkin,
   getStats, claimDailyLogin, getDailyMissions, claimMissionReward, updateMissionProgress,
-  ITEMS_CATALOG, ACHIEVEMENTS, DAILY_MISSIONS
+  updateProfile, ITEMS_CATALOG, ACHIEVEMENTS, DAILY_MISSIONS
 };

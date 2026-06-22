@@ -56,6 +56,31 @@ export function render(container) {
           <span id="profile-coin">0</span>
         </div>
         <div class="text-sm text-secondary">Bergabung: ${formatDate(user.createdAt)}</div>
+        <button class="btn btn-secondary btn-sm" style="margin-top:var(--sp-3);" id="btn-edit-profile">Ubah Profil</button>
+      </div>
+    </div>
+
+    <!-- Edit Profile Panel (hidden by default) -->
+    <div id="edit-profile-panel" class="card" style="display:none;margin-bottom:var(--sp-7);padding:var(--sp-5);">
+      <h3 style="font-family:var(--font-heading);font-size:18px;color:var(--text-gold);margin-bottom:var(--sp-4);">Ubah Profil</h3>
+      <div class="input-group">
+        <label class="input-label">Username Baru</label>
+        <input class="input" type="text" id="edit-username" value="${user.username}" minlength="3" maxlength="20" placeholder="Username baru">
+        <div class="input-error-msg" id="edit-username-error"></div>
+      </div>
+      <div class="input-group">
+        <label class="input-label">Password Baru (kosongkan jika tidak ingin ubah)</label>
+        <input class="input" type="password" id="edit-password" placeholder="Password baru (min 6 karakter)" minlength="6">
+        <div class="input-error-msg" id="edit-password-error"></div>
+      </div>
+      <div class="input-group">
+        <label class="input-label">Konfirmasi Password Baru</label>
+        <input class="input" type="password" id="edit-password-confirm" placeholder="Ulangi password baru">
+        <div class="input-error-msg" id="edit-confirm-error"></div>
+      </div>
+      <div class="flex gap-3" style="margin-top:var(--sp-4);">
+        <button class="btn btn-primary" id="btn-save-profile">SIMPAN</button>
+        <button class="btn btn-ghost" id="btn-cancel-edit">Batal</button>
       </div>
     </div>
 
@@ -143,6 +168,85 @@ export function render(container) {
   countUp(coinEl, user.coin);
   staggerFadeIn('#profile-stats .stat-card');
   staggerFadeIn('#ach-grid .card', { delay: 0.2 });
+
+  // Edit profile handlers
+  const editBtn = content.querySelector('#btn-edit-profile');
+  const editPanel = content.querySelector('#edit-profile-panel');
+  const cancelBtn = content.querySelector('#btn-cancel-edit');
+  const saveBtn = content.querySelector('#btn-save-profile');
+
+  if (editBtn && editPanel) {
+    editBtn.addEventListener('click', () => {
+      editPanel.style.display = editPanel.style.display === 'none' ? 'block' : 'none';
+    });
+  }
+  if (cancelBtn && editPanel) {
+    cancelBtn.addEventListener('click', () => { editPanel.style.display = 'none'; });
+  }
+  if (saveBtn) {
+    saveBtn.addEventListener('click', async () => {
+      const newUsername = content.querySelector('#edit-username').value.trim();
+      const newPassword = content.querySelector('#edit-password').value;
+      const confirmPass = content.querySelector('#edit-password-confirm').value;
+
+      content.querySelectorAll('.input-error-msg').forEach(e => e.textContent = '');
+      content.querySelectorAll('.input').forEach(i => i.classList.remove('input--error'));
+
+      let hasError = false;
+      if (newUsername.length < 3) {
+        content.querySelector('#edit-username-error').textContent = 'Username minimal 3 karakter';
+        content.querySelector('#edit-username').classList.add('input--error');
+        hasError = true;
+      }
+      if (newPassword && newPassword.length < 6) {
+        content.querySelector('#edit-password-error').textContent = 'Password minimal 6 karakter';
+        content.querySelector('#edit-password').classList.add('input--error');
+        hasError = true;
+      }
+      if (newPassword && newPassword !== confirmPass) {
+        content.querySelector('#edit-confirm-error').textContent = 'Password tidak sama';
+        content.querySelector('#edit-password-confirm').classList.add('input--error');
+        hasError = true;
+      }
+      if (hasError) return;
+
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Menyimpan...';
+
+      const body = { username: newUsername };
+      if (newPassword) body.password = newPassword;
+
+      const res = await apiCall('PUT', `/users/${user.id}/profile`, body);
+      if (res.error) {
+        const msg = res.message || 'Gagal menyimpan';
+        if (msg.toLowerCase().includes('username')) {
+          content.querySelector('#edit-username-error').textContent = msg;
+        } else {
+          content.querySelector('#edit-password-error').textContent = msg;
+        }
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'SIMPAN';
+        return;
+      }
+
+      user.username = newUsername;
+      if (res.data?.user) Object.assign(user, res.data.user);
+      state.persistUser();
+
+      // Also update localStorage offline user
+      const { saveUser } = await import('../utils/storage.js');
+      if (saveUser) saveUser(user);
+      if (newPassword) {
+        user.passwordHash = btoa(newPassword);
+        state.persistUser();
+      }
+
+      editPanel.style.display = 'none';
+      renderProfileContent();
+
+      import('../components/toast.js').then(m => m.showToast('Profil berhasil diubah!', 'success'));
+    });
+  }
 
   } // end renderProfileContent
 

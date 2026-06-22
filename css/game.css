@@ -622,6 +622,75 @@
 .domino--rainbow_unicorn .domino-pip { background: #333333; }
 .domino--rainbow_unicorn .domino-divider { background: #ffffff; }
 
+/* ===== ANIMATED PREMIUM SKINS ===== */
+.domino--neon_glow {
+  background: #0a0a0a;
+  border-color: #00ff88;
+  box-shadow: 0 0 8px #00ff88, inset 0 0 8px rgba(0,255,136,0.1);
+  animation: neonPulse 2s ease-in-out infinite;
+}
+.domino--neon_glow .domino-pip { background: #00ff88; box-shadow: 0 0 6px #00ff88; }
+.domino--neon_glow .domino-divider { background: #00ff88; box-shadow: 0 0 4px #00ff88; }
+@keyframes neonPulse {
+  0%, 100% { box-shadow: 0 0 6px #00ff88, inset 0 0 4px rgba(0,255,136,0.1); }
+  50% { box-shadow: 0 0 16px #00ff88, 0 0 30px rgba(0,255,136,0.3), inset 0 0 10px rgba(0,255,136,0.15); }
+}
+
+.domino--fire_blaze {
+  background: linear-gradient(180deg, #1a0000 0%, #4a0000 50%, #8b0000 100%);
+  border-color: #ff4500;
+  box-shadow: 0 0 10px rgba(255,69,0,0.4);
+  animation: fireFlicker 0.8s ease-in-out infinite alternate;
+}
+.domino--fire_blaze .domino-pip { background: #ff6600; box-shadow: 0 0 4px #ff4500; }
+.domino--fire_blaze .domino-divider { background: #ff4500; }
+@keyframes fireFlicker {
+  0% { box-shadow: 0 0 6px rgba(255,69,0,0.3), 0 -2px 8px rgba(255,165,0,0.2); }
+  100% { box-shadow: 0 0 14px rgba(255,69,0,0.6), 0 -4px 16px rgba(255,165,0,0.4); }
+}
+
+.domino--ice_frost {
+  background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 40%, #e0f7fa 100%);
+  border-color: #4dd0e1;
+  box-shadow: 0 0 8px rgba(77,208,225,0.3);
+  animation: iceShimmer 3s ease-in-out infinite;
+}
+.domino--ice_frost .domino-pip { background: #006064; }
+.domino--ice_frost .domino-divider { background: #4dd0e1; }
+@keyframes iceShimmer {
+  0%, 100% { box-shadow: 0 0 6px rgba(77,208,225,0.2); background-position: 0% 50%; }
+  50% { box-shadow: 0 0 18px rgba(77,208,225,0.5), 0 0 30px rgba(77,208,225,0.2); }
+}
+
+.domino--galaxy_star {
+  background: linear-gradient(135deg, #0d0221 0%, #1a0533 30%, #2d1b69 60%, #0d0221 100%);
+  border-color: #9b59b6;
+  box-shadow: 0 0 10px rgba(155,89,182,0.3);
+  animation: galaxyRotate 6s linear infinite;
+  background-size: 200% 200%;
+}
+.domino--galaxy_star .domino-pip { background: #fff; box-shadow: 0 0 4px #fff, 0 0 8px rgba(155,89,182,0.8); }
+.domino--galaxy_star .domino-divider { background: #9b59b6; box-shadow: 0 0 4px #9b59b6; }
+@keyframes galaxyRotate {
+  0% { background-position: 0% 0%; }
+  50% { background-position: 100% 100%; }
+  100% { background-position: 0% 0%; }
+}
+
+.domino--rainbow_shift {
+  background: linear-gradient(90deg, #ff0000, #ff7700, #ffff00, #00ff00, #0000ff, #8b00ff, #ff0000);
+  background-size: 400% 100%;
+  border-color: #fff;
+  box-shadow: 0 0 12px rgba(255,255,255,0.4);
+  animation: rainbowFlow 3s linear infinite;
+}
+.domino--rainbow_shift .domino-pip { background: #fff; box-shadow: 0 0 3px #fff; }
+.domino--rainbow_shift .domino-divider { background: rgba(255,255,255,0.8); }
+@keyframes rainbowFlow {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 400% 50%; }
+}
+
 /* ===== CHAT PANEL ===== */
 .chat-toggle {
   position: fixed;

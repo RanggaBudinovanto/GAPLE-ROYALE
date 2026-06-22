@@ -84,4 +84,15 @@ router.post('/:userId/missions/:missionId/claim', authMiddleware, async (req, re
   }
 });
 
+router.put('/:userId/profile', authMiddleware, async (req, res) => {
+  try {
+    if (req.userId !== req.params.userId) return res.status(403).json({ error: 'FORBIDDEN' });
+    const { username, password } = req.body;
+    const result = await userService.updateProfile(req.params.userId, username, password);
+    res.status(result.status).json(result.data || { error: result.error, message: result.message });
+  } catch (err) {
+    res.status(500).json({ error: 'SERVER_ERROR', message: err.message });
+  }
+});
+
 module.exports = router;

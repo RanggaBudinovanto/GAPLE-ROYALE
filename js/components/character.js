@@ -27,6 +27,14 @@ export function renderCharacter(id, size = 'large') {
     case 'eyang_hoki':   return eyangHoki(w, h, scale);
     case 'master_zen':   return masterZen(w, h, scale);
     case 'legenda_royale': return legendaRoyale(w, h, scale);
+    case 'rangga_b':     return ranggaB(w, h, scale);
+    case 'kucing_hoki':  return kucingHoki(w, h, scale);
+    case 'anjing_royal': return anjingRoyal(w, h, scale);
+    case 'iron_gaple':   return ironGaple(w, h, scale);
+    case 'spider_domino':return spiderDomino(w, h, scale);
+    case 'kapten_royale':return kaptenRoyale(w, h, scale);
+    case 'thor_meja':    return thorMeja(w, h, scale);
+    case 'hulk_smash':   return hulkSmash(w, h, scale);
     default:             return bocahPemula(w, h, scale);
   }
 }
@@ -549,9 +557,161 @@ export function getCharacterName(id) {
     hacker_gaple: 'Hacker Gaple',
     eyang_hoki: 'Eyang Hoki',
     master_zen: 'Master Zen',
-    legenda_royale: 'Legenda Royale'
+    legenda_royale: 'Legenda Royale',
+    rangga_b: 'Rangga B',
+    kucing_hoki: 'Kucing Hoki',
+    anjing_royal: 'Anjing Royal',
+    iron_gaple: 'Iron Gaple',
+    spider_domino: 'Spider Domino',
+    kapten_royale: 'Kapten Royale',
+    thor_meja: 'Thor Meja',
+    hulk_smash: 'Hulk Smash'
   };
   return names[id] || id;
 }
 
+function ranggaB(w, h) {
+  return `<svg viewBox="0 0 120 180" width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
+    <rect x="30" y="92" width="60" height="73" rx="6" fill="#1a1a2e"/>
+    <path d="M50 92 L60 118 L55 92" fill="#16213e"/><path d="M70 92 L60 118 L65 92" fill="#16213e"/>
+    <polygon points="58,92 62,92 63,112 60,117 57,112" fill="#111"/>
+    <rect x="42" y="92" width="36" height="8" rx="2" fill="#fff"/>
+    <ellipse cx="60" cy="60" rx="28" ry="30" fill="#E8C4A0"/>
+    <path d="M32 48 Q36 22 60 20 Q84 22 88 48 Q84 38 72 36 Q60 33 48 36 Q36 40 32 48 Z" fill="#1a1008"/>
+    <circle cx="46" cy="58" r="11" fill="none" stroke="#333" stroke-width="2.2"/>
+    <circle cx="74" cy="58" r="11" fill="none" stroke="#333" stroke-width="2.2"/>
+    <line x1="57" y1="58" x2="63" y2="58" stroke="#333" stroke-width="2"/>
+    <line x1="35" y1="56" x2="32" y2="53" stroke="#333" stroke-width="1.5"/>
+    <line x1="85" y1="56" x2="88" y2="53" stroke="#333" stroke-width="1.5"/>
+    <circle cx="46" cy="58" r="3.5" fill="#1a1008"/><circle cx="74" cy="58" r="3.5" fill="#1a1008"/>
+    <circle cx="47" cy="57" r="1.2" fill="#fff"/><circle cx="75" cy="57" r="1.2" fill="#fff"/>
+    <path d="M52 74 Q60 80 68 74" stroke="#c0392b" stroke-width="1.5" fill="none"/>
+    <ellipse cx="22" cy="115" rx="12" ry="8" fill="#E8C4A0" transform="rotate(-10 22 115)"/>
+    <ellipse cx="98" cy="115" rx="12" ry="8" fill="#E8C4A0" transform="rotate(10 98 115)"/>
+  </svg>`;
+}
 
+function kucingHoki(w, h) {
+  return `<svg viewBox="0 0 120 180" width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
+    <rect x="35" y="95" width="50" height="65" rx="12" fill="#F5A623"/>
+    <ellipse cx="60" cy="62" rx="30" ry="28" fill="#F5A623"/>
+    <polygon points="32,45 38,18 50,42" fill="#F5A623"/><polygon points="88,45 82,18 70,42" fill="#F5A623"/>
+    <polygon points="35,42 39,22 48,40" fill="#FFD1DC"/><polygon points="85,42 81,22 72,40" fill="#FFD1DC"/>
+    <ellipse cx="46" cy="58" rx="6" ry="7" fill="#fff"/><ellipse cx="74" cy="58" rx="6" ry="7" fill="#fff"/>
+    <ellipse cx="46" cy="60" rx="3" ry="5" fill="#2ecc71"/><ellipse cx="74" cy="60" rx="3" ry="5" fill="#2ecc71"/>
+    <circle cx="46" cy="58" r="1.5" fill="#000"/><circle cx="74" cy="58" r="1.5" fill="#000"/>
+    <ellipse cx="60" cy="72" rx="4" ry="3" fill="#FFB6C1"/>
+    <path d="M56 75 Q60 80 64 75" stroke="#333" stroke-width="1" fill="none"/>
+    <line x1="30" y1="65" x2="15" y2="60" stroke="#333" stroke-width="1"/><line x1="30" y1="68" x2="15" y2="68" stroke="#333" stroke-width="1"/>
+    <line x1="90" y1="65" x2="105" y2="60" stroke="#333" stroke-width="1"/><line x1="90" y1="68" x2="105" y2="68" stroke="#333" stroke-width="1"/>
+    <path d="M85 160 Q90 170 95 160" stroke="#F5A623" stroke-width="4" fill="none"/>
+    <rect x="88" y="108" width="14" height="24" rx="2" fill="#f5f0e8" stroke="#d4b896" stroke-width="1" transform="rotate(8 95 120)"/>
+  </svg>`;
+}
+
+function anjingRoyal(w, h) {
+  return `<svg viewBox="0 0 120 180" width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
+    <rect x="35" y="95" width="50" height="65" rx="10" fill="#8B4513"/>
+    <rect x="42" y="95" width="36" height="10" rx="3" fill="#d4a017"/>
+    <ellipse cx="60" cy="62" rx="30" ry="28" fill="#D2691E"/>
+    <ellipse cx="42" cy="52" rx="14" ry="18" fill="#8B4513" transform="rotate(-15 42 52)"/>
+    <ellipse cx="78" cy="52" rx="14" ry="18" fill="#8B4513" transform="rotate(15 78 52)"/>
+    <circle cx="48" cy="58" r="5" fill="#fff"/><circle cx="72" cy="58" r="5" fill="#fff"/>
+    <circle cx="48" cy="59" r="3" fill="#1a1008"/><circle cx="72" cy="59" r="3" fill="#1a1008"/>
+    <circle cx="49" cy="57" r="1" fill="#fff"/><circle cx="73" cy="57" r="1" fill="#fff"/>
+    <ellipse cx="60" cy="72" rx="8" ry="6" fill="#1a1008"/>
+    <circle cx="57" cy="71" r="1.5" fill="#D2691E"/><circle cx="63" cy="71" r="1.5" fill="#D2691E"/>
+    <path d="M54 78 Q60 84 66 78" stroke="#c0392b" stroke-width="2" fill="none"/>
+    <polygon points="55,15 60,8 65,15" fill="#d4a017"/>
+  </svg>`;
+}
+
+function ironGaple(w, h) {
+  return `<svg viewBox="0 0 120 180" width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
+    <rect x="30" y="90" width="60" height="75" rx="8" fill="#c0392b"/>
+    <rect x="34" y="94" width="52" height="67" rx="6" fill="#e74c3c"/>
+    <circle cx="60" cy="115" r="10" fill="#f1c40f" opacity="0.9"/>
+    <circle cx="60" cy="115" r="6" fill="#fff" opacity="0.5"/>
+    <path d="M28 55 Q30 20 60 15 Q90 20 92 55 Q88 50 80 48 L76 35 L68 45 L60 30 L52 45 L44 35 L40 48 Q32 50 28 55Z" fill="#c0392b"/>
+    <rect x="36" y="50" width="48" height="30" rx="4" fill="#e74c3c"/>
+    <rect x="40" y="55" width="16" height="8" rx="2" fill="#f1c40f"/><rect x="64" y="55" width="16" height="8" rx="2" fill="#f1c40f"/>
+    <rect x="48" y="68" width="24" height="6" rx="2" fill="#95a5a6"/>
+    <ellipse cx="22" cy="115" rx="10" ry="8" fill="#e74c3c"/>
+    <ellipse cx="98" cy="115" rx="10" ry="8" fill="#e74c3c"/>
+    <rect x="12" y="108" width="12" height="6" rx="3" fill="#f1c40f"/>
+    <rect x="96" y="108" width="12" height="6" rx="3" fill="#f1c40f"/>
+  </svg>`;
+}
+
+function spiderDomino(w, h) {
+  return `<svg viewBox="0 0 120 180" width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
+    <rect x="32" y="90" width="56" height="72" rx="6" fill="#c0392b"/>
+    <line x1="60" y1="90" x2="60" y2="162" stroke="#1a1a2e" stroke-width="2"/>
+    <path d="M38 100 Q60 130 82 100" stroke="#1a1a2e" stroke-width="1.5" fill="none"/>
+    <path d="M35 115 Q60 145 85 115" stroke="#1a1a2e" stroke-width="1.5" fill="none"/>
+    <path d="M38 130 Q60 155 82 130" stroke="#1a1a2e" stroke-width="1.5" fill="none"/>
+    <ellipse cx="60" cy="55" rx="26" ry="28" fill="#c0392b"/>
+    <ellipse cx="48" cy="52" rx="10" ry="12" fill="#fff" transform="rotate(-10 48 52)"/>
+    <ellipse cx="72" cy="52" rx="10" ry="12" fill="#fff" transform="rotate(10 72 52)"/>
+    <ellipse cx="48" cy="54" rx="4" ry="6" fill="#1a1008"/><ellipse cx="72" cy="54" rx="4" ry="6" fill="#1a1008"/>
+    <path d="M38 68 L48 72 L52 68 L56 72 L60 68 L64 72 L68 68 L72 72 L82 68" stroke="#1a1a2e" stroke-width="1.5" fill="none"/>
+    <line x1="20" y1="100" x2="32" y2="110" stroke="#c0392b" stroke-width="3"/>
+    <line x1="88" y1="110" x2="100" y2="100" stroke="#c0392b" stroke-width="3"/>
+  </svg>`;
+}
+
+function kaptenRoyale(w, h) {
+  return `<svg viewBox="0 0 120 180" width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
+    <rect x="30" y="90" width="60" height="75" rx="6" fill="#2c3e50"/>
+    <rect x="34" y="90" width="52" height="12" rx="3" fill="#ecf0f1"/>
+    <circle cx="60" cy="120" r="12" fill="#e74c3c"/>
+    <polygon points="55,115 60,108 65,115 62,115 62,128 58,128 58,115" fill="#fff"/>
+    <ellipse cx="60" cy="58" rx="26" ry="28" fill="#FDBCB4"/>
+    <path d="M34 42 Q36 28 60 22 Q84 28 86 42 L82 40 L60 36 L38 40 Z" fill="#2c3e50"/>
+    <rect x="34" y="30" width="52" height="14" rx="4" fill="#2c3e50"/>
+    <rect x="42" y="26" width="36" height="6" rx="2" fill="#ecf0f1"/>
+    <polygon points="56,28 60,22 64,28" fill="#ecf0f1"/>
+    <circle cx="48" cy="58" r="4" fill="#fff"/><circle cx="72" cy="58" r="4" fill="#fff"/>
+    <circle cx="48" cy="59" r="2.5" fill="#2980b9"/><circle cx="72" cy="59" r="2.5" fill="#2980b9"/>
+    <path d="M52 72 Q60 78 68 72" stroke="#c0392b" stroke-width="1.5" fill="none"/>
+    <rect x="8" y="105" width="22" height="6" rx="3" fill="#e74c3c"/>
+    <rect x="90" y="105" width="22" height="6" rx="3" fill="#e74c3c"/>
+  </svg>`;
+}
+
+function thorMeja(w, h) {
+  return `<svg viewBox="0 0 120 180" width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
+    <rect x="28" y="90" width="64" height="75" rx="6" fill="#2c3e50"/>
+    <rect x="32" y="90" width="56" height="8" fill="#95a5a6"/>
+    <circle cx="60" cy="100" r="4" fill="#f1c40f"/>
+    <circle cx="48" cy="100" r="3" fill="#f1c40f"/><circle cx="72" cy="100" r="3" fill="#f1c40f"/>
+    <ellipse cx="60" cy="58" rx="28" ry="30" fill="#FDBCB4"/>
+    <path d="M32 50 Q38 25 60 20 Q82 25 88 50" fill="#f39c12"/>
+    <path d="M30 55 Q32 50 38 52" fill="#f39c12"/><path d="M90 55 Q88 50 82 52" fill="#f39c12"/>
+    <circle cx="48" cy="58" r="4" fill="#fff"/><circle cx="72" cy="58" r="4" fill="#fff"/>
+    <circle cx="48" cy="59" r="2.5" fill="#2980b9"/><circle cx="72" cy="59" r="2.5" fill="#2980b9"/>
+    <rect x="40" y="48" width="14" height="3" rx="1" fill="#f39c12"/><rect x="66" y="48" width="14" height="3" rx="1" fill="#f39c12"/>
+    <path d="M50 72 Q60 80 70 72" stroke="#c0392b" stroke-width="2" fill="none"/>
+    <path d="M52 76 Q60 70 68 76" fill="#c0392b"/>
+    <rect x="95" y="85" width="8" height="40" rx="3" fill="#8B4513"/>
+    <rect x="90" y="78" width="18" height="12" rx="3" fill="#95a5a6"/>
+    <ellipse cx="20" cy="118" rx="14" ry="10" fill="#FDBCB4"/>
+  </svg>`;
+}
+
+function hulkSmash(w, h) {
+  return `<svg viewBox="0 0 120 180" width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
+    <rect x="22" y="85" width="76" height="80" rx="10" fill="#27ae60"/>
+    <rect x="38" y="85" width="44" height="10" rx="3" fill="#7f8c8d" opacity="0.6"/>
+    <ellipse cx="60" cy="55" rx="32" ry="32" fill="#2ecc71"/>
+    <path d="M28 40 Q35 20 60 18 Q85 20 92 40" fill="#1a5e20"/>
+    <rect x="38" y="52" width="16" height="7" rx="2" fill="#fff"/><rect x="66" y="52" width="16" height="7" rx="2" fill="#fff"/>
+    <circle cx="48" cy="55" r="3" fill="#1a1008"/><circle cx="74" cy="55" r="3" fill="#1a1008"/>
+    <rect x="36" y="46" width="20" height="4" rx="1" fill="#1a5e20"/><rect x="64" y="46" width="20" height="4" rx="1" fill="#1a5e20"/>
+    <path d="M46 72 L52 68 L56 72 L60 68 L64 72 L68 68 L74 72" stroke="#1a5e20" stroke-width="2" fill="none"/>
+    <ellipse cx="12" cy="110" rx="16" ry="14" fill="#2ecc71"/>
+    <ellipse cx="108" cy="110" rx="16" ry="14" fill="#2ecc71"/>
+    <rect x="4" y="104" width="16" height="12" rx="4" fill="#27ae60"/>
+    <rect x="100" y="104" width="16" height="12" rx="4" fill="#27ae60"/>
+  </svg>`;
+}
