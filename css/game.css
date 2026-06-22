@@ -950,7 +950,7 @@ body:has(.game-container), body:has(.matchmaking-container) {
   /* Overlapping player hand on mobile */
   .player-hand {
     display: flex;
-    justify-content: center;
+    justify-content: safe center;
     flex-wrap: nowrap !important;
     overflow-x: auto;
     overflow-y: visible !important;

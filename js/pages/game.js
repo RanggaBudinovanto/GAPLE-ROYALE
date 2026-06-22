@@ -1252,7 +1252,9 @@ export function render(container) {
       gs.gameOver = true;
       clearInterval(gs.timerInterval);
       const isWinner = data.winner === user.id;
-      const myCoins = data.coinEarned?.[user.id]?.total || (isWinner ? 200 : 50);
+      const myCoins = (data.coinEarned?.[user.id] && data.coinEarned[user.id].total !== undefined)
+        ? data.coinEarned[user.id].total
+        : (isWinner ? 200 : 50);
       const scores = data.scores || [];
       const streak = isWinner ? (user.stats.currentStreak || 0) + 1 : 0;
 
@@ -1275,6 +1277,9 @@ export function render(container) {
 
       state.set('coin', user.coin);
       state.persistUser();
+
+      // Sync backend balance to ensure client matches backend exactly (handles upfront bet deductions etc.)
+      state.syncWithBackend();
 
       state.set('lastGameResult', {
         scores,
