@@ -476,7 +476,7 @@ async function endGame(nsp, roomId, game, winnerIdx, reason) {
     }
   }
 
-  nsp.to(roomId).emit('game_over', { reason, winner: winnerId, scores, coinEarned, rankedInfo });
+  nsp.to(roomId).emit('game_over', { reason, winner: winnerId, scores, coinEarned, rankedInfo, hands: game.hands });
 
   try {
     if (!winnerId.startsWith('bot_')) {

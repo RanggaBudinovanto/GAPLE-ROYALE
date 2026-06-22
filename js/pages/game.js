@@ -984,7 +984,82 @@ export function render(container) {
     });
 
     renderGame();
-    showGameOverPopup(isWinner, coinResult.total, user.activeCharacter, reason);
+    showCardReveal(winnerIdx, () => {
+      showGameOverPopup(isWinner, coinResult.total, user.activeCharacter, reason);
+    });
+  }
+
+  function showCardReveal(winnerIdx, onDone) {
+    const myIdx = isRealPvP ? gs.myPlayerIndex : 0;
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+      position:fixed;inset:0;z-index:8000;
+      background:rgba(8,10,6,0.92);
+      backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      padding:var(--sp-5);opacity:0;transition:opacity 0.4s ease;
+    `;
+
+    const title = gs.hands[winnerIdx]?.length === 0 ? 'KARTU HABIS!' : 'GAPLE! SEMUA TERBLOKIR';
+
+    let cardsHtml = '';
+    gs.players.forEach((p, idx) => {
+      const isMe = idx === myIdx;
+      const isWin = idx === winnerIdx;
+      const hand = gs.hands[idx] || [];
+      const pipTotal = hand.reduce((s, [a, b]) => s + a + b, 0);
+
+      cardsHtml += `
+        <div style="margin-bottom:var(--sp-5);width:100%;max-width:600px;">
+          <div style="display:flex;align-items:center;gap:var(--sp-3);margin-bottom:var(--sp-3);">
+            <div style="width:36px;height:36px;border-radius:50%;border:2px solid ${isWin ? 'var(--status-win)' : isMe ? 'var(--gold-bright)' : 'var(--border-default)'};overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--bg-surface);flex-shrink:0;">
+              ${renderCharacter(p.activeCharacter, 'tiny')}
+            </div>
+            <div style="flex:1;">
+              <span style="font-family:var(--font-heading);font-size:15px;font-weight:700;color:${isWin ? 'var(--status-win)' : isMe ? 'var(--text-gold)' : 'var(--text-primary)'};">${p.username}</span>
+              ${isWin ? '<span class="badge badge--green" style="margin-left:8px;font-size:9px;">MENANG</span>' : ''}
+            </div>
+            <div style="text-align:right;">
+              <span style="font-family:var(--font-mono);font-size:13px;color:var(--text-secondary);">${hand.length} kartu</span>
+              <span style="font-family:var(--font-mono);font-size:13px;color:var(--text-muted);margin-left:8px;">pip: ${pipTotal}</span>
+            </div>
+          </div>
+          <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:center;padding:var(--sp-3);background:rgba(255,255,255,0.02);border:1px solid ${isWin ? 'rgba(46,204,113,0.3)' : 'var(--border-default)'};border-radius:var(--radius-md);">
+            ${hand.length > 0
+              ? hand.map(([a, b], ci) =>
+                  `<div style="opacity:0;animation:dealCard 0.3s ${ci * 0.08}s ease-out forwards;">
+                    ${renderDomino(a, b, { skin: user.activeSkin, size: 'small' })}
+                  </div>`
+                ).join('')
+              : '<span class="text-muted text-sm" style="padding:8px;">Tidak ada kartu tersisa</span>'
+            }
+          </div>
+        </div>
+      `;
+    });
+
+    overlay.innerHTML = `
+      <div style="text-align:center;margin-bottom:var(--sp-5);">
+        <h2 style="font-family:var(--font-display);font-size:24px;color:var(--text-gold);letter-spacing:0.08em;margin:0 0 var(--sp-2) 0;">${title}</h2>
+        <p style="font-size:13px;color:var(--text-secondary);margin:0;">Kartu semua pemain terbuka</p>
+      </div>
+      <div style="max-height:70vh;overflow-y:auto;width:100%;display:flex;flex-direction:column;align-items:center;">
+        ${cardsHtml}
+      </div>
+      <button class="btn btn-primary btn-lg" id="btn-reveal-continue" style="margin-top:var(--sp-5);letter-spacing:0.08em;font-weight:900;min-width:200px;">LANJUTKAN</button>
+    `;
+
+    document.body.appendChild(overlay);
+    setTimeout(() => { overlay.style.opacity = '1'; }, 50);
+
+    overlay.querySelector('#btn-reveal-continue').addEventListener('click', () => {
+      playClick();
+      overlay.style.opacity = '0';
+      setTimeout(() => {
+        overlay.remove();
+        onDone();
+      }, 400);
+    });
   }
 
   function autoTriggerEmote(playerId, eventType) {
@@ -1194,8 +1269,16 @@ export function render(container) {
         betAmount: gameConfig.betAmount || 0
       });
 
+      // Update opponent hands from server data if available
+      if (data.hands) {
+        data.hands.forEach((h, i) => { if (h) gs.hands[i] = h; });
+      }
+
       renderGame();
-      showGameOverPopup(isWinner, myCoins, user.activeCharacter, data.reason, myRankedInfo);
+      const pvpWinnerIdx = gs.players.findIndex(p => p.id === data.winner);
+      showCardReveal(pvpWinnerIdx >= 0 ? pvpWinnerIdx : 0, () => {
+        showGameOverPopup(isWinner, myCoins, user.activeCharacter, data.reason, myRankedInfo);
+      });
     });
 
     socket.on('error', (err) => {
