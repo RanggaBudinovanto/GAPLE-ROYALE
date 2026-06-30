@@ -1231,4 +1231,68 @@ body:has(.game-container) .sfx-toggle-btn { left: 80px; }
   line-height: 1;
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   MOBILE PERFORMANCE OPTIMIZATIONS
+   Animated box-shadow / background-position / multi-layer gradients
+   are not GPU-compositable and tank frame rate when applied to many
+   elements at once (e.g. 14 dominoes in hand all glowing). On mobile
+   we strip these down to static, cheap styling.
+   ═══════════════════════════════════════════════════════════════ */
+@media (max-width: 767px) {
+  /* Disable per-tile glow animations on premium domino skins —
+     these run on every tile in hand + board simultaneously */
+  .domino--neon_glow,
+  .domino--fire_blaze,
+  .domino--ice_frost,
+  .domino--galaxy_star,
+  .domino--rainbow_shift {
+    animation: none !important;
+    background-position: 0% 0% !important;
+  }
+  .domino--neon_glow { box-shadow: 0 0 4px #00ff88; }
+  .domino--fire_blaze { box-shadow: 0 0 4px rgba(255,69,0,0.4); }
+  .domino--ice_frost { box-shadow: 0 0 4px rgba(77,208,225,0.3); }
+  .domino--galaxy_star { box-shadow: 0 0 4px rgba(155,89,182,0.3); }
+  .domino--rainbow_shift { box-shadow: 0 0 4px rgba(255,255,255,0.3); }
+
+  /* Royal table: drop the animated box-shadow glow + extra gradient
+     layers, keep one flat gold tint */
+  .table-royal {
+    animation: none !important;
+    background-image: radial-gradient(circle at 50% 50%, rgba(245,200,66,0.06) 0%, transparent 60%) !important;
+    box-shadow: inset 0 0 30px rgba(245,200,66,0.06), 0 4px 16px rgba(0,0,0,0.5) !important;
+  }
+  .table-vip {
+    background-image: radial-gradient(circle at 30% 40%, rgba(155,89,182,0.1) 0%, transparent 50%) !important;
+    box-shadow: inset 0 0 20px rgba(155,89,182,0.08), 0 4px 16px rgba(0,0,0,0.4) !important;
+  }
+  .table-casino {
+    box-shadow: inset 0 0 20px rgba(25,118,210,0.06), 0 4px 16px rgba(0,0,0,0.4) !important;
+  }
+
+  /* Reduce/remove backdrop-filter blur — expensive on mobile GPUs,
+     especially layered behind other animated content */
+  .game-over-modal-overlay {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: rgba(8, 10, 6, 0.97) !important;
+  }
+  .emote-popup-inner {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: rgba(8, 10, 6, 0.9) !important;
+  }
+  .card-reveal-overlay {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: rgba(8, 10, 6, 0.97) !important;
+  }
+
+  /* Card reveal: cap deal-stagger animation count so 4-player games
+     (28+ cards revealed) don't queue dozens of simultaneous animations */
+  .card-reveal-overlay [style*="animation: dealCard"] {
+    animation-duration: 0.2s !important;
+  }
+}
+
 

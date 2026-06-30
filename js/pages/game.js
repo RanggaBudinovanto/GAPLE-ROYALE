@@ -1051,6 +1051,7 @@ export function render(container) {
   function showCardReveal(winnerIdx, reason, onDone) {
     const myIdx = isRealPvP ? gs.myPlayerIndex : 0;
     const overlay = document.createElement('div');
+    overlay.className = 'card-reveal-overlay';
     overlay.style.cssText = `
       position:fixed;inset:0;z-index:8000;
       background:rgba(8,10,6,0.92);

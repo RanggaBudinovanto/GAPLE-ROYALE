@@ -558,6 +558,27 @@ export function render(container) {
           color: var(--text-secondary);
           margin-top: 2px;
         }
+
+        /* Mobile perf: backdrop-filter blur is expensive on mobile GPUs,
+           especially layered behind animated radar/timer elements.
+           Swap to near-opaque solid backgrounds below 768px. */
+        @media (max-width: 767px) {
+          .mm-mode-card {
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            background: rgba(16, 21, 13, 0.92);
+          }
+          .searching-overlay {
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            background: rgba(8, 10, 6, 0.97);
+          }
+          .accept-overlay {
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            background: rgba(8, 10, 6, 0.98);
+          }
+        }
       </style>
 
       <!-- Step Header -->
