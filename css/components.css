@@ -734,3 +734,85 @@
     flex: none !important;
   }
 }
+
+/* ===== MATCHMAKING MOBILE SIDEBAR ===== */
+@media (max-width: 767px) {
+  /* Override min/max width set inline on mm-sidebar */
+  .mm-sidebar {
+    min-width: unset !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  /* Accept overlay: stack columns on mobile */
+  .accept-slots-container {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: var(--sp-3) !important;
+  }
+
+  .accept-team-col {
+    flex-direction: row !important;
+    gap: var(--sp-3) !important;
+  }
+
+  .accept-slot-circle {
+    width: 58px !important;
+    height: 58px !important;
+  }
+
+  .accept-timer-ring {
+    width: 110px !important;
+    height: 110px !important;
+  }
+
+  .accept-content-card {
+    padding: var(--sp-4) var(--sp-3) !important;
+  }
+
+  /* Matchmaking mode cards: always 2 columns on mobile (not 1) */
+  .matchmaking-layout .grid-2 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* Lobby slots container: 2 cols on mobile for 4-player */
+  .lobby-slots-container {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Very small screens: mode cards → 1 col */
+  .matchmaking-layout .grid-2 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .accept-team-col {
+    flex-direction: row !important;
+    justify-content: center !important;
+  }
+}
+
+/* ===== GENERAL MOBILE RESPONSIVE FIXES ===== */
+@media (max-width: 767px) {
+  /* Lobby slot cards on mobile */
+  .lobby-slot-card {
+    height: 180px !important;
+  }
+
+  /* Searching overlay radar on mobile: smaller */
+  .searching-overlay .anim-scale-in > div:first-child {
+    width: 120px !important;
+    height: 120px !important;
+  }
+
+  /* Tabs: allow horizontal scroll on very small screens */
+  .tabs {
+    overflow-x: auto;
+    white-space: nowrap;
+    flex-wrap: nowrap;
+    scrollbar-width: none;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab { flex-shrink: 0; }
+}

@@ -572,7 +572,7 @@ export function render(container) {
           <div style="display:flex;align-items:center;gap:var(--sp-3);">
             <div style="width:4px;height:28px;background:var(--gold-gradient);border-radius:2px;flex-shrink:0;"></div>
             <div>
-              <h1 class="text-display text-gold" style="margin:0;font-size:32px;">MATCHMAKING</h1>
+              <h1 class="text-display text-gold" style="margin:0;font-size:clamp(22px, 5vw, 32px);">MATCHMAKING</h1>
               <p class="text-secondary" style="font-size:12px;margin-top:2px;font-family:var(--font-body);">
                 ${step === 'mode' ? 'Pilih mode permainan' : step === 'format' ? 'Pilih jumlah pemain' : step === 'bet_selection' ? 'Tentukan taruhan koin' : 'Kelola lobi pertandingan'}
               </p>
@@ -1377,12 +1377,14 @@ export function render(container) {
       // Simulate only for bot/local games, not PvP
       if (!isRealPvP) {
         const needed = selectedMode === 'fourplayer' ? 4 : 2;
-        if (acceptSeconds === 8) setPlayerReady(1);
         if (needed === 4) {
+          // 4-player: simulate slots 1, 2, 3 at staggered times
+          if (acceptSeconds === 8) setPlayerReady(1);
           if (acceptSeconds === 6) setPlayerReady(2);
           if (acceptSeconds === 4) setPlayerReady(3);
         } else {
-          if (acceptSeconds === 6) setPlayerReady(1);
+          // Duel: simulate slot 1 at second 7
+          if (acceptSeconds === 7) setPlayerReady(1);
         }
       }
 

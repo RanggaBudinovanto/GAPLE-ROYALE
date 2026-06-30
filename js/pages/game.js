@@ -484,7 +484,27 @@ export function render(container) {
   function addChatMessage(username, content) {
     gs.chatMessages.push({ username, content, timestamp: new Date().toISOString() });
     if (gs.chatMessages.length > 50) gs.chatMessages.shift();
-    renderGame();
+
+    // If chat panel is open, do a fast partial update instead of full re-render
+    const chatMsgs = gameEl.querySelector('#chat-messages');
+    if (chatMsgs && gs.chatOpen) {
+      const emoteMatch = content.match(/^\[emote:(\w+)\]$/);
+      const contentHtml = emoteMatch
+        ? `<span class="chat-emote-inline">${renderEmote(emoteMatch[1], 'medium')}</span>`
+        : escapeHtml(content);
+      const msgEl = document.createElement('div');
+      msgEl.className = 'chat-msg';
+      msgEl.innerHTML = `
+        <div class="chat-msg-avatar">${username[0]}</div>
+        <div class="chat-msg-content">
+          <span class="chat-msg-user">${username}</span>
+          <div class="chat-msg-text">${contentHtml}</div>
+        </div>`;
+      chatMsgs.appendChild(msgEl);
+      chatMsgs.scrollTop = chatMsgs.scrollHeight;
+    } else {
+      renderGame();
+    }
   }
 
   function handlePlayCard(cardIndex) {

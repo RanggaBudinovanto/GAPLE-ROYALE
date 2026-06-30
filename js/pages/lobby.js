@@ -64,7 +64,7 @@ export function render(container) {
     </div>
 
     <!-- ═══ MAIN GRID: Missions | Character | Achievements ═══ -->
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--sp-5);align-items:start;">
+    <div class="lobby-main-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--sp-5);align-items:start;">
 
       <!-- Column 1: Daily Missions -->
       <div class="card" style="padding:var(--sp-5);">

@@ -176,3 +176,40 @@ ul, ol { list-style: none; }
 @media (max-width: 767px) {
   #stats-grid { grid-template-columns: 1fr !important; }
 }
+
+/* ===== MOBILE RESPONSIVE: LOBBY / DASHBOARD ===== */
+@media (max-width: 991px) {
+  /* Lobby 3-col grid → 1 col */
+  .lobby-main-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ===== MOBILE RESPONSIVE: GENERAL PAGE TWEAKS ===== */
+@media (max-width: 767px) {
+  .page-container {
+    padding: var(--sp-3);
+  }
+
+  /* Ensure no horizontal overflow on all pages */
+  .page-content > * {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  /* Stack any flex row that wraps on mobile */
+  .mobile-stack {
+    flex-direction: column !important;
+  }
+
+  /* Toast on mobile — full width top */
+  #toast-container {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+  }
+  .toast {
+    max-width: 100%;
+    min-width: unset;
+  }
+}
