@@ -71,6 +71,7 @@ export function render(container) {
     blockedPlayer: -1,
     chatMessages: [],
     chatOpen: false,
+    chatUnread: 0,         // Unread message counter when panel is closed
     pendingSide: null,
     passiveUsed: { si_hoki: false, juragan_meja: false, sang_bluffer: false },
     undoState: null,
@@ -276,7 +277,10 @@ export function render(container) {
       </div>
 
       <!-- Chat Toggle -->
-      <div class="chat-toggle" id="chat-toggle">💬</div>
+      <div class="chat-toggle" id="chat-toggle" style="position:relative">
+        💬
+        ${gs.chatUnread > 0 ? `<span style="position:absolute;top:-4px;right:-4px;background:#e74c3c;color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:bold;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);border:2px solid var(--bg-surface);">${gs.chatUnread > 9 ? '9+' : gs.chatUnread}</span>` : ''}
+      </div>
 
       <!-- Chat Panel -->
       <div class="chat-panel ${gs.chatOpen ? 'chat-panel--open' : ''}" id="chat-panel">
@@ -414,7 +418,16 @@ export function render(container) {
     // Chat
     const chatToggle = gameEl.querySelector('#chat-toggle');
     const chatClose = gameEl.querySelector('#chat-close');
-    if (chatToggle) chatToggle.addEventListener('click', () => { gs.chatOpen = true; renderGame(); });
+    if (chatToggle) chatToggle.addEventListener('click', () => {
+      gs.chatOpen = true;
+      gs.chatUnread = 0; // Clear unread badge when opening
+      renderGame();
+      // Auto-scroll to bottom
+      setTimeout(() => {
+        const msgs = gameEl.querySelector('#chat-messages');
+        if (msgs) msgs.scrollTop = msgs.scrollHeight;
+      }, 50);
+    });
     if (chatClose) chatClose.addEventListener('click', () => { gs.chatOpen = false; renderGame(); });
 
     const chatInput = gameEl.querySelector('#chat-input');
@@ -485,7 +498,7 @@ export function render(container) {
     gs.chatMessages.push({ username, content, timestamp: new Date().toISOString() });
     if (gs.chatMessages.length > 50) gs.chatMessages.shift();
 
-    // If chat panel is open, do a fast partial update instead of full re-render
+    // If chat panel is open: fast partial DOM append (no full re-render)
     const chatMsgs = gameEl.querySelector('#chat-messages');
     if (chatMsgs && gs.chatOpen) {
       const emoteMatch = content.match(/^\[emote:(\w+)\]$/);
@@ -503,7 +516,17 @@ export function render(container) {
       chatMsgs.appendChild(msgEl);
       chatMsgs.scrollTop = chatMsgs.scrollHeight;
     } else {
-      renderGame();
+      // Chat panel closed: increment unread counter and update just the badge
+      gs.chatUnread++;
+      const toggleBtn = gameEl.querySelector('#chat-toggle');
+      if (toggleBtn) {
+        const existing = toggleBtn.querySelector('span');
+        if (existing) existing.remove();
+        const badge = document.createElement('span');
+        badge.style.cssText = 'position:absolute;top:-4px;right:-4px;background:#e74c3c;color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:bold;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);border:2px solid var(--bg-surface);';
+        badge.textContent = gs.chatUnread > 9 ? '9+' : gs.chatUnread;
+        toggleBtn.appendChild(badge);
+      }
     }
   }
 
@@ -527,10 +550,13 @@ export function render(container) {
     // ── PvP: emit to server and let server broadcast ───────────────────────
     if (isRealPvP && gs.pvpSocket && playerIdx === gs.myPlayerIndex) {
       const card = gs.hands[playerIdx][cardIndex];
-      // Optimistic: remove card locally
+      // Optimistic: remove card locally from hand
       gs.hands[playerIdx].splice(cardIndex, 1);
       if (gs.board.chain.length === 0) side = 'first';
-      playCard(gs.board, card, side);
+      
+      // JANGAN update board secara lokal. Biarkan server broadcast 'card_played'
+      // playCard(gs.board, card, side); // Dihapus untuk mencegah desinkronisasi board
+      
       playCardPlace(user.activeSkin || 'classic');
       gs.selectedCard = null;
       gs.pendingSide = null;
@@ -1186,13 +1212,14 @@ export function render(container) {
 
     // ── Another player played a card ───────────────────────────────────────
     socket.on('card_played', (data) => {
-      if (data.playerId === user.id) return; // Already handled locally
-      // Update opponent hand sizes (we don't have their real cards)
       const oppIdx = gs.players.findIndex(p => p.id === data.playerId);
-      if (oppIdx >= 0 && gs.hands[oppIdx] && gs.hands[oppIdx].length > 0) {
-        gs.hands[oppIdx].pop(); // Remove one card visually
+      if (data.playerId !== user.id) {
+        // Update opponent hand sizes (we don't have their real cards)
+        if (oppIdx >= 0 && gs.hands[oppIdx] && gs.hands[oppIdx].length > 0) {
+          gs.hands[oppIdx].pop(); // Remove one card visually
+        }
       }
-      // Update board from server
+      // Update board from server authoritatively for all players
       if (data.newBoard) {
         gs.board.left = data.newBoard.left;
         gs.board.right = data.newBoard.right;
@@ -1254,9 +1281,7 @@ export function render(container) {
     // ── Chat messages from server ──────────────────────────────────────────
     socket.on('chat_message', (data) => {
       if (data.userId === user.id) return; // own message already shown
-      gs.chatMessages.push({ username: data.username, content: data.message, timestamp: data.timestamp });
-      if (gs.chatMessages.length > 50) gs.chatMessages.shift();
-      renderGame();
+      addChatMessage(data.username, data.message);
     });
 
     // ── Emote from server ──────────────────────────────────────────────────
