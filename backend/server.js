@@ -35,7 +35,6 @@ app.use('/api/v1/game',        require('./routes/game.routes'));
 
 app.get('/health', (req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
 
-// Serve static frontend files from parent directory
 const path = require('path');
 app.use(express.static(path.join(__dirname, '..')));
 app.get('*', (req, res, next) => {
@@ -43,14 +42,11 @@ app.get('*', (req, res, next) => {
   res.sendFile(path.join(__dirname, '..', 'index.html'));
 });
 
-// Wire Socket.io instance into matchmaking service for real-time room notifications
 const matchmakingService = require('./services/matchmaking.service');
 matchmakingService.setIO(io);
 
-// Initialize game socket service
 require('./services/game.service')(io);
 
-// Auto-initialize database tables if they don't exist
 async function autoInitDatabase() {
   const db = require('./models/db');
   const fs = require('fs');
@@ -59,7 +55,6 @@ async function autoInitDatabase() {
   try {
     console.log('Checking if database tables exist...');
 
-    // Check if "users" table exists
     const [tables] = await db.query("SHOW TABLES LIKE 'users'");
     if (tables.length === 0) {
       console.log('Table "users" not found. Initializing database schema...');
@@ -68,7 +63,6 @@ async function autoInitDatabase() {
       if (fs.existsSync(sqlPath)) {
         let schema = fs.readFileSync(sqlPath, 'utf8');
 
-        // Remove CREATE DATABASE and USE statements because Railway already manages the database
         schema = schema.replace(/CREATE DATABASE[\s\S]*?USE[\s\S]*?;/i, '');
 
         const statements = schema
@@ -90,7 +84,6 @@ async function autoInitDatabase() {
     } else {
       console.log('Database tables already exist.');
 
-      // Check and add columns that may be missing on older schemas
       try {
         const [userCols] = await db.query("SHOW COLUMNS FROM users LIKE 'rank_points'");
         if (userCols.length === 0) {

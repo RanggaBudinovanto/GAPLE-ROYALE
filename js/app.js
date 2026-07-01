@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initAudio();
   initRouter();
 
-  // Centralized interactive audio feedback (micro-interactions)
   let lastHovered = null;
   document.addEventListener('mouseover', (e) => {
     const target = e.target.closest('button, .btn, .card--interactive, .sidebar-item, .bottom-nav-item, .chat-emoji, .powerup-slot, .domino-wrapper[data-valid="true"], .chat-toggle');

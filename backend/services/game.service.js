@@ -44,7 +44,6 @@ module.exports = function (io) {
       socket.character = data.character || 'bocah_pemula';
       socket.skin = data.skin || 'classic';
 
-      // Notify others in the room
       gameNsp.to(roomId).emit('player_joined_accept', {
         userId: socket.userId,
         username: socket.username,
@@ -70,11 +69,9 @@ module.exports = function (io) {
       socket.character = data.character || 'bocah_pemula';
       socket.skin = data.skin || 'classic';
 
-      // ── Track connected sockets per room ──────────────────────────────
       if (!roomConnections.has(roomId)) roomConnections.set(roomId, new Map());
       roomConnections.get(roomId).set(payload.userId, socket);
 
-      // ── Check if game is already active in memory (with init lock) ────
       let game = activeGames.get(roomId);
       if (!game) {
         if (pendingInits.has(roomId)) {
@@ -91,18 +88,15 @@ module.exports = function (io) {
           return;
         }
       } else {
-        // Player reconnecting, clear forfeit timer if it exists
         if (game.forfeitTimers && game.forfeitTimers.has(payload.userId)) {
           clearTimeout(game.forfeitTimers.get(payload.userId));
           game.forfeitTimers.delete(payload.userId);
           console.log(`[reconnect] Player ${socket.username} reconnected. Forfeit timer cleared.`);
           
-          // Resume turn timer
           startTurnTimer(gameNsp, roomId, game);
         }
       }
 
-      // ── Send personalized game_start to this player ───────────────────
       const playerIdx = game.players.findIndex(p => p.id === payload.userId);
       const myHand = playerIdx >= 0 ? game.hands[playerIdx] : game.hands[0];
 
@@ -122,14 +116,12 @@ module.exports = function (io) {
 
       emitGameState(gameNsp, roomId, game);
 
-      // Start turn timer if all human players are connected
       const humanPlayers = game.players.filter(p => !p.isBot);
       const connectedCount = humanPlayers.filter(p => roomConnections.get(roomId)?.has(p.id)).length;
       if (connectedCount === humanPlayers.length) {
         startTurnTimer(gameNsp, roomId, game);
       }
 
-      // If current turn is a bot, trigger bot play
       if (game.players[game.currentTurn].isBot) {
         setTimeout(() => botPlay(gameNsp, roomId, game), 1000);
       }
@@ -257,8 +249,7 @@ module.exports = function (io) {
           const player = game.players.find(p => p.id === userId);
           if (player && !player.isBot) {
             console.log(`[disconnect] Player ${player.username} disconnected. Starting 5s forfeit timer...`);
-            
-            // Clear turn timer if it was their turn
+   
             if (game.turnTimeout) {
               clearTimeout(game.turnTimeout);
               game.turnTimeout = null;
@@ -279,11 +270,6 @@ module.exports = function (io) {
   });
 };
 
-/**
- * initGame - Load session from DB, deal cards, build player list.
- * Works for both bot games and PvP games.
- * Returns null if session not found or not yet active.
- */
 async function initGame(roomId, io) {
   const [sessions] = await db.query('SELECT * FROM game_sessions WHERE room_id = ?', [roomId]);
   if (sessions.length === 0 || sessions[0].status === 'waiting') return null;
@@ -293,7 +279,6 @@ async function initGame(roomId, io) {
   const set = shuffle(generateDominoSet());
   const handSize = numPlayers === 2 ? 14 : 7;
 
-  // Fetch actual players from DB
   const [dbPlayers] = await db.query(
     'SELECT gp.user_id, gp.position, u.username, u.active_character, u.active_skin FROM game_players gp LEFT JOIN users u ON u.id = gp.user_id WHERE gp.session_id = ? ORDER BY gp.position ASC',
     [session.id]
@@ -307,7 +292,6 @@ async function initGame(roomId, io) {
   for (let i = 0; i < numPlayers; i++) {
     const dbP = dbPlayers[i];
     if (!dbP) {
-      // Slot empty — shouldn't happen, but fallback
       players.push({
         id: `bot_fallback_${i}`,
         username: botNames[i],
@@ -397,14 +381,12 @@ function handleTurnTimeout(nsp, roomId, game) {
   if (!game.consecutiveTimeouts) game.consecutiveTimeouts = {};
   game.consecutiveTimeouts[currentTurnPlayer.id] = (game.consecutiveTimeouts[currentTurnPlayer.id] || 0) + 1;
 
-  // If player times out 2 consecutive times, they forfeit
   if (game.consecutiveTimeouts[currentTurnPlayer.id] >= 2) {
     console.log(`[forfeit] Player ${currentTurnPlayer.username} forfeited due to 2 consecutive timeouts.`);
     handleForfeit(nsp, roomId, game, currentTurnPlayer.id, 'timeout');
     return;
   }
 
-  // Otherwise, auto-play a valid card or pass (skip)
   const hand = game.hands[game.currentTurn];
   const validMoves = getValidMoves(hand, game.boardLeft, game.boardRight);
 
@@ -419,7 +401,6 @@ function handleTurnTimeout(nsp, roomId, game) {
     }
     nextTurn(nsp, roomId, game);
   } else {
-    // Pick the first valid move
     const move = validMoves[0];
     const played = game.hands[game.currentTurn].splice(move.index, 1)[0];
     const side = move.sides[0] === 'first' ? 'left' : move.sides[0];
@@ -444,7 +425,6 @@ async function handleForfeit(nsp, roomId, game, loserId, reason) {
   if (game.gameOver) return;
   game.gameOver = true;
 
-  // Clear timers
   if (game.turnTimeout) {
     clearTimeout(game.turnTimeout);
     game.turnTimeout = null;
@@ -459,12 +439,10 @@ async function handleForfeit(nsp, roomId, game, loserId, reason) {
   const loserIdx = game.players.findIndex(p => p.id === loserId);
   if (loserIdx === -1) return;
 
-  // Determine the winner (non-forfeiting player)
   let winnerIdx = -1;
   if (game.players.length === 2) {
     winnerIdx = loserIdx === 0 ? 1 : 0;
   } else {
-    // 4 players: find player with minimum pips who did not forfeit
     let minPips = Infinity;
     let bestIdx = -1;
     game.players.forEach((p, i) => {
@@ -611,7 +589,6 @@ async function endGame(nsp, roomId, game, winnerIdx, reason) {
     }
   });
 
-  // Calculate Rank Points (RP) changes before emitting game_over
   let isRankedGame = false;
   try {
     const [sessRows] = await db.query('SELECT is_ranked FROM game_sessions WHERE room_id = ?', [roomId]);
@@ -664,7 +641,6 @@ async function endGame(nsp, roomId, game, winnerIdx, reason) {
       const earned = coinEarned[winnerId]?.total || 0;
       await db.query('UPDATE users SET coin = coin + ? WHERE id = ?', [earned, winnerId]);
 
-      // Record transaction log for PvP winner
       const [uRows] = await db.query('SELECT coin FROM users WHERE id = ?', [winnerId]);
       const balanceAfter = uRows[0]?.coin || 0;
       const isBetting = betAmount > 0;
